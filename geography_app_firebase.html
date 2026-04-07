@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>География 8</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ══════════════════════════════════════════════
+  🔥 FIREBASE SETUP — өз мәндеріңізді қойыңыз!
+  
+  1. https://console.firebase.google.com/ → Жаңа жоба
+  2. Authentication → Sign-in method → Email/Password → ҚОСУ
+  3. Realtime Database → Деректер базасы жасау → Test mode
+  4. Жоба параметрлері (⚙️) → Веб қолданба → Config-ті алыңыз
+  5. Төмендегі firebaseConfig-ті алмастырыңыз
+══════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyArwDELpm7FMM6WLS7VyDYnpc_1HoRhw_4",
+    authDomain: "geoapp8.firebaseapp.com",
+    databaseURL: "https://geoapp8-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "geoapp8",
+    storageBucket: "geoapp8.firebasestorage.app",
+    messagingSenderId: "953761935267",
+    appId: "1:953761935267:web:400863a9ec16bfb41bb416",
+    measurementId: "G-TNZKCFDT6C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // Global-ға шығарамыз (ескі JS кодымен байланысу үшін)
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbFns = { set, get, ref, update, onValue,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    signOut, onAuthStateChanged };
+
+  // Auth state listener
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Firebase user бар — профильді тек оқу
+      const snap = await get(ref(db, 'users/' + user.uid));
+      if (snap.exists()) {
+        const data = snap.val();
+        window._fbUser = { uid: user.uid, email: user.email, ...data };
+        startSession(window._fbUser);
+      } else {
+        // Профиль жоқ — жаңа дерек
+        window._fbUser = { uid: user.uid, email: user.email, login: user.email.split('@')[0], cls: '', isAdmin: false };
+        await set(ref(db, 'users/' + user.uid), { login: window._fbUser.login, cls: '', isAdmin: false, createdAt: Date.now() });
+        startSession(window._fbUser);
+      }
+    } else {
+      window._fbUser = null;
+      showAuthScreen();
+    }
+  });
+</script>
+
+<style>
+:root{
+  --g:#16a34a;--gd:#14532d;--gl:#4ade80;--gll:#dcfce7;
+  --acc:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+  --bg:#f0fdf4;--card:#fff;--text:#14532d;--muted:#6b7280;
+  --shadow:0 4px 24px rgba(22,163,74,.12);--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+.screen{display:none;min-height:100vh;padding-bottom:80px;}
+.screen.active{display:block;}
+
+/* LOADING */
+#loadingScreen{background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
+.spin{width:44px;height:44px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-txt{color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;opacity:.8;}
+
+/* AUTH */
+#authScreen{background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;min-height:100vh;padding-bottom:32px;}
+.auth-logo{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;}
+.auth-sub{color:rgba(255,255,255,.75);font-size:13px;margin-bottom:28px;text-align:center;}
+.auth-card{background:#fff;border-radius:24px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.auth-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--gd);margin-bottom:20px;text-align:center;}
+.inp-wrap{margin-bottom:14px;}
+.inp-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.inp{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border .2s;background:#fff;}
+.inp:focus{border-color:var(--g);}
+.btn{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;}
+.btn:active{transform:scale(.97);}
+.btn-g{background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;margin-top:6px;}
+.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--muted);}
+.auth-switch b{color:var(--g);cursor:pointer;font-weight:800;}
+.auth-err{color:var(--red);font-size:12px;text-align:center;margin-top:6px;min-height:16px;font-weight:700;}
+.firebase-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;color:rgba(255,255,255,.6);font-size:11px;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,var(--gd),var(--g));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(0,0,0,.2);}
+.hrow{display:flex;align-items:center;gap:10px;}
+.hback{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.hback.show{display:flex;}
+.htitle{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;flex:1;text-align:center;line-height:1.2;}
+.hlang{background:var(--acc);border:none;color:#1a1a1a;font-family:'Unbounded',sans-serif;font-weight:700;font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;flex-shrink:0;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #e5e7eb;display:flex;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 0 11px;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border:none;background:none;font-family:'Nunito',sans-serif;letter-spacing:.3px;transition:color .2s;}
+.nb.act{color:var(--g);}
+.nb-icon{font-size:22px;margin-bottom:2px;}
+
+/* BANNER */
+.banner{background:linear-gradient(150deg,var(--gd) 0%,var(--g) 60%,#ca8a04 100%);color:#fff;padding:24px 18px 30px;position:relative;overflow:hidden;}
+.banner::before{content:'🌍';font-size:90px;position:absolute;top:-10px;right:-10px;opacity:.09;}
+.banner h2{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;margin-bottom:5px;}
+.banner p{font-size:12px;opacity:.8;}
+.bstats{display:flex;gap:10px;margin-top:16px;}
+.bstat{background:rgba(255,255,255,.15);border-radius:12px;padding:9px 12px;flex:1;text-align:center;}
+.bstat-n{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;}
+.bstat-l{font-size:10px;opacity:.8;margin-top:1px;}
+
+/* SECTION LABEL */
+.slabel{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:16px 16px 7px;}
+
+/* TOPIC LIST */
+.tlist{padding:0 12px 8px;display:flex;flex-direction:column;gap:8px;}
+.tcard{background:var(--card);border-radius:var(--r);padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:var(--shadow);border-left:4px solid var(--gl);transition:transform .15s;}
+.tcard:active{transform:scale(.98);}
+.tcard.done{border-left-color:var(--acc);}
+.tnum{background:var(--g);color:#fff;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+.tcard.done .tnum{background:var(--acc);}
+.tinfo{flex:1;}
+.ttitle{font-weight:700;font-size:13px;line-height:1.3;margin-bottom:3px;}
+.tmeta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.badge{background:var(--gll);color:var(--g);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.badge.done{background:#fef3c7;color:#b45309;}
+
+/* DETAIL */
+.dwrap{padding:18px 15px 24px;}
+.det-badge{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:9px;}
+.det-title{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;color:var(--gd);margin-bottom:12px;line-height:1.3;}
+.det-body{font-size:14px;line-height:1.85;color:#374151;}
+.det-body p{margin-bottom:12px;}
+.det-body strong{color:var(--gd);}
+.fact-box{background:var(--gll);border-left:4px solid var(--gl);border-radius:10px;padding:11px 13px;margin:12px 0;font-size:13px;}
+.fact-title{font-weight:800;color:var(--gd);margin-bottom:4px;font-size:12px;}
+
+/* TASK */
+.tsec{margin-top:16px;background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);}
+.thead{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--gd);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tq{font-size:14px;font-weight:700;color:var(--text);margin-bottom:11px;line-height:1.4;}
+.opt{width:100%;text-align:left;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;margin-bottom:7px;transition:all .2s;color:var(--text);}
+.opt.correct{border-color:var(--g)!important;background:var(--gll)!important;color:var(--gd)!important;font-weight:700;}
+.opt.wrong{border-color:var(--red)!important;background:#fef2f2!important;color:var(--red)!important;}
+.opt:disabled{cursor:default;}
+.open-inp{width:100%;min-height:88px;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;resize:none;outline:none;color:var(--text);}
+.open-inp:focus{border-color:var(--g);}
+.tsub{margin-top:9px;padding:12px;border:none;border-radius:12px;background:var(--g);color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:100%;cursor:pointer;}
+.tres{margin-top:9px;padding:11px;border-radius:12px;text-align:center;font-weight:700;font-size:13px;}
+.tres.ok{background:var(--gll);color:var(--gd);}
+.tres.ko{background:#fef2f2;color:var(--red);}
+.schip{display:inline-flex;align-items:center;gap:3px;background:var(--acc);color:#fff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;}
+
+/* MAP TASK */
+.map-wrap{position:relative;border-radius:12px;overflow:hidden;border:2px solid #e5e7eb;margin-bottom:10px;background:#e8f4f8;}
+.map-wrap img{width:100%;display:block;user-select:none;}
+.map-dot{position:absolute;width:28px;height:28px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s;}
+.map-dot:hover{transform:translate(-50%,-50%) scale(1.2);}
+.map-dot.unanswered{background:var(--acc);}
+.map-dot.answered-ok{background:var(--g);}
+.map-dot.answered-ko{background:var(--red);}
+.map-opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.map-opt{padding:8px 13px;border:2px solid #e5e7eb;border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.map-opt.selected{border-color:var(--g);background:var(--gll);color:var(--gd);}
+.map-inst{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+
+/* PROFILE */
+.phero{background:linear-gradient(135deg,var(--gd),var(--g));color:#fff;padding:28px 20px 22px;text-align:center;}
+.avatar{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px;}
+.pname{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px;}
+.pcls{font-size:12px;opacity:.8;}
+.pstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:14px;}
+.pstat{background:var(--card);border-radius:13px;padding:12px 8px;text-align:center;box-shadow:var(--shadow);}
+.pstat-n{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:900;color:var(--g);}
+.pstat-l{font-size:10px;color:var(--muted);margin-top:2px;font-weight:700;}
+.done-item{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.done-title{font-size:12px;font-weight:700;}
+.done-pts{font-size:11px;color:var(--muted);}
+.logout-btn{margin:4px 16px 16px;padding:13px;border:2px solid var(--red);border-radius:13px;background:transparent;color:var(--red);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:calc(100% - 32px);cursor:pointer;}
+
+/* ADMIN */
+.adm-wrap{padding:14px;}
+.adm-sec{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.adm-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--gd);margin-bottom:12px;}
+.adm-row{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #f3f4f6;}
+.adm-row:last-child{border-bottom:none;}
+.adm-nm{flex:1;font-size:13px;font-weight:600;}
+.abtn{padding:6px 11px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.aedit{background:var(--gll);color:var(--gd);}
+.adel{background:#fef2f2;color:var(--red);}
+.adm-add{width:100%;padding:11px;border:2px dashed var(--gl);border-radius:11px;background:transparent;color:var(--g);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:7px;}
+.adm-inp{width:100%;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:14px;outline:none;margin-bottom:9px;color:var(--text);background:#fff;}
+.adm-inp:focus{border-color:var(--g);}
+.adm-ta{width:100%;min-height:75px;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:none;margin-bottom:9px;color:var(--text);background:#fff;}
+.adm-ta:focus{border-color:var(--g);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:22px 18px 30px;width:100%;max-height:85vh;overflow-y:auto;}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--gd);margin-bottom:16px;}
+.modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin-top:-4px;}
+.hidden{display:none!important;}
+
+/* SYNC INDICATOR */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-left:6px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.offline-banner{background:#fef3c7;border-bottom:1px solid #fde68a;padding:7px 14px;font-size:11px;font-weight:700;color:#92400e;text-align:center;display:none;}
+.offline-banner.show{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOADING ═══ -->
+<div id="loadingScreen" class="screen active">
+  <div class="spin"></div>
+  <div class="load-txt">🔥 Firebase жүктелуде...</div>
+</div>
+
+<!-- ═══ AUTH ═══ -->
+<div id="authScreen" class="screen">
+  <div class="auth-logo">🌍 ГЕО 8</div>
+  <div class="auth-sub">8-сынып Geography қолданбасы</div>
+  <div class="auth-card">
+    <div class="auth-title" id="authTitle">Жүйеге кіру</div>
+    <div class="inp-wrap">
+      <label class="inp-label">Email немесе логин</label>
+      <input class="inp" id="inLogin" placeholder="email@gmail.com" autocomplete="username" type="email">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Пароль</label>
+      <input class="inp" id="inPass" type="password" placeholder="пароль енгізіңіз" autocomplete="current-password">
+    </div>
+    <div class="inp-wrap hidden" id="regExtra">
+      <label class="inp-label">Сынып (мысалы: 8А)</label>
+      <input class="inp" id="inClass" placeholder="8А">
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <button class="btn btn-g" id="authBtn" onclick="doAuth()">Кіру</button>
+    <div class="auth-switch">Аккаунт жоқ па? <b onclick="toggleReg()">Тіркелу</b></div>
+    <div class="firebase-badge">🔒 Firebase арқылы қорғалған</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div id="mainScreen" class="screen">
+  <div class="offline-banner" id="offlineBanner">📡 Интернет жоқ — офлайн режим</div>
+  <div class="header">
+    <div class="hrow">
+      <button class="hback" id="backBtn" onclick="goBack()">←</button>
+      <div class="htitle" id="hTitle">8-сынып Географиясы<span class="sync-dot" id="syncDot" title="Firebase қосылған"></span></div>
+      <button class="hlang" id="langBtn" onclick="toggleLang()">РУС</button>
+    </div>
+  </div>
+
+  <div id="tabTopics" class="tab"></div>
+  <div id="tabProfile" class="tab hidden"></div>
+  <div id="tabAdmin" class="tab hidden"></div>
+
+  <div class="bnav">
+    <button class="nb act" id="nb0" onclick="switchTab(0)">
+      <span class="nb-icon">📚</span><span id="nb0l">Тақырыптар</span>
+    </button>
+    <button class="nb" id="nb1" onclick="switchTab(1)">
+      <span class="nb-icon">👤</span><span id="nb1l">Профиль</span>
+    </button>
+    <button class="nb hidden" id="nb2" onclick="switchTab(2)">
+      <span class="nb-icon">⚙️</span><span>Админ</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ EDIT MODAL ═══ -->
+<div class="overlay" id="editModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
+    <label class="inp-label">Тақырып атауы (ҚАЗ)</label>
+    <input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
+    <label class="inp-label">Тема названия (РУС)</label>
+    <input class="adm-inp" id="mTRu" placeholder="Название темы">
+    <label class="inp-label">Мәтін (ҚАЗ)</label>
+    <textarea class="adm-ta" id="mTxtKk" rows="3" placeholder="Параграф мәтіні..."></textarea>
+    <label class="inp-label">Текст (РУС)</label>
+    <textarea class="adm-ta" id="mTxtRu" rows="3" placeholder="Текст параграфа..."></textarea>
+    <label class="inp-label">Тест сұрағы (ҚАЗ)</label>
+    <input class="adm-inp" id="mQKk" placeholder="Сұрақ мәтіні">
+    <label class="inp-label">Дұрыс жауап әрпі (A/B/C/D)</label>
+    <input class="adm-inp" id="mQAns" placeholder="A">
+    <label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ...">
+    <label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ...">
+    <label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ...">
+    <label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ...">
+    <label class="inp-label">Ашық сұрақ (ҚАЗ)</label>
+    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні">
+    <button class="btn btn-g" onclick="saveModal()">💾 Сақтау</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════
+// OFFLINE DETECT
+// ════════════════════════════════════
+window.addEventListener('online',  () => document.getElementById('offlineBanner').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offlineBanner').classList.add('show'));
+
+// ════════════════════════════════════
+// FIREBASE HELPERS
+// ════════════════════════════════════
+async function fbGetProg(uid) {
+  try {
+    if (!window._fbDb) return {};
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'progress/' + uid));
+    return snap.exists() ? snap.val() : {};
+  } catch { return {}; }
+}
+
+async function fbSaveProg(uid, prog) {
+  try {
+    if (!window._fbDb) return;
+    const {set, ref} = window._fbFns;
+    await set(ref(window._fbDb, 'progress/' + uid), prog);
+  } catch(e) { console.warn('Save error:', e); }
+}
+
+async function fbGetTopics() {
+  try {
+    if (!window._fbDb) return null;
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'topics'));
+    return snap.exists() ? Object.values(snap.val()) : null;
+  } catch { return null; }
+}
+
+async function fbSaveTopics(topics) {
+  try {
+    if (!window._fbDb) return;
+    const {set, ref} = window._fbFns;
+    const obj = {};
+    topics.forEach((t,i) => obj[i] = t);
+    await set(ref(window._fbDb, 'topics'), obj);
+  } catch(e) { console.warn('Topics save error:', e); }
+}
+
+async function fbGetAllUsers() {
+  try {
+    if (!window._fbDb) return [];
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'users'));
+    if (!snap.exists()) return [];
+    return Object.entries(snap.val()).map(([uid, d]) => ({uid, ...d}));
+  } catch { return []; }
+}
+
+async function fbGetAllProgress() {
+  try {
+    if (!window._fbDb) return {};
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'progress'));
+    return snap.exists() ? snap.val() : {};
+  } catch { return {}; }
+}
+
+// ════════════════════════════════════
+// LOCAL FALLBACK STORAGE
+// ════════════════════════════════════
+const LS = {
+  get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set(k,v){localStorage.setItem(k,JSON.stringify(v));}
+};
+
+function pk(uid, id, type){ return uid + '__' + id + '__' + type; }
+
+// In-memory progress cache
+let _prog = {};
+let _topics = null;
+
+async function getProg() {
+  if (!window._fbUser) return _prog;
+  if (Object.keys(_prog).length === 0) {
+    _prog = await fbGetProg(window._fbUser.uid);
+  }
+  return _prog;
+}
+
+async function saveProg(p) {
+  _prog = p;
+  if (window._fbUser) {
+    await fbSaveProg(window._fbUser.uid, p);
+  }
+}
+
+async function getTopics() {
+  if (_topics) return _topics;
+  const fbT = await fbGetTopics();
+  if (fbT && fbT.length > 0) {
+    _topics = fbT;
+  } else {
+    _topics = DEF_TOPICS;
+    // İlk kez Firebase'e kaydet
+    await fbSaveTopics(_topics);
+  }
+  return _topics;
+}
+
+async function saveTopics(t) {
+  _topics = t;
+  await fbSaveTopics(t);
+}
+
+function calcPts(uid, T, prog) {
+  return T.reduce((s,t) => {
+    s += (prog[pk(uid,t.id,'test')]||0) + (prog[pk(uid,t.id,'open')]||0) + (prog[pk(uid,t.id,'map')]||0);
+    return s;
+  }, 0);
+}
+
+// ════════════════════════════════════
+// DEFAULT TOPICS
+// ════════════════════════════════════
+const DEF_TOPICS = [
+  {id:1,kk:"Жер — Күн жүйесіндегі планета",ru:"Земля — планета Солнечной системы",
+   tkk:`<p><strong>Жер</strong> — Күн жүйесіндегі үшінші планета. Күннен орташа <strong>150 млн км</strong> қашықтықта.</p><div class="fact-box"><div class="fact-title">📌 Деректер</div>Жас: 4,54 млрд жыл · Беті: 71% су, 29% құрлық · Серігі: Ай</div><p>Күн жүйесінде <strong>8 планета</strong>. Жер өз осін <strong>24 сағатта</strong> бір рет айналады.</p>`,
+   tru:`<p><strong>Земля</strong> — третья планета Солнечной системы, в <strong>150 млн км</strong> от Солнца.</p><div class="fact-box"><div class="fact-title">📌 Данные</div>Возраст: 4,54 млрд лет · Поверхность: 71% вода, 29% суша · Спутник: Луна</div><p>В Солнечной системе <strong>8 планет</strong>. Земля вращается вокруг оси за <strong>24 часа</strong>.</p>`,
+   qkk:"Жер Күн жүйесінде нешінші планета?",ans:"B",opts:["A. Бірінші","B. Үшінші","C. Бесінші","D. Екінші"],
+   openq:"Жердің мұхит пен құрлық пайыздық арақатынасын түсіндіріңіз.",
+   mapq:"Күн жүйесіндегі планеталарды дұрыс ретпен белгілеңіз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Solar_sys8.jpg/800px-Solar_sys8.jpg",
+   mapDots:[{x:12,y:50,label:"Меркурий",correct:"Меркурий"},{x:25,y:50,label:"Шолпан",correct:"Шолпан"},{x:38,y:50,label:"Жер",correct:"Жер"},{x:52,y:50,label:"Марс",correct:"Марс"}],
+   mapOpts:["Меркурий","Шолпан","Жер","Марс","Юпитер"]
+  },
+  {id:2,kk:"Жердің пішіні мен мөлшері",ru:"Форма и размеры Земли",
+   tkk:`<p>Жердің пішіні — <strong>геоид</strong>. Полюстерден жайпақтау, экватордан томпақтау.</p><div class="fact-box"><div class="fact-title">📏 Өлшемдер</div>Экватор радиусы: 6 378 км · Полюс радиусы: 6 357 км · Шеңбері: ~40 000 км</div><p><strong>Эратосфен</strong> (б.з.д. III ғ.) Жер шеңберін алғаш дәл есептеді.</p>`,
+   tru:`<p>Форма Земли — <strong>геоид</strong>. У полюсов немного сплющена, у экватора выпуклее.</p><div class="fact-box"><div class="fact-title">📏 Размеры</div>Радиус экватора: 6 378 км · Полюса: 6 357 км · Окружность: ~40 000 км</div><p><strong>Эратосфен</strong> (III в. до н.э.) первым точно вычислил длину окружности Земли.</p>`,
+   qkk:"Жердің экватор радиусы қанша?",ans:"C",opts:["A. 6 000 км","B. 7 000 км","C. 6 378 км","D. 5 500 км"],
+   openq:"Геоид деген не? Өз сөзіңізбен түсіндіріңіз.",
+   mapq:"Жердің бөліктерін картада дұрыс белгілеңіз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/600px-The_Earth_seen_from_Apollo_17.jpg",
+   mapDots:[{x:50,y:50,label:"Жер",correct:"Жер ғаламшары"}],
+   mapOpts:["Жер ғаламшары","Ай","Марс","Күн"]
+  },
+  {id:3,kk:"Жердің қозғалысы",ru:"Движение Земли",
+   tkk:`<p>Жер екі қозғалыс жасайды: <strong>өз осінің айналасында</strong> және <strong>Күнді айнала</strong>.</p><div class="fact-box"><div class="fact-title">🌍 Кібісе жыл</div>Жер Күнді 365 күн 6 сағатта айналады. 4 жылда бір рет 29 ақпан пайда болады.</div><p>Жердің осі <strong>23,5°</strong> қисайған — жыл мезгілдері осыдан туады.</p>`,
+   tru:`<p>Земля совершает два движения: <strong>вокруг своей оси</strong> и <strong>вокруг Солнца</strong>.</p><div class="fact-box"><div class="fact-title">🌍 Високосный год</div>Земля обходит Солнце за 365 дней 6 часов. Раз в 4 года — 29 февраля.</div><p>Ось наклонена на <strong>23,5°</strong> — это вызывает смену времён года.</p>`,
+   qkk:"Жердің айналу осі қанша градусқа қисайған?",ans:"A",opts:["A. 23,5°","B. 45°","C. 90°","D. 15°"],
+   openq:"Кібісе жыл неліктен пайда болатынын түсіндіріңіз.",
+   mapq:"Жыл мезгілдерін дұрыс орналастырыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Seasons1.svg/600px-Seasons1.svg.png",
+   mapDots:[{x:20,y:30,label:"Жаз",correct:"Жаз"},{x:80,y:30,label:"Қыс",correct:"Қыс"},{x:50,y:15,label:"Күз",correct:"Күз"},{x:50,y:75,label:"Көктем",correct:"Көктем"}],
+   mapOpts:["Жаз","Қыс","Күз","Көктем"]
+  },
+  {id:4,kk:"Жер бетінің бедері",ru:"Рельеф земной поверхности",
+   tkk:`<p><strong>Бедер</strong> — Жер бетінің кедір-бұдырлығы: тау, жазық, ойыс, қырат.</p><div class="fact-box"><div class="fact-title">⛰️ Рекордтар</div>Ең биік: Эверест — 8 849 м · Ең терең: Мариана шұңқыры — 11 034 м</div><p>Бедер қалыптастырушы күштер: <strong>ішкі</strong> (жанартаулар) және <strong>сыртқы</strong> (эрозия).</p>`,
+   tru:`<p><strong>Рельеф</strong> — неровности поверхности Земли: горы, равнины, впадины.</p><div class="fact-box"><div class="fact-title">⛰️ Рекорды</div>Высшая точка: Эверест — 8 849 м · Самое глубокое: Марианская впадина — 11 034 м</div><p>Силы формирования: <strong>внутренние</strong> (вулканы) и <strong>внешние</strong> (эрозия).</p>`,
+   qkk:"Дүниедегі ең биік тау қайсы?",ans:"B",opts:["A. Монблан","B. Эверест","C. Эльбрус","D. Килиманджаро"],
+   openq:"Ішкі және сыртқы бедер қалыптастырушы күштерге мысал келтіріңіз.",
+   mapq:"Материктер мен мұхиттарды картада табыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
+   mapDots:[{x:25,y:40,label:"Солт. Америка",correct:"Солтүстік Америка"},{x:47,y:42,label:"Еуропа",correct:"Еуропа"},{x:57,y:50,label:"Азия",correct:"Азия"},{x:46,y:62,label:"Африка",correct:"Африка"},{x:73,y:65,label:"Австралия",correct:"Австралия"}],
+   mapOpts:["Солтүстік Америка","Еуропа","Азия","Африка","Австралия","Антарктида"]
+  },
+  {id:5,kk:"Литосфера",ru:"Литосфера",
+   tkk:`<p><strong>Литосфера</strong> — Жердің қатты сыртқы қабаты. Жер қыртысы мен жоғарғы мантиядан тұрады.</p><div class="fact-box"><div class="fact-title">🗺️ Тақталар</div>Литосфера тақталарға бөлінген. Жылына 2–5 см жылжиды — тауларды тудырады.</div><p>Материктерде қалыңдығы <strong>80–200 км</strong>, мұхит астында — <strong>5–100 км</strong>.</p>`,
+   tru:`<p><strong>Литосфера</strong> — твёрдая внешняя оболочка Земли. Включает земную кору и верхнюю мантию.</p><div class="fact-box"><div class="fact-title">🗺️ Плиты</div>Разбита на плиты, движущиеся 2–5 см в год — это создаёт горы.</div><p>Под материками <strong>80–200 км</strong>, под океанами — <strong>5–100 км</strong>.</p>`,
+   qkk:"Литосфералық тақталар жылына қанша жылжиды?",ans:"C",opts:["A. 10–20 км","B. 1 м","C. 2–5 см","D. 100 м"],
+   openq:"Литосфера мен жер қыртысы арасындағы айырмашылықты жазыңыз.",
+   mapq:"Жер қабаттарын дұрыс белгілеңіз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Earth_cutaway_schematic-en.svg/600px-Earth_cutaway_schematic-en.svg.png",
+   mapDots:[{x:50,y:10,label:"Жер қыртысы",correct:"Жер қыртысы"},{x:50,y:35,label:"Мантия",correct:"Мантия"},{x:50,y:65,label:"Сыртқы ядро",correct:"Сыртқы ядро"},{x:50,y:85,label:"Ішкі ядро",correct:"Ішкі ядро"}],
+   mapOpts:["Жер қыртысы","Мантия","Сыртқы ядро","Ішкі ядро","Литосфера"]
+  },
+  {id:6,kk:"Атмосфера",ru:"Атмосфера",
+   tkk:`<p><strong>Атмосфера</strong> — Жерді қоршаған газ қабаты. Зиянды сәулелерден қорғайды.</p><div class="fact-box"><div class="fact-title">🌫️ Қабаттар</div>Тропосфера (0–12 км) · Стратосфера · Мезосфера · Термосфера · Экзосфера</div><p>Құрамы: <strong>Азот 78%</strong>, <strong>Оттек 21%</strong>. Озон қабаты ультракүлгін сәулелерді сіңіреді.</p>`,
+   tru:`<p><strong>Атмосфера</strong> — газовая оболочка Земли. Защищает от вредного излучения.</p><div class="fact-box"><div class="fact-title">🌫️ Слои</div>Тропосфера (0–12 км) · Стратосфера · Мезосфера · Термосфера · Экзосфера</div><p>Состав: <strong>Азот 78%</strong>, <strong>Кислород 21%</strong>. Озоновый слой поглощает ультрафиолет.</p>`,
+   qkk:"Атмосферадағы азоттың үлесі қанша?",ans:"D",opts:["A. 21%","B. 50%","C. 99%","D. 78%"],
+   openq:"Озон қабатының маңызын өз сөзіңізбен жазыңыз.",
+   mapq:"Атмосфера қабаттарын дұрыс орналастырыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Atmosphere_layers.jpg/400px-Atmosphere_layers.jpg",
+   mapDots:[{x:50,y:88,label:"Тропосфера",correct:"Тропосфера"},{x:50,y:65,label:"Стратосфера",correct:"Стратосфера"},{x:50,y:45,label:"Мезосфера",correct:"Мезосфера"},{x:50,y:25,label:"Термосфера",correct:"Термосфера"}],
+   mapOpts:["Тропосфера","Стратосфера","Мезосфера","Термосфера","Экзосфера"]
+  },
+  {id:7,kk:"Гидросфера",ru:"Гидросфера",
+   tkk:`<p><strong>Гидросфера</strong> — Жердің барлық су қабатының жиынтығы.</p><div class="fact-box"><div class="fact-title">💧 Деректер</div>Жалпы су: 1,386 млрд км³ · 97,5% тұзды · тек 2,5% тұщы</div><p>Су айналымы: буланады → бұлтқа айналады → жауын → цикл қайталанады.</p>`,
+   tru:`<p><strong>Гидросфера</strong> — совокупность всех водных объектов Земли.</p><div class="fact-box"><div class="fact-title">💧 Данные</div>Всего воды: 1,386 млрд км³ · 97,5% солёная · лишь 2,5% пресная</div><p>Круговорот воды: испарение → облака → осадки → повторение.</p>`,
+   qkk:"Жер бетіндегі тұщы судың үлесі қанша?",ans:"A",opts:["A. 2,5%","B. 50%","C. 97,5%","D. 10%"],
+   openq:"Су айналымының маңызын табиғат үшін түсіндіріңіз.",
+   mapq:"Дүниежүзілік мұхиттарды картада табыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
+   mapDots:[{x:35,y:45,label:"Атлант",correct:"Атлант мұхиты"},{x:15,y:50,label:"Тынық",correct:"Тынық мұхиты"},{x:60,y:60,label:"Үнді",correct:"Үнді мұхиты"},{x:50,y:10,label:"Солт.Мұзды",correct:"Солтүстік Мұзды"}],
+   mapOpts:["Атлант мұхиты","Тынық мұхиты","Үнді мұхиты","Солтүстік Мұзды","Оңтүстік мұхиты"]
+  },
+  {id:8,kk:"Климат белдеулері",ru:"Климатические пояса",
+   tkk:`<p>Жер бетінде <strong>7 климат белдеуі</strong> бар, экватордан полюске орналасады.</p><div class="fact-box"><div class="fact-title">🌎 Қазақстан</div>Қоңыржай континенттік климат. Жазы ыстық, қысы суық, жауын аз.</div><p>Экваторлық → Тропиктік → Субтропиктік → Қоңыржай → Субарктикалық → Арктикалық.</p>`,
+   tru:`<p>На Земле <strong>7 климатических поясов</strong> от экватора к полюсам.</p><div class="fact-box"><div class="fact-title">🌎 Казахстан</div>Умеренно-континентальный климат. Лето жаркое, зима холодная, осадков мало.</div><p>Экваториальный → Тропический → Субтропический → Умеренный → Субарктический → Арктический.</p>`,
+   qkk:"Қазақстан қай климат белдеуінде?",ans:"C",opts:["A. Арктикалық","B. Тропиктік","C. Қоңыржай континенттік","D. Экваторлық"],
+   openq:"Климат пен ауа райының айырмашылығын жазыңыз.",
+   mapq:"Климат белдеулерін картада дұрыс орналастырыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
+   mapDots:[{x:50,y:50,label:"Экваторлық",correct:"Экваторлық"},{x:50,y:30,label:"Қоңыржай",correct:"Қоңыржай"},{x:50,y:10,label:"Арктикалық",correct:"Арктикалық"},{x:50,y:70,label:"Тропиктік",correct:"Тропиктік"}],
+   mapOpts:["Экваторлық","Тропиктік","Қоңыржай","Субтропиктік","Арктикалық"]
+  },
+  {id:9,kk:"Табиғат аймақтары",ru:"Природные зоны",
+   tkk:`<p><strong>Табиғат аймақтары</strong> — климат, топырақ, өсімдік ұқсастығымен сипатталатын аумақтар.</p><div class="fact-box"><div class="fact-title">🗺️ Қазақстан</div>Солтүстіктен оңтүстікке: Орман-дала → Дала → Шөлейт → Шөл</div><p>Әр аймақтың өзіне тән жануарлары мен өсімдіктері бар.</p>`,
+   tru:`<p><strong>Природные зоны</strong> — территории со сходным климатом, почвами и растительностью.</p><div class="fact-box"><div class="fact-title">🗺️ Казахстан</div>С севера на юг: Лесостепь → Степь → Полупустыня → Пустыня</div><p>В каждой зоне своя уникальная флора и фауна.</p>`,
+   qkk:"Қазақстанның оңтүстігіндегі табиғат аймағы?",ans:"D",opts:["A. Тундра","B. Тайга","C. Орман-дала","D. Шөл"],
+   openq:"Дала аймағының ерекшеліктерін жазыңыз (климат, өсімдік, жануар).",
+   mapq:"Қазақстанның табиғат аймақтарын картада орналастырыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kazakhstan_relief_map.jpg/800px-Kazakhstan_relief_map.jpg",
+   mapDots:[{x:50,y:20,label:"Орман-дала",correct:"Орман-дала"},{x:50,y:45,label:"Дала",correct:"Дала"},{x:50,y:65,label:"Шөлейт",correct:"Шөлейт"},{x:50,y:82,label:"Шөл",correct:"Шөл"}],
+   mapOpts:["Орман-дала","Дала","Шөлейт","Шөл","Тундра"]
+  },
+  {id:10,kk:"Мұхиттар мен теңіздер",ru:"Океаны и моря",
+   tkk:`<p>Дүниежүзілік мұхит Жер бетінің <strong>71%-ын</strong> алып жатыр. 4 мұхитқа бөлінеді.</p><div class="fact-box"><div class="fact-title">🌊 4 мұхит</div>Тынық — ең үлкені · Атлант · Үнді · Солтүстік Мұзды мұхиты</div><p>Ең терең жер — Мариана шұңқыры (<strong>11 034 м</strong>).</p>`,
+   tru:`<p>Мировой океан занимает <strong>71%</strong> поверхности Земли. Делится на 4 океана.</p><div class="fact-box"><div class="fact-title">🌊 4 океана</div>Тихий — крупнейший · Атлантический · Индийский · Северный Ледовитый</div><p>Самое глубокое место — Марианская впадина (<strong>11 034 м</strong>).</p>`,
+   qkk:"Дүниедегі ең үлкен мұхит қайсы?",ans:"B",opts:["A. Атлант","B. Тынық","C. Үнді","D. Солтүстік Мұзды"],
+   openq:"Мұхит пен теңіздің айырмашылығын жазыңыз.",
+   mapq:"4 мұхитты дүниежүзі картасында табыңыз",
+   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
+   mapDots:[{x:18,y:50,label:"Тынық",correct:"Тынық мұхиты"},{x:37,y:45,label:"Атлант",correct:"Атлант мұхиты"},{x:60,y:58,label:"Үнді",correct:"Үнді мұхиты"},{x:50,y:8,label:"Солт.Мұзды",correct:"Солтүстік Мұзды"}],
+   mapOpts:["Тынық мұхиты","Атлант мұхиты","Үнді мұхиты","Солтүстік Мұзды","Оңтүстік мұхиты"]
+  }
+];
+
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+let ST = {
+  lang:'kk', tab:0, view:'list', detIdx:0,
+  currentUser:null,
+  mapAnswers:{}, selectedMapOpt:null
+};
+
+// ════════════════════════════════════
+// AUTH UI
+// ════════════════════════════════════
+let isRegMode = false;
+
+function showAuthScreen(){
+  document.getElementById('loadingScreen').classList.remove('active');
+  document.getElementById('mainScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.add('active');
+}
+
+function toggleReg(){
+  isRegMode = !isRegMode;
+  const L = ST.lang;
+  document.getElementById('authTitle').textContent = isRegMode ? (L==='kk'?'Тіркелу':'Регистрация') : (L==='kk'?'Жүйеге кіру':'Войти');
+  document.getElementById('authBtn').textContent   = isRegMode ? (L==='kk'?'Тіркелу':'Зарег.') : (L==='kk'?'Кіру':'Войти');
+  document.getElementById('regExtra').classList.toggle('hidden', !isRegMode);
+  document.getElementById('inLogin').type = isRegMode ? 'email' : 'email';
+  document.getElementById('authErr').textContent = '';
+}
+
+async function doAuth(){
+  const email = document.getElementById('inLogin').value.trim();
+  const pass  = document.getElementById('inPass').value.trim();
+  const cls   = document.getElementById('inClass').value.trim();
+  const err   = document.getElementById('authErr');
+  const btn   = document.getElementById('authBtn');
+  err.textContent = '';
+  if(!email){ err.textContent='Email енгізіңіз!'; return; }
+  if(!pass) { err.textContent='Пароль енгізіңіз!'; return; }
+
+  btn.textContent = '⏳ Жүктелуде...';
+  btn.disabled = true;
+
+  const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window._fbFns;
+  const auth = window._fbAuth;
+
+  try {
+    if(isRegMode){
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged handles the rest
+      const {set, ref} = window._fbFns;
+      const login = email.split('@')[0];
+      await set(ref(window._fbDb, 'users/' + cred.user.uid), {
+        login, cls: cls||'8', isAdmin: false, email, createdAt: Date.now()
+      });
+    } else {
+      await signInWithEmailAndPassword(auth, email, pass);
+    }
+  } catch(e){
+    const msgs = {
+      'auth/user-not-found':'Пайдаланушы табылмады!',
+      'auth/wrong-password':'Пароль қате!',
+      'auth/invalid-credential':'Логин немесе пароль қате!',
+      'auth/email-already-in-use':'Бұл email тіркелген!',
+      'auth/weak-password':'Пароль кем дегенде 6 символ болуы керек!',
+      'auth/invalid-email':'Email форматы қате!'
+    };
+    err.textContent = msgs[e.code] || ('Қате: ' + e.message);
+    btn.textContent = isRegMode ? 'Тіркелу' : 'Кіру';
+    btn.disabled = false;
+  }
+}
+
+function startSession(u){
+  ST.currentUser = u;
+  _prog = {}; // reset cache
+  document.getElementById('loadingScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('mainScreen').classList.add('active');
+  document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
+  switchTab(0);
+  document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
+  document.getElementById('authBtn').disabled = false;
+}
+
+async function logout(){
+  const {signOut} = window._fbFns;
+  _prog = {}; _topics = null;
+  await signOut(window._fbAuth);
+  ST.currentUser = null;
+  document.getElementById('mainScreen').classList.remove('active');
+  showAuthScreen();
+  document.getElementById('inLogin').value='';
+  document.getElementById('inPass').value='';
+  document.getElementById('authErr').textContent='';
+  isRegMode = false;
+  document.getElementById('authTitle').textContent='Жүйеге кіру';
+  document.getElementById('authBtn').textContent='Кіру';
+  document.getElementById('regExtra').classList.add('hidden');
+}
+
+// ════════════════════════════════════
+// TABS
+// ════════════════════════════════════
+function switchTab(t){
+  ST.tab=t; ST.view='list';
+  document.getElementById('backBtn').classList.remove('show');
+  ['nb0','nb1','nb2'].forEach((id,i)=>document.getElementById(id).classList.toggle('act',i===t));
+  renderTab();
+}
+
+function renderTab(){
+  if(ST.tab===0) renderTopicsAsync();
+  else if(ST.tab===1) renderProfileAsync();
+  else renderAdminAsync();
+}
+
+function showOnly(id){
+  ['tabTopics','tabProfile','tabAdmin'].forEach(t=>
+    document.getElementById(t).classList.toggle('hidden', t!==id));
+}
+
+// ════════════════════════════════════
+// TOPICS
+// ════════════════════════════════════
+async function renderTopicsAsync(){
+  const T = await getTopics();
+  const u = ST.currentUser;
+  const prog = await getProg();
+  const {lang} = ST;
+  const doneCount = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]).length;
+  const pts = calcPts(u.uid, T, prog);
+
+  let h=`<div class="banner">
+    <h2>🌍 ${lang==='kk'?'География':'География'}</h2>
+    <p>${lang==='kk'?'8-сынып • '+T.length+' тақырып':'8 класс • '+T.length+' тем'}</p>
+    <div class="bstats">
+      <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
+      <div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
+      <div class="bstat"><div class="bstat-n">${pts}</div><div class="bstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
+    </div></div>
+  <div class="slabel">${lang==='kk'?'ТАҚЫРЫПТАР ТІЗІМІ':'СПИСОК ТЕМ'}</div>
+  <div class="tlist">`;
+
+  T.forEach((t,i)=>{
+    const tp=prog[pk(u.uid,t.id,'test')]||0;
+    const op=prog[pk(u.uid,t.id,'open')]||0;
+    const mp=prog[pk(u.uid,t.id,'map')]||0;
+    const done=tp||op||mp;
+    let badges='';
+    if(tp) badges+=`<span class="badge done">✓ Тест</span>`;
+    if(op) badges+=`<span class="badge done">✓ Ашық</span>`;
+    if(mp) badges+=`<span class="badge done">✓ Карта</span>`;
+    if(!done) badges=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
+    h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
+      <div class="tnum">${i+1}</div>
+      <div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${badges}</div></div>
+      <span style="color:#9ca3af;font-size:20px">›</span></div>`;
+  });
+  h+=`</div>`;
+  document.getElementById('tabTopics').innerHTML=h;
+  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`${lang==='kk'?'8-сынып Географиясы':'География 8 класса'}<span class="sync-dot" id="syncDot"></span>`;
+  showOnly('tabTopics');
+}
+
+async function openDetailAsync(idx){
+  ST.view='detail'; ST.detIdx=idx;
+  ST.mapAnswers={}; ST.selectedMapOpt=null;
+  const T = await getTopics();
+  const t = T[idx];
+  const {lang} = ST;
+  const u = ST.currentUser;
+  const prog = await getProg();
+  const tp = prog[pk(u.uid,t.id,'test')]||0;
+  const op = prog[pk(u.uid,t.id,'open')]||0;
+  const mp = prog[pk(u.uid,t.id,'map')]||0;
+
+  document.getElementById('hTitle').textContent = t[lang];
+  document.getElementById('backBtn').classList.add('show');
+
+  // TEST
+  let testH=`<div class="tsec">
+    <div class="thead">📝 ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}</div>
+    <div class="tq">${t.qkk}</div>`;
+  if(tp){
+    testH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
+  } else {
+    t.opts.forEach((o,i)=>{
+      testH+=`<button class="opt" id="opt${i}" onclick="answerTest(${idx},${i},'${t.ans}')">${o}</button>`;
+    });
+  }
+  testH+=`</div>`;
+
+  // OPEN
+  let openH=`<div class="tsec">
+    <div class="thead">✏️ ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}</div>
+    <div class="tq">${t.openq||'Тақырып бойынша 2-3 сөйлем жазыңыз.'}</div>`;
+  if(op){
+    openH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
+  } else {
+    openH+=`<textarea class="open-inp" id="openAns" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
+    <button class="tsub" onclick="submitOpen(${idx})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+  }
+  openH+=`</div>`;
+
+  // MAP
+  let mapH=`<div class="tsec">
+    <div class="thead">🗺️ ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}</div>
+    <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
+  if(mp){
+    mapH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
+  } else if(t.mapImg){
+    mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
+    mapH+=`<div class="map-wrap" id="mapWrap"><img src="${t.mapImg}" alt="map" onerror="this.src='https://placehold.co/800x400/dcfce7/16a34a?text=Карта'">`;
+    (t.mapDots||[]).forEach((d,di)=>{
+      mapH+=`<div class="map-dot unanswered" id="mdot${di}" style="left:${d.x}%;top:${d.y}%" onclick="tapDot(${idx},${di})" title="${d.label}">${di+1}</div>`;
+    });
+    mapH+=`</div><div class="map-opts" id="mapOpts">`;
+    (t.mapOpts||[]).forEach((o,oi)=>{
+      mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
+    });
+    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="margin-top:10px;opacity:.4;pointer-events:none">${lang==='kk'?'✓ Картаны тексеру':'✓ Проверить карту'}</button>`;
+  } else {
+    mapH+=`<div class="tres ko" style="text-align:left">ℹ️ ${lang==='kk'?'Карта тапсырмасы жоқ.':'Задание с картой отсутствует.'}</div>`;
+  }
+  mapH+=`</div>`;
+
+  document.getElementById('tabTopics').innerHTML=`
+    <div class="dwrap">
+      <div class="det-badge">§${idx+1}</div>
+      <div class="det-title">${t[lang]}</div>
+      <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
+      ${testH}${openH}${mapH}
+    </div>`;
+  showOnly('tabTopics');
+}
+
+// ════════════════════════════════════
+// ANSWER HANDLERS
+// ════════════════════════════════════
+async function answerTest(idx, optIdx, correct){
+  const letters=['A','B','C','D'];
+  const chosen = letters[optIdx];
+  const isOk = chosen === correct;
+  for(let i=0;i<4;i++){
+    const b=document.getElementById('opt'+i);
+    if(b){
+      b.disabled=true;
+      if(letters[i]===correct) b.classList.add('correct');
+      else if(i===optIdx&&!isOk) b.classList.add('wrong');
+    }
+  }
+  if(isOk){
+    const T = await getTopics();
+    const t = T[idx];
+    const prog = await getProg();
+    prog[pk(ST.currentUser.uid, t.id, 'test')] = 5;
+    await saveProg(prog);
+    setTimeout(()=>{
+      const sec=document.querySelector('.tsec');
+      if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok">✅ Дұрыс! +5 балл</div>');
+    },600);
+  } else {
+    setTimeout(()=>{
+      const firstSec=document.querySelector('.tsec');
+      if(firstSec) firstSec.insertAdjacentHTML('beforeend','<div class="tres ko">❌ '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
+    },600);
+  }
+}
+
+async function submitOpen(idx){
+  const T = await getTopics();
+  const t = T[idx];
+  const ans = document.getElementById('openAns').value.trim();
+  if(ans.length<10){ alert(ST.lang==='kk'?'Кем дегенде 10 символ жазыңыз!':'Напишите хотя бы 10 символов!'); return; }
+  const prog = await getProg();
+  prog[pk(ST.currentUser.uid, t.id, 'open')] = 3;
+  await saveProg(prog);
+  const openSec = document.querySelectorAll('.tsec')[1];
+  if(openSec){
+    const ta=openSec.querySelector('.open-inp');
+    const sb=openSec.querySelector('.tsub');
+    if(ta) ta.remove();
+    if(sb) sb.remove();
+    openSec.insertAdjacentHTML('beforeend','<div class="tres ok">✅ '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
+  }
+}
+
+function selectMapOpt(opt, oi){
+  ST.selectedMapOpt=opt;
+  document.querySelectorAll('.map-opt').forEach(b=>b.classList.remove('selected'));
+  const btn=document.getElementById('mopt'+oi);
+  if(btn) btn.classList.add('selected');
+}
+
+async function tapDot(topicIdx, dotIdx){
+  if(!ST.selectedMapOpt){ alert(ST.lang==='kk'?'Алдымен жауапты таңдаңыз!':'Сначала выберите ответ!'); return; }
+  ST.mapAnswers[dotIdx]=ST.selectedMapOpt;
+  const dot=document.getElementById('mdot'+dotIdx);
+  if(dot){ dot.classList.remove('unanswered','answered-ok','answered-ko'); dot.classList.add('answered-ok'); dot.title=ST.selectedMapOpt; }
+  const T = await getTopics();
+  const t = T[topicIdx];
+  const allAnswered = (t.mapDots||[]).every((_,i)=>ST.mapAnswers[i]!==undefined);
+  const sbtn=document.getElementById('mapSubmitBtn');
+  if(sbtn&&allAnswered){ sbtn.style.opacity='1'; sbtn.style.pointerEvents='auto'; }
+}
+
+async function submitMap(topicIdx){
+  const T = await getTopics();
+  const t = T[topicIdx];
+  let correct=0;
+  (t.mapDots||[]).forEach((d,i)=>{
+    const dot=document.getElementById('mdot'+i);
+    const answered=ST.mapAnswers[i];
+    if(answered===d.correct){ correct++; if(dot){dot.classList.remove('answered-ok','answered-ko');dot.classList.add('answered-ok');} }
+    else { if(dot){dot.classList.remove('answered-ok','unanswered');dot.classList.add('answered-ko');} }
+  });
+  const total=(t.mapDots||[]).length;
+  const pts=correct>=total?4:correct>0?2:0;
+  if(pts>0){
+    const prog = await getProg();
+    prog[pk(ST.currentUser.uid, t.id, 'map')] = pts;
+    await saveProg(prog);
+  }
+  const mapSec=document.querySelectorAll('.tsec')[2];
+  if(mapSec){
+    const sbtn=document.getElementById('mapSubmitBtn');
+    if(sbtn) sbtn.remove();
+    mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'✅':'❌'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
+  }
+}
+
+function goBack(){
+  ST.view='list';
+  document.getElementById('backBtn').classList.remove('show');
+  renderTopicsAsync();
+}
+
+// ════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════
+async function renderProfileAsync(){
+  const T = await getTopics();
+  const u = ST.currentUser;
+  const {lang} = ST;
+  const prog = await getProg();
+  const pts = calcPts(u.uid, T, prog);
+  const done = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]);
+
+  let doneH='';
+  done.forEach(t=>{
+    const tp=prog[pk(u.uid,t.id,'test')]||0;
+    const op=prog[pk(u.uid,t.id,'open')]||0;
+    const mp=prog[pk(u.uid,t.id,'map')]||0;
+    doneH+=`<div class="done-item"><span style="font-size:20px">✅</span>
+      <div style="flex:1"><div class="done-title">${t[lang]}</div>
+      <div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div>
+      <strong style="color:var(--acc)">${tp+op+mp}</strong></div>`;
+  });
+  if(!done.length) doneH=`<p style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${lang==='kk'?'Тапсырылған тапсырма жоқ':'Нет выполненных заданий'}</p>`;
+
+  document.getElementById('tabProfile').innerHTML=`
+    <div class="phero">
+      <div class="avatar">👤</div>
+      <div class="pname">${u.login||u.email}</div>
+      <div class="pcls">${u.cls||''}${u.isAdmin?' · Администратор':''} · 🔥 Firebase</div>
+    </div>
+    <div class="pstats">
+      <div class="pstat"><div class="pstat-n">${pts}</div><div class="pstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
+      <div class="pstat"><div class="pstat-n">${done.length}</div><div class="pstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
+      <div class="pstat"><div class="pstat-n">${T.length*12}</div><div class="pstat-l">Макс.</div></div>
+    </div>
+    <div class="slabel">${lang==='kk'?'ОРЫНДАЛҒАН ТАПСЫРМАЛАР':'ВЫПОЛНЕННЫЕ ЗАДАНИЯ'}</div>
+    <div style="padding:0 14px 8px">${doneH}</div>
+    <button class="logout-btn" onclick="logout()">🚪 ${lang==='kk'?'Шығу':'Выйти'}</button>`;
+  document.getElementById('hTitle').textContent = lang==='kk'?'Профиль':'Профиль';
+  showOnly('tabProfile');
+}
+
+// ════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════
+let editIdx=null;
+
+async function renderAdminAsync(){
+  const T = await getTopics();
+  const {lang} = ST;
+  let rows='';
+  T.forEach((t,i)=>{
+    rows+=`<div class="adm-row">
+      <div class="adm-nm">${i+1}. ${t[lang]}</div>
+      <button class="abtn aedit" onclick="openEdit(${i})">✏️</button>
+      <button class="abtn adel" onclick="delTopicAsync(${i})">🗑</button>
+    </div>`;
+  });
+
+  const allUsers = await fbGetAllUsers();
+  const students = allUsers.filter(u=>!u.isAdmin);
+  const allProg = await fbGetAllProgress();
+  let studH='';
+  students.forEach(u=>{
+    const uprog = allProg[u.uid]||{};
+    const pts = calcPts(u.uid, T, uprog);
+    const done = T.filter(t=>uprog[pk(u.uid,t.id,'test')]||uprog[pk(u.uid,t.id,'open')]||uprog[pk(u.uid,t.id,'map')]).length;
+    studH+=`<div class="adm-row">
+      <div class="adm-nm">👤 ${u.login||u.email} (${u.cls||''})</div>
+      <span style="font-size:12px;color:var(--muted)">${done}/${T.length} · <b style="color:var(--acc)">${pts} балл</b></span>
+    </div>`;
+  });
+  if(!students.length) studH=`<p style="font-size:12px;color:var(--muted);padding:6px">${lang==='kk'?'Оқушылар тіркелмеген':'Ученики не зарегистрированы'}</p>`;
+
+  document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap">
+    <div class="adm-sec"><div class="adm-title">📚 ${lang==='kk'?'ТАҚЫРЫПТАР':'ТЕМЫ'}</div>${rows}
+    <button class="adm-add" onclick="openEdit(-1)">+ ${lang==='kk'?'Жаңа тақырып':'Добавить тему'}</button></div>
+    <div class="adm-sec"><div class="adm-title">👥 ${lang==='kk'?'ОҚУШЫЛАР (Firebase)':'УЧЕНИКИ (Firebase)'}</div>${studH}</div>
+  </div>`;
+  document.getElementById('hTitle').textContent = lang==='kk'?'Админ панелі':'Панель Админа';
+  showOnly('tabAdmin');
+}
+
+async function delTopicAsync(i){
+  if(!confirm(ST.lang==='kk'?'Өшіресіз бе?':'Удалить?')) return;
+  const T = await getTopics();
+  T.splice(i,1);
+  await saveTopics(T);
+  renderAdminAsync();
+}
+
+async function openEdit(i){
+  editIdx=i;
+  const T = await getTopics();
+  document.getElementById('modalTitle').textContent = i===-1?(ST.lang==='kk'?'Жаңа тақырып':'Добавить тему'):(ST.lang==='kk'?'Өңдеу':'Редактировать');
+  if(i>=0){
+    const t=T[i];
+    document.getElementById('mTKk').value=t.kk||'';
+    document.getElementById('mTRu').value=t.ru||'';
+    document.getElementById('mTxtKk').value=strip(t.tkk||'');
+    document.getElementById('mTxtRu').value=strip(t.tru||'');
+    document.getElementById('mQKk').value=t.qkk||'';
+    document.getElementById('mQAns').value=t.ans||'A';
+    document.getElementById('mA').value=t.opts?.[0]||'';
+    document.getElementById('mB').value=t.opts?.[1]||'';
+    document.getElementById('mC').value=t.opts?.[2]||'';
+    document.getElementById('mD').value=t.opts?.[3]||'';
+    document.getElementById('mOpenQ').value=t.openq||'';
+  } else {
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mQAns','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
+  }
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('editModal').classList.remove('show'); }
+
+async function saveModal(){
+  const kk=document.getElementById('mTKk').value.trim();
+  if(!kk){alert('Тақырып атауын жазыңыз!');return;}
+  const T = await getTopics();
+  const entry={
+    id: editIdx>=0?T[editIdx].id:Date.now(),
+    kk, ru:document.getElementById('mTRu').value.trim(),
+    tkk:`<p>${document.getElementById('mTxtKk').value.trim()}</p>`,
+    tru:`<p>${document.getElementById('mTxtRu').value.trim()}</p>`,
+    qkk:document.getElementById('mQKk').value.trim(),
+    ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',
+    opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],
+    openq:document.getElementById('mOpenQ').value.trim(),
+    mapq:'', mapImg:'', mapDots:[], mapOpts:[]
+  };
+  if(editIdx>=0){
+    entry.mapq=T[editIdx].mapq||'';
+    entry.mapImg=T[editIdx].mapImg||'';
+    entry.mapDots=T[editIdx].mapDots||[];
+    entry.mapOpts=T[editIdx].mapOpts||[];
+    T[editIdx]=entry;
+  } else T.push(entry);
+  await saveTopics(T);
+  closeModal();
+  renderAdminAsync();
+}
+
+function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }
+
+// ════════════════════════════════════
+// LANG
+// ════════════════════════════════════
+function toggleLang(){
+  ST.lang=ST.lang==='kk'?'ru':'kk';
+  document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';
+  document.getElementById('nb0l').textContent=ST.lang==='kk'?'Тақырыптар':'Темы';
+  document.getElementById('nb1l').textContent=ST.lang==='kk'?'Профиль':'Профиль';
+  if(ST.view==='detail') openDetailAsync(ST.detIdx);
+  else renderTab();
+}
+</script>
+</body>
+</html>
