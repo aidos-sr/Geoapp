@@ -92,6 +92,106 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 .spin { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin-top: 20px; }
 @keyframes spin { to { transform: rotate(360deg) } }
 
+/* ── WELCOME SCREEN ── */
+#welcomeScreen {
+  background: linear-gradient(160deg, #0d1117 0%, #1a1a3e 40%, #2d1b69 70%, #4f46e5 100%);
+  min-height: 100vh; display: flex; flex-direction: column;
+  padding: 0 0 40px; overflow: hidden; position: relative;
+}
+#welcomeScreen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 20%, rgba(124,58,237,.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(79,70,229,.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+.wc-hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 48px 24px 24px; position: relative; text-align: center;
+}
+.wc-badge {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(8px); border-radius: 20px; padding: 6px 16px;
+  color: rgba(255,255,255,.85); font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.wc-globe {
+  font-size: 72px; margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(124,58,237,.6));
+}
+.wc-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px; font-weight: 700; color: #fff;
+  line-height: 1.2; margin-bottom: 8px; letter-spacing: -1px;
+}
+.wc-title span { color: #a78bfa; }
+.wc-subtitle {
+  font-size: 14px; color: rgba(255,255,255,.6); line-height: 1.6; margin-bottom: 28px;
+}
+.wc-authors {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px; padding: 12px 18px; margin-bottom: 0;
+  backdrop-filter: blur(8px);
+}
+.wc-author-avatars { display: flex; }
+.wc-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border: 2px solid rgba(255,255,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+  margin-right: -8px; flex-shrink: 0;
+}
+.wc-avatar:last-child { margin-right: 0; }
+.wc-author-text { flex: 1; margin-left: 10px; }
+.wc-author-name { color: #fff; font-size: 12px; font-weight: 700; line-height: 1.3; }
+.wc-author-role { color: rgba(255,255,255,.5); font-size: 10px; margin-top: 1px; }
+
+.wc-info-cards {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 0 20px 20px; position: relative;
+}
+.wc-card {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px; padding: 14px; backdrop-filter: blur(8px);
+  text-align: center;
+}
+.wc-card-icon { font-size: 24px; margin-bottom: 6px; }
+.wc-card-val { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #fff; }
+.wc-card-lbl { font-size: 10px; color: rgba(255,255,255,.5); font-weight: 600; margin-top: 2px; }
+
+.wc-sheet {
+  background: #fff; border-radius: 28px 28px 0 0; padding: 24px 20px 44px;
+  box-shadow: 0 -12px 50px rgba(0,0,0,.4); position: relative;
+}
+.wc-sheet-title {
+  font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700;
+  color: var(--text); margin-bottom: 6px;
+}
+.wc-sheet-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.wc-topics-preview {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+}
+.wc-topic-pill {
+  background: #f0f0ff; color: var(--accent); border-radius: 20px;
+  padding: 5px 12px; font-size: 11px; font-weight: 700;
+}
+.btn-enter {
+  width: 100%; padding: 16px; border: none; border-radius: 16px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(79,70,229,.45);
+  transition: transform .15s, box-shadow .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-enter:active { transform: scale(.97); box-shadow: 0 4px 12px rgba(79,70,229,.3); }
+.wc-skip { text-align: center; margin-top: 14px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.wc-skip b { color: var(--accent); }
+
 /* ── AUTH ── */
 #authScreen {
   background: linear-gradient(145deg, #1a1a2e 0%, #312e81 55%, #4f46e5 100%);
@@ -337,17 +437,6 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 .answer-letter { width: 26px; height: 26px; border-radius: 8px; background: var(--bg); border: 2px solid var(--border); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; }
 .answer-select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; background: #fafafa; color: var(--text); outline: none; cursor: pointer; }
 .answer-select:focus { border-color: var(--accent); }
-
-/* ── MAP DOTS EDITOR ── */
-.map-dots-editor { background: #f8f7ff; border: 2px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
-.adm-dot-add { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 700; font-family: 'Manrope',sans-serif; cursor: pointer; }
-.dot-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 6px; align-items: center; margin-bottom: 8px; background: #fff; border-radius: 10px; padding: 8px 10px; border: 1px solid var(--border); }
-.dot-row input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Manrope',sans-serif; font-size: 12px; outline: none; color: var(--text); background: #fafafa; width: 100%; }
-.dot-row input:focus { border-color: var(--accent); }
-.dot-row-label { font-size: 9px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 2px; }
-.dot-del { background: #fee2e2; border: none; border-radius: 7px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--red); font-size: 14px; }
-.map-preview-wrap { background: #1a2744; border-radius: 12px; overflow: hidden; margin-top: 10px; position: relative; }
-.map-preview-wrap svg { width: 100%; display: block; }
 </style>
 </head>
 <body>
@@ -355,17 +444,82 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 <!-- LOADING -->
 <div id="loadingScreen">
   <div class="load-globe">🌍</div>
-  <div class="load-logo">ГЕО 8</div>
+  <div class="load-logo">ГЕО 10</div>
   <div class="load-txt">Жүктелуде...</div>
   <div class="spin"></div>
+</div>
+
+<!-- WELCOME / АВТОРЛЫҚ БАҒДАРЛАМА -->
+<div id="welcomeScreen" class="screen">
+  <div class="wc-hero">
+    <div class="wc-badge">🏫 Сарыағаш · 2026</div>
+    <div class="wc-globe">🌍</div>
+    <div class="wc-title">Геосаясат:<br><span>Жаһандық тұрақтылық</span><br>және Қазақстан</div>
+    <div class="wc-subtitle">Элективті курс · 10-сынып<br>Қоғамдық-гуманитарлық бағыт</div>
+    <div class="wc-authors">
+      <div class="wc-author-avatars">
+        <div class="wc-avatar">ТЕ</div>
+        <div class="wc-avatar">АА</div>
+      </div>
+      <div class="wc-author-text">
+        <div class="wc-author-name">Т.Қ.Есенов · А.Аимбаева</div>
+        <div class="wc-author-role">педагог-шебер · педагог-зерттеуші</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wc-info-cards">
+    <div class="wc-card">
+      <div class="wc-card-icon">📚</div>
+      <div class="wc-card-val">6</div>
+      <div class="wc-card-lbl">Тақырып</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon">⏱️</div>
+      <div class="wc-card-val">34</div>
+      <div class="wc-card-lbl">Сағат (жыл)</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon">🎯</div>
+      <div class="wc-card-val">10</div>
+      <div class="wc-card-lbl">Сынып</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon">🏆</div>
+      <div class="wc-card-val">72</div>
+      <div class="wc-card-lbl">Макс. балл</div>
+    </div>
+  </div>
+
+  <div class="wc-sheet">
+    <div class="wc-sheet-title">Курс туралы</div>
+    <div class="wc-sheet-sub">
+      Курс оқушыларды қазіргі геосаяси процестерді талдауға, Қазақстанның әлемдік аренадағы орнын айқындауға және геосаяси тәуекелдерді бағалауға үйретеді.
+    </div>
+    <div class="wc-topics-preview">
+      <span class="wc-topic-pill">🌐 Геосаяси жағдай</span>
+      <span class="wc-topic-pill">⚖️ Геосаяси факторлар</span>
+      <span class="wc-topic-pill">🗺️ Әлем аймақтары</span>
+      <span class="wc-topic-pill">🕊️ Дін және қақтығыс</span>
+      <span class="wc-topic-pill">👥 Демография</span>
+      <span class="wc-topic-pill">🇰🇿 Қазақстан</span>
+    </div>
+    <button class="btn-enter" onclick="enterCourse()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Курсқа кіру
+    </button>
+    <div class="wc-skip" onclick="enterCourse()">
+      №4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы
+    </div>
+  </div>
 </div>
 
 <!-- AUTH -->
 <div id="authScreen" class="screen">
   <div class="auth-top">
     <div class="auth-emblem">🌍</div>
-    <div class="auth-logo">ГЕО 8</div>
-    <div class="auth-sub">8-сынып Geography қолданбасы</div>
+    <div class="auth-logo">ГЕО 10</div>
+    <div class="auth-sub">Геосаясат элективті курсы · 10-сынып</div>
   </div>
   <div class="auth-sheet">
     <div class="auth-tabs">
@@ -398,7 +552,7 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
       <button class="hback" id="backBtn" onclick="goBack()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <div class="htitle" id="hTitle">8-сынып Географиясы<span class="sync-dot" id="syncDot"></span></div>
+      <div class="htitle" id="hTitle">Геосаясат: Жаһандық тұрақтылық<span class="sync-dot" id="syncDot"></span></div>
       <button class="hlang" id="langBtn" onclick="toggleLang()">РУС</button>
     </div>
   </div>
@@ -467,26 +621,9 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
     <div class="modal-section">Ашық сұрақ</div>
     <label class="inp-label">Ашық сұрақ (ҚАЗ)</label>
-    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні">
+    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні" style="margin-bottom:16px">
 
-    <div class="modal-section">🗺️ Карта тапсырмасы</div>
-    <label class="inp-label">Карта сұрағы</label>
-    <input class="adm-inp" id="mMapQ" placeholder="Мысалы: Материктерді картада табыңыз">
-    <label class="inp-label">Жауап нұсқалары (үтір арқылы)</label>
-    <input class="adm-inp" id="mMapOpts" placeholder="Мысалы: Азия,Еуропа,Африка,Австралия">
-
-    <div class="map-dots-editor" id="mapDotsEditor">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;">Нүктелер тізімі</span>
-        <button class="adm-dot-add" onclick="addMapDotRow()">+ Нүкте қосу</button>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">
-        X, Y — пайыздық орын (0–100). Мысалы: X:50, Y:50 = ортасы
-      </div>
-      <div id="dotRowsWrap"></div>
-    </div>
-
-    <button class="btn btn-primary" onclick="saveModal()" style="margin-top:16px">
+    <button class="btn btn-primary" onclick="saveModal()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
       Сақтау
     </button>
@@ -594,105 +731,154 @@ function calcPts(uid, T, prog) {
 
 // ═══ DEFAULT TOPICS ═══
 const DEF_TOPICS = [
-  {id:1,kk:"Жер — Күн жүйесіндегі планета",ru:"Земля — планета Солнечной системы",
-   tkk:`<p><strong>Жер</strong> — Күн жүйесіндегі үшінші планета. Күннен орташа <strong>150 млн км</strong> қашықтықта.</p><div class="fact-box"><div class="fact-title">📌 Деректер</div>Жас: 4,54 млрд жыл · Беті: 71% су, 29% құрлық · Серігі: Ай</div><p>Күн жүйесінде <strong>8 планета</strong>. Жер өз осін <strong>24 сағатта</strong> бір рет айналады.</p>`,
-   tru:`<p><strong>Земля</strong> — третья планета Солнечной системы, в <strong>150 млн км</strong> от Солнца.</p><div class="fact-box"><div class="fact-title">📌 Данные</div>Возраст: 4,54 млрд лет · Поверхность: 71% вода, 29% суша · Спутник: Луна</div><p>В Солнечной системе <strong>8 планет</strong>. Земля вращается вокруг оси за <strong>24 часа</strong>.</p>`,
-   qkk:"Жер Күн жүйесінде нешінші планета?",ans:"B",opts:["A. Бірінші","B. Үшінші","C. Бесінші","D. Екінші"],
-   openq:"Жердің мұхит пен құрлық пайыздық арақатынасын түсіндіріңіз.",
-   mapq:"Күн жүйесіндегі планеталарды дұрыс ретпен белгілеңіз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Solar_sys8.jpg/800px-Solar_sys8.jpg",
-   mapDots:[{x:12,y:50,label:"Меркурий",correct:"Меркурий"},{x:25,y:50,label:"Шолпан",correct:"Шолпан"},{x:38,y:50,label:"Жер",correct:"Жер"},{x:52,y:50,label:"Марс",correct:"Марс"}],
-   mapOpts:["Меркурий","Шолпан","Жер","Марс","Юпитер"]
+  {id:1,
+   kk:"Кіріспе. Геосаяси жағдай, басты ерекшеліктер",
+   ru:"Введение. Геополитическая ситуация, основные особенности",
+   tkk:`<p><strong>Геосаясат</strong> (грек: <em>geo</em> — жер, <em>politikos</em> — мемлекетті басқару) — мемлекеттердің сыртқы саясатына географиялық, тарихи, демографиялық және экономикалық факторлардың тигізетін әсерін зерттейтін пән.</p>
+<div class="fact-box"><div class="fact-title">🌐 Геосаясаттың негізгі мақсаты</div>Әлемдік кеңістіктегі күштердің орналасуын түсіну және мемлекеттердің ұлттық мүдделерін жаһандық аренада қалай қорғайтынын талдау. Ұғымды ғылыми айналымға алғаш <strong>Рудольф Челлен</strong> енгізген.</div>
+<p>ХХІ ғасырдағы геосаяси жағдайдың <strong>4 басты ерекшелігі:</strong></p>
+<p><strong>1. Көпполярлы әлем:</strong> Бірполярлы жүйеден (АҚШ үстемдігі) бірнеше күш орталықтары бар жүйеге өту — АҚШ, Қытай, ЕО, Үндістан.</p>
+<p><strong>2. Жаһандану және аймақтану:</strong> Экономикалық тұтастану бір жағынан жүрсе, аймақтық одақтар (ШЫҰ, ЕАЭО, АСЕАН) маңызы артуда.</p>
+<p><strong>3. Ресурстар үшін бәсеке:</strong> Мұнай, газбен қатар таза су, сирек металдар үшін геосаяси күрес күшеюде.</p>
+<p><strong>4. Ақпараттық-технологиялық майдан:</strong> Киберкеңістік, жасанды интеллект және ақпараттық қауіпсіздік жаңа геосаяси арена болды. Мемлекет қуаты енді тек әскермен емес, технологиялық әлеуетімен өлшенеді.</p>`,
+   tru:`<p><strong>Геополитика</strong> (от греч. <em>geo</em> — земля, <em>politikos</em> — искусство управления) — наука, изучающая влияние географических, исторических, демографических и экономических факторов на внешнюю политику государств.</p>
+<div class="fact-box"><div class="fact-title">🌐 Основная цель геополитики</div>Понять расстановку сил в мировом пространстве и проанализировать, как государства защищают свои национальные интересы на глобальной арене. Термин введён <strong>Рудольфом Челленом</strong>.</div>
+<p><strong>4 главные особенности современной геополитической ситуации:</strong></p>
+<p><strong>1. Многополярный мир:</strong> Переход от однополярной системы к системе с несколькими центрами силы — США, Китай, ЕС, Индия.</p>
+<p><strong>2. Глобализация и регионализация:</strong> С одной стороны — экономическое единение, с другой — рост региональных союзов (ШОС, ЕАЭС, АСЕАН).</p>
+<p><strong>3. Борьба за ресурсы:</strong> Наряду с нефтью и газом усиливается борьба за пресную воду и редкие металлы.</p>
+<p><strong>4. Информационно-технологический фронт:</strong> Киберпространство и ИИ стали новой геополитической ареной. Мощь государства измеряется не только армией, но и технологическим потенциалом.</p>`,
+   qkk:"«Геосаясат» ұғымын ғылыми айналымға алғаш рет кім енгізген?",
+   ans:"B",
+   opts:["A. Х.Маккиндер","B. Рудольф Челлен","C. Н.Спикмен","D. К.Хаусхофер"],
+   openq:"ХХІ ғасырдағы геосаяси жағдайдың 4 ерекшелігін өз сөзіңізбен түсіндіріңіз.",
+   mapq:"Әлемдік күш орталықтарын картада орналастырыңыз",
+   mapDots:[{x:22,y:40,label:"АҚШ",correct:"АҚШ"},{x:47,y:38,label:"ЕО",correct:"Еуропалық Одақ"},{x:68,y:38,label:"Қытай",correct:"Қытай"},{x:63,y:55,label:"Үндістан",correct:"Үндістан"}],
+   mapOpts:["АҚШ","Еуропалық Одақ","Қытай","Үндістан","Ресей","Бразилия"]
   },
-  {id:2,kk:"Жердің пішіні мен мөлшері",ru:"Форма и размеры Земли",
-   tkk:`<p>Жердің пішіні — <strong>геоид</strong>. Полюстерден жайпақтау, экватордан томпақтау.</p><div class="fact-box"><div class="fact-title">📏 Өлшемдер</div>Экватор радиусы: 6 378 км · Полюс радиусы: 6 357 км · Шеңбері: ~40 000 км</div><p><strong>Эратосфен</strong> (б.з.д. III ғ.) Жер шеңберін алғаш дәл есептеді.</p>`,
-   tru:`<p>Форма Земли — <strong>геоид</strong>. У полюсов немного сплющена, у экватора выпуклее.</p><div class="fact-box"><div class="fact-title">📏 Размеры</div>Радиус экватора: 6 378 км · Полюса: 6 357 км · Окружность: ~40 000 км</div><p><strong>Эратосфен</strong> (III в. до н.э.) первым точно вычислил длину окружности Земли.</p>`,
-   qkk:"Жердің экватор радиусы қанша?",ans:"C",opts:["A. 6 000 км","B. 7 000 км","C. 6 378 км","D. 5 500 км"],
-   openq:"Геоид деген не? Өз сөзіңізбен түсіндіріңіз.",
-   mapq:"Жердің бөліктерін картада дұрыс белгілеңіз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/600px-The_Earth_seen_from_Apollo_17.jpg",
-   mapDots:[{x:50,y:50,label:"Жер",correct:"Жер ғаламшары"}],
-   mapOpts:["Жер ғаламшары","Ай","Марс","Күн"]
+
+  {id:2,
+   kk:"Әлем дамуына ықпал ететін геосаяси факторлар",
+   ru:"Геополитические факторы, влияющие на развитие мира",
+   tkk:`<p>Геосаясат — мемлекеттің сыртқы саясатын оның <strong>географиялық орналасуы, ресурстары және технологиялық деңгейі</strong> тұрғысынан зерттейтін ғылым. ХХІ ғасырда бұл факторлар трансформацияланып, жаңа сипатқа ие болды.</p>
+<div class="fact-box"><div class="fact-title">⚖️ Геосаяси факторлар жіктелуі</div>А) Физикалық-географиялық · Ә) Табиғи-ресурстық · Б) Технологиялық-экономикалық · В) Демографиялық және «Жұмсақ күш»</div>
+<p><strong>А. Физикалық-географиялық факторлар</strong> — мемлекеттің «тұрақты» мүмкіндіктері. Мұхитқа шығу — сауда басымдығы. Климат өзгеруіне байланысты Арктика жаңа геосаяси нүктеге айналуда.</p>
+<p><strong>Ә. Табиғи-ресурстық факторлар</strong> — мұнай, газ, уран халықаралық ықпалды арттырады. «Жасыл энергияға» өту кезінде <strong>литий мен кобальт</strong> үшін бәсеке күшеюде. Ауыз су — болашақтың басты геосаяси ресурсы.</p>
+<p><strong>Б. Технологиялық-экономикалық факторлар</strong> — «технологиялық егемендік» бірінші орынға шықты. Жасанды интеллект, микрочиптер, ғарыш технологиялары мемлекеттің дамуын белгілейді.</p>
+<p><strong>В. Демография және «Жұмсақ күш»</strong> — адам санымен қатар оның сапасы (білім, шығармашылық) маңызды. «Жұмсақ күш» — мәдениет, білім, өмір стандарты арқылы ықпал ету.</p>`,
+   tru:`<p>Геополитика изучает внешнюю политику государства через призму его <strong>географического положения, ресурсов и технологического уровня</strong>. В XXI веке эти факторы трансформировались.</p>
+<div class="fact-box"><div class="fact-title">⚖️ Классификация геополитических факторов</div>А) Физико-географические · Б) Природно-ресурсные · В) Технологически-экономические · Г) Демографические и «Мягкая сила»</div>
+<p><strong>А. Физико-географические</strong> — «постоянные» возможности государства. Выход к океану = торговое преимущество. Из-за изменения климата Арктика становится новой геополитической точкой.</p>
+<p><strong>Б. Природно-ресурсные</strong> — нефть, газ, уран усиливают международное влияние. При переходе к «зелёной энергии» конкуренция за <strong>литий и кобальт</strong> усиливается. Пресная вода — главный геополитический ресурс будущего.</p>
+<p><strong>В. Технологически-экономические</strong> — на первое место вышло «технологическое суверенитет». ИИ, микрочипы, космические технологии определяют развитие государства.</p>
+<p><strong>Г. Демография и «Мягкая сила»</strong> — важно не только количество, но и качество населения (образование, креативность). «Мягкая сила» — влияние через культуру, образование, стандарты жизни.</p>`,
+   qkk:"«Жұмсақ күш» (Soft Power) ұғымы нені білдіреді?",
+   ans:"C",
+   opts:["A. Ядролық қаруды қолдану","B. Экономикалық санкция","C. Мәдениет, білім арқылы ықпал ету","D. Теңіз флотының күші"],
+   openq:"Технологиялық егемендік неліктен қазіргі геосаясатта бірінші орынға шықты? Мысал келтіріңіз.",
+   mapq:"Табиғи ресурстары бай аймақтарды картада белгілеңіз",
+   mapDots:[{x:55,y:35,label:"Мұнай",correct:"Орта Шығыс (мұнай)"},{x:48,y:25,label:"Газ",correct:"Ресей (газ)"},{x:52,y:55,label:"Уран",correct:"Қазақстан (уран)"},{x:28,y:65,label:"Литий",correct:"Оңт.Америка (литий)"}],
+   mapOpts:["Орта Шығыс (мұнай)","Ресей (газ)","Қазақстан (уран)","Оңт.Америка (литий)","Австралия (кобальт)"]
   },
-  {id:3,kk:"Жердің қозғалысы",ru:"Движение Земли",
-   tkk:`<p>Жер екі қозғалыс жасайды: <strong>өз осінің айналасында</strong> және <strong>Күнді айнала</strong>.</p><div class="fact-box"><div class="fact-title">🌍 Кібісе жыл</div>Жер Күнді 365 күн 6 сағатта айналады. 4 жылда бір рет 29 ақпан пайда болады.</div><p>Жердің осі <strong>23,5°</strong> қисайған — жыл мезгілдері осыдан туады.</p>`,
-   tru:`<p>Земля совершает два движения: <strong>вокруг своей оси</strong> и <strong>вокруг Солнца</strong>.</p><div class="fact-box"><div class="fact-title">🌍 Високосный год</div>Земля обходит Солнце за 365 дней 6 часов. Раз в 4 года — 29 февраля.</div><p>Ось наклонена на <strong>23,5°</strong> — это вызывает смену времён года.</p>`,
-   qkk:"Жердің айналу осі қанша градусқа қисайған?",ans:"A",opts:["A. 23,5°","B. 45°","C. 90°","D. 15°"],
-   openq:"Кібісе жыл неліктен пайда болатынын түсіндіріңіз.",
-   mapq:"Жыл мезгілдерін дұрыс орналастырыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Seasons1.svg/600px-Seasons1.svg.png",
-   mapDots:[{x:20,y:30,label:"Жаз",correct:"Жаз"},{x:80,y:30,label:"Қыс",correct:"Қыс"},{x:50,y:15,label:"Күз",correct:"Күз"},{x:50,y:75,label:"Көктем",correct:"Көктем"}],
-   mapOpts:["Жаз","Қыс","Күз","Көктем"]
+
+  {id:3,
+   kk:"Әлем аймақтарының геосаяси кеңістіктегі рөлі",
+   ru:"Роль регионов мира в геополитическом пространстве",
+   tkk:`<p>Геосаясат — мемлекеттердің географиялық орналасуы мен олардың саяси ықпалы арасындағы байланысты зерттейтін ғылым. Аймақтардың рөлі жер көлемімен ғана емес, экономикалық қуат пен технологиялық әлеуетпен өлшенеді.</p>
+<div class="fact-box"><div class="fact-title">🗺️ Классикалық геосаяси модельдер</div><strong>Хартленд (Маккиндер):</strong> Еуразияның ішкі бөлігі — «Әлем жүрегі» — жаһандық үстемдіктің кілті. <strong>Римленд (Спикмен):</strong> Негізгі күш жағалау аймақтарында (Еуропа, Оңт.Азия, Қиыр Шығыс). Бүгінде бұларға «цифрлық геосаясат» қосылды.</div>
+<p><strong>Солтүстік Америка:</strong> АҚШ — технологиялық және әскери доминант. Жасанды интеллект, ғарыш, теңіз флоты арқылы әлемдік мұхит жолдарын бақылайды.</p>
+<p><strong>Еуропа:</strong> «Жұмсақ күш» үлгісі — халықаралық заңнама, экологиялық стандарт (Green Deal), демократиялық институттарды қалыптастырады.</p>
+<p><strong>Азия:</strong> «Атлант дәуірінен» «Тынық мұхиты дәуіріне» өтудің себепкері. Қытайдың «Бір белдеу — бір жол» жобасы құрлықтық логистиканы қайта құруда.</p>
+<p><strong>Орталық Азия және Қазақстан:</strong> Еуразияның «көпірі» — транзиттік әлеует пен көпвекторлы саясат арқылы стратегиялық маңыз.</p>`,
+   tru:`<p>Геополитика изучает взаимосвязь между географическим положением государств и их политическим влиянием. Роль регионов определяется не только площадью, но и экономической мощью и технологическим потенциалом.</p>
+<div class="fact-box"><div class="fact-title">🗺️ Классические геополитические модели</div><strong>Хартленд (Маккиндер):</strong> Внутренняя часть Евразии — «сердце мира» — ключ к мировому господству. <strong>Римленд (Спикмен):</strong> Основная сила сосредоточена в прибрежных зонах. Сегодня к ним добавилась «цифровая геополитика».</div>
+<p><strong>Северная Америка:</strong> США — технологический и военный доминант. Контролируют мировые морские пути через ИИ, космос и флот.</p>
+<p><strong>Европа:</strong> Модель «мягкой силы» — формирует международное право, экологические стандарты (Green Deal), демократические институты.</p>
+<p><strong>Азия:</strong> Главная причина перехода от «атлантической эпохи» к «тихоокеанской». Проект Китая «Один пояс — один путь» перестраивает континентальную логистику.</p>
+<p><strong>Центральная Азия и Казахстан:</strong> «Мост» Евразии — стратегическое значение благодаря транзитному потенциалу и многовекторной политике.</p>`,
+   qkk:"Маккиндердің «Хартленд» теориясы бойынша жаһандық үстемдіктің кілті қайда?",
+   ans:"A",
+   opts:["A. Еуразияның ішкі аймағы","B. Атлант мұхиты","C. Тынық мұхиты жағалауы","D. Африка континенті"],
+   openq:"Қазақстанның «Еуразия көпірі» ретіндегі рөлін түсіндіріңіз.",
+   mapq:"Геосаяси модельдердегі негізгі аймақтарды белгілеңіз",
+   mapDots:[{x:22,y:38,label:"Солт.Америка",correct:"Солтүстік Америка"},{x:47,y:36,label:"Еуропа",correct:"Еуропа"},{x:65,y:38,label:"Азия",correct:"Азия"},{x:52,y:52,label:"Орт.Азия",correct:"Орталық Азия"}],
+   mapOpts:["Солтүстік Америка","Еуропа","Азия","Орталық Азия","Африка","Австралия"]
   },
-  {id:4,kk:"Жер бетінің бедері",ru:"Рельеф земной поверхности",
-   tkk:`<p><strong>Бедер</strong> — Жер бетінің кедір-бұдырлығы: тау, жазық, ойыс, қырат.</p><div class="fact-box"><div class="fact-title">⛰️ Рекордтар</div>Ең биік: Эверест — 8 849 м · Ең терең: Мариана шұңқыры — 11 034 м</div><p>Бедер қалыптастырушы күштер: <strong>ішкі</strong> (жанартаулар) және <strong>сыртқы</strong> (эрозия).</p>`,
-   tru:`<p><strong>Рельеф</strong> — неровности поверхности Земли: горы, равнины, впадины.</p><div class="fact-box"><div class="fact-title">⛰️ Рекорды</div>Высшая точка: Эверест — 8 849 м · Самое глубокое: Марианская впадина — 11 034 м</div><p>Силы формирования: <strong>внутренние</strong> (вулканы) и <strong>внешние</strong> (эрозия).</p>`,
-   qkk:"Дүниедегі ең биік тау қайсы?",ans:"B",opts:["A. Монблан","B. Эверест","C. Эльбрус","D. Килиманджаро"],
-   openq:"Ішкі және сыртқы бедер қалыптастырушы күштерге мысал келтіріңіз.",
-   mapq:"Материктер мен мұхиттарды картада табыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
-   mapDots:[{x:25,y:40,label:"Солт. Америка",correct:"Солтүстік Америка"},{x:47,y:42,label:"Еуропа",correct:"Еуропа"},{x:57,y:50,label:"Азия",correct:"Азия"},{x:46,y:62,label:"Африка",correct:"Африка"},{x:73,y:65,label:"Австралия",correct:"Австралия"}],
-   mapOpts:["Солтүстік Америка","Еуропа","Азия","Африка","Австралия","Антарктида"]
+
+  {id:4,
+   kk:"Діни және ұлттық қақтығыстардың әлемнің саяси бейнесіне ықпалы",
+   ru:"Влияние религиозных и национальных конфликтов на политическую картину мира",
+   tkk:`<p>Әлемнің саяси картасы тұрақты емес — ол үнемі өзгеріп отырады. Бұл өзгерістердің басты себептерінің бірі — <strong>діни және этникалық қақтығыстар</strong>.</p>
+<div class="fact-box"><div class="fact-title">🕊️ Қақтығыстардың саяси картаға тікелей әсері</div><strong>Мемлекеттердің бөлшектенуі:</strong> Югославияның ыдырауы → Сербия, Хорватия, Словения, Босния пайда болды. <strong>Сепаратизм:</strong> Белгілі бір топтың бөлініп шығуға ұмтылуы. <strong>Анклавтар:</strong> Этностардың араласып қоныстануынан туындаған даулы аймақтар.</div>
+<p><strong>Заманауи ірі қақтығыстар:</strong></p>
+<p>🔴 <strong>Палестина-Израиль:</strong> Діни және этникалық — Таяу Шығыстағы тұрақсыздық, АҚШ пен араб елдерінің екіге бөлінуі.</p>
+<p>🔴 <strong>Кашмир (Үндістан-Пәкістан):</strong> Діни (Индуизм-Ислам) — екі ядролық держава арасындағы тұрақты соғыс қаупі.</p>
+<p>🔴 <strong>Орталық Африка:</strong> Этникалық (тайпалық) — мемлекеттік институттардың әлсіреуі, БҰҰ бітімгершілік күштері.</p>
+<p><strong>Қақтығыстардың жаһандық салдары:</strong> миграциялық толқындар, радикализмнің таралуы, экономикалық тоқырау. Отарлаудан қалған жасанды шекаралар мен ресурстарға талас — басты себептер.</p>`,
+   tru:`<p>Политическая карта мира нестабильна — она постоянно меняется. Одна из главных причин этих изменений — <strong>религиозные и этнические конфликты</strong>.</p>
+<div class="fact-box"><div class="fact-title">🕊️ Прямое влияние конфликтов на политическую карту</div><strong>Распад государств:</strong> Югославия → Сербия, Хорватия, Словения, Босния. <strong>Сепаратизм:</strong> Стремление группы отделиться. <strong>Анклавы:</strong> Спорные зоны из-за смешанного расселения народов.</div>
+<p><strong>Крупные современные конфликты:</strong></p>
+<p>🔴 <strong>Палестина-Израиль:</strong> Религиозно-этнический — нестабильность Ближнего Востока, раскол между США и арабскими странами.</p>
+<p>🔴 <strong>Кашмир (Индия-Пакистан):</strong> Религиозный (Индуизм-Ислам) — постоянная угроза войны между двумя ядерными державами.</p>
+<p>🔴 <strong>Центральная Африка:</strong> Этнический (племенной) — ослабление государственных институтов, миротворцы ООН.</p>
+<p><strong>Глобальные последствия конфликтов:</strong> миграционные волны, распространение радикализма, экономический застой. Искусственные границы, оставшиеся от колониализма, и борьба за ресурсы — главные причины.</p>`,
+   qkk:"Бір ірі мемлекеттің орнына бірнеше жаңа мемлекеттің пайда болуы қалай аталады?",
+   ans:"C",
+   opts:["A. Федерализм","B. Конфедерация","C. Мемлекеттің бөлшектенуі","D. Анексия"],
+   openq:"Діни-этникалық қақтығыстардың жаһандық салдарларына 2 мысал келтіріңіз.",
+   mapq:"Қақтығыс ошақтарын дүниежүзі картасында табыңыз",
+   mapDots:[{x:55,y:45,label:"Палестина",correct:"Таяу Шығыс (Палестина-Израиль)"},{x:63,y:47,label:"Кашмир",correct:"Кашмир (Үндістан-Пәкістан)"},{x:48,y:58,label:"Африка",correct:"Орталық Африка"},{x:43,y:30,label:"Еуропа",correct:"Балқан (Бывш.Югославия)"}],
+   mapOpts:["Таяу Шығыс (Палестина-Израиль)","Кашмир (Үндістан-Пәкістан)","Орталық Африка","Балқан (Бывш.Югославия)","Украина","Сирия"]
   },
-  {id:5,kk:"Литосфера",ru:"Литосфера",
-   tkk:`<p><strong>Литосфера</strong> — Жердің қатты сыртқы қабаты. Жер қыртысы мен жоғарғы мантиядан тұрады.</p><div class="fact-box"><div class="fact-title">🗺️ Тақталар</div>Литосфера тақталарға бөлінген. Жылына 2–5 см жылжиды — тауларды тудырады.</div><p>Материктерде қалыңдығы <strong>80–200 км</strong>, мұхит астында — <strong>5–100 км</strong>.</p>`,
-   tru:`<p><strong>Литосфера</strong> — твёрдая внешняя оболочка Земли. Включает земную кору и верхнюю мантию.</p><div class="fact-box"><div class="fact-title">🗺️ Плиты</div>Разбита на плиты, движущиеся 2–5 см в год — это создаёт горы.</div><p>Под материками <strong>80–200 км</strong>, под океанами — <strong>5–100 км</strong>.</p>`,
-   qkk:"Литосфералық тақталар жылына қанша жылжиды?",ans:"C",opts:["A. 10–20 км","B. 1 м","C. 2–5 см","D. 100 м"],
-   openq:"Литосфера мен жер қыртысы арасындағы айырмашылықты жазыңыз.",
-   mapq:"Жер қабаттарын дұрыс белгілеңіз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Earth_cutaway_schematic-en.svg/600px-Earth_cutaway_schematic-en.svg.png",
-   mapDots:[{x:50,y:10,label:"Жер қыртысы",correct:"Жер қыртысы"},{x:50,y:35,label:"Мантия",correct:"Мантия"},{x:50,y:65,label:"Сыртқы ядро",correct:"Сыртқы ядро"},{x:50,y:85,label:"Ішкі ядро",correct:"Ішкі ядро"}],
-   mapOpts:["Жер қыртысы","Мантия","Сыртқы ядро","Ішкі ядро","Литосфера"]
+
+  {id:5,
+   kk:"Геосаяси қуаттың демографиялық және экономикалық детерминанттары",
+   ru:"Демографические и экономические детерминанты геополитической мощи",
+   tkk:`<p>Мемлекеттің «қуаты» дегенде тек әскер ойға келеді. Бірақ ХХІ ғасырда нағыз қуат екі тірекке негізделеді: <strong>демография</strong> (халық) және <strong>экономика</strong> (ресурстар мен технология).</p>
+<div class="fact-box"><div class="fact-title">👥 Демографиялық детерминант</div><strong>Халық саны:</strong> Қытай, Үндістан, АҚШ — ауқымды ішкі нарық, жұмысшы қолы, әскери резерв. <strong>Демографиялық дивиденд:</strong> Жастар үлесі жоғары → экономикалық серпін. <strong>Адами капитал:</strong> Білім + денсаулық + технологиялық дағды = нағыз бәсекелестік.</div>
+<p><strong>Ақыл-ойдың жылыстауы (Brain Drain):</strong> Дарынды мамандардың шетелге кетуі — мемлекеттің бәсекелестік артықшылығын кемітеді. Бұған қарсы шара — «ақыл-ойды қайтару» бағдарламалары.</p>
+<p><strong>Қазақстан үшін маңыздылығы:</strong> Жер аумағы бойынша әлемде 9-шы орын, бірақ халқы тек ~20 млн. Бос шекара аймақтары — геосаяси осал тұс. Демографиялық өсу — стратегиялық міндет.</p>
+<div class="fact-box"><div class="fact-title">💰 Экономикалық детерминант</div><strong>ІЖӨ:</strong> Мемлекеттің сыртқы саясатын жүргізу мүмкіндігі. <strong>«Голланд ауруы»:</strong> Ресурстарға тәуелділік — өнеркәсіптің дамуын тежейді. <strong>Технологиялық егемендік:</strong> Өз чипін, бағдарламасын, инфрақұрылымын жасай алу.</div>`,
+   tru:`<p>Когда говорят о «мощи» государства, думают об армии. Но в XXI веке истинная мощь основана на двух опорах: <strong>демография</strong> (население) и <strong>экономика</strong> (ресурсы и технологии).</p>
+<div class="fact-box"><div class="fact-title">👥 Демографический детерминант</div><strong>Численность населения:</strong> Китай, Индия, США — большой внутренний рынок, рабочая сила, военный резерв. <strong>Демографический дивиденд:</strong> Высокая доля молодёжи → экономический рост. <strong>Человеческий капитал:</strong> Образование + здоровье + технологические навыки = конкурентоспособность.</div>
+<p><strong>Утечка мозгов (Brain Drain):</strong> Эмиграция талантливых специалистов снижает конкурентные преимущества государства. Контрмера — программы «возврата мозгов».</p>
+<p><strong>Значение для Казахстана:</strong> 9-е место в мире по площади, но население всего ~20 млн. Малонаселённые приграничные районы — геополитически уязвимое место. Демографический рост — стратегическая задача.</p>
+<div class="fact-box"><div class="fact-title">💰 Экономический детерминант</div><strong>ВВП:</strong> Основа для проведения внешней политики. <strong>«Голландская болезнь»:</strong> Зависимость от ресурсов тормозит развитие промышленности. <strong>Технологический суверенитет:</strong> Способность создавать собственные чипы, программы, инфраструктуру.</div>`,
+   qkk:"«Демографиялық дивиденд» ұғымы нені білдіреді?",
+   ans:"B",
+   opts:["A. Халық санының азаюы","B. Жастар үлесі жоғары болғандықтан экономикалық өсімнің артуы","C. Зейнеткерлер санының өсуі","D. Иммиграциядан түскен пайда"],
+   openq:"«Голланд ауруы» деген не және Қазақстанға қалай қатысты? Түсіндіріңіз.",
+   mapq:"Халқы көп мемлекеттерді картада белгілеңіз",
+   mapDots:[{x:68,y:42,label:"Қытай",correct:"Қытай (~1,4 млрд)"},{x:63,y:50,label:"Үндістан",correct:"Үндістан (~1,4 млрд)"},{x:22,y:40,label:"АҚШ",correct:"АҚШ (~340 млн)"},{x:48,y:48,label:"Нигерия",correct:"Нигерия (~220 млн)"}],
+   mapOpts:["Қытай (~1,4 млрд)","Үндістан (~1,4 млрд)","АҚШ (~340 млн)","Нигерия (~220 млн)","Ресей (~145 млн)","Бразилия (~215 млн)"]
   },
-  {id:6,kk:"Атмосфера",ru:"Атмосфера",
-   tkk:`<p><strong>Атмосфера</strong> — Жерді қоршаған газ қабаты. Зиянды сәулелерден қорғайды.</p><div class="fact-box"><div class="fact-title">🌫️ Қабаттар</div>Тропосфера (0–12 км) · Стратосфера · Мезосфера · Термосфера · Экзосфера</div><p>Құрамы: <strong>Азот 78%</strong>, <strong>Оттек 21%</strong>. Озон қабаты ультракүлгін сәулелерді сіңіреді.</p>`,
-   tru:`<p><strong>Атмосфера</strong> — газовая оболочка Земли. Защищает от вредного излучения.</p><div class="fact-box"><div class="fact-title">🌫️ Слои</div>Тропосфера (0–12 км) · Стратосфера · Мезосфера · Термосфера · Экзосфера</div><p>Состав: <strong>Азот 78%</strong>, <strong>Кислород 21%</strong>. Озоновый слой поглощает ультрафиолет.</p>`,
-   qkk:"Атмосферадағы азоттың үлесі қанша?",ans:"D",opts:["A. 21%","B. 50%","C. 99%","D. 78%"],
-   openq:"Озон қабатының маңызын өз сөзіңізбен жазыңыз.",
-   mapq:"Атмосфера қабаттарын дұрыс орналастырыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Atmosphere_layers.jpg/400px-Atmosphere_layers.jpg",
-   mapDots:[{x:50,y:88,label:"Тропосфера",correct:"Тропосфера"},{x:50,y:65,label:"Стратосфера",correct:"Стратосфера"},{x:50,y:45,label:"Мезосфера",correct:"Мезосфера"},{x:50,y:25,label:"Термосфера",correct:"Термосфера"}],
-   mapOpts:["Тропосфера","Стратосфера","Мезосфера","Термосфера","Экзосфера"]
-  },
-  {id:7,kk:"Гидросфера",ru:"Гидросфера",
-   tkk:`<p><strong>Гидросфера</strong> — Жердің барлық су қабатының жиынтығы.</p><div class="fact-box"><div class="fact-title">💧 Деректер</div>Жалпы су: 1,386 млрд км³ · 97,5% тұзды · тек 2,5% тұщы</div><p>Су айналымы: буланады → бұлтқа айналады → жауын → цикл қайталанады.</p>`,
-   tru:`<p><strong>Гидросфера</strong> — совокупность всех водных объектов Земли.</p><div class="fact-box"><div class="fact-title">💧 Данные</div>Всего воды: 1,386 млрд км³ · 97,5% солёная · лишь 2,5% пресная</div><p>Круговорот воды: испарение → облака → осадки → повторение.</p>`,
-   qkk:"Жер бетіндегі тұщы судың үлесі қанша?",ans:"A",opts:["A. 2,5%","B. 50%","C. 97,5%","D. 10%"],
-   openq:"Су айналымының маңызын табиғат үшін түсіндіріңіз.",
-   mapq:"Дүниежүзілік мұхиттарды картада табыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
-   mapDots:[{x:35,y:45,label:"Атлант",correct:"Атлант мұхиты"},{x:15,y:50,label:"Тынық",correct:"Тынық мұхиты"},{x:60,y:60,label:"Үнді",correct:"Үнді мұхиты"},{x:50,y:10,label:"Солт.Мұзды",correct:"Солтүстік Мұзды"}],
-   mapOpts:["Атлант мұхиты","Тынық мұхиты","Үнді мұхиты","Солтүстік Мұзды","Оңтүстік мұхиты"]
-  },
-  {id:8,kk:"Климат белдеулері",ru:"Климатические пояса",
-   tkk:`<p>Жер бетінде <strong>7 климат белдеуі</strong> бар, экватордан полюске орналасады.</p><div class="fact-box"><div class="fact-title">🌎 Қазақстан</div>Қоңыржай континенттік климат. Жазы ыстық, қысы суық, жауын аз.</div><p>Экваторлық → Тропиктік → Субтропиктік → Қоңыржай → Субарктикалық → Арктикалық.</p>`,
-   tru:`<p>На Земле <strong>7 климатических поясов</strong> от экватора к полюсам.</p><div class="fact-box"><div class="fact-title">🌎 Казахстан</div>Умеренно-континентальный климат. Лето жаркое, зима холодная, осадков мало.</div><p>Экваториальный → Тропический → Субтропический → Умеренный → Субарктический → Арктический.</p>`,
-   qkk:"Қазақстан қай климат белдеуінде?",ans:"C",opts:["A. Арктикалық","B. Тропиктік","C. Қоңыржай континенттік","D. Экваторлық"],
-   openq:"Климат пен ауа райының айырмашылығын жазыңыз.",
-   mapq:"Климат белдеулерін картада дұрыс орналастырыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
-   mapDots:[{x:50,y:50,label:"Экваторлық",correct:"Экваторлық"},{x:50,y:30,label:"Қоңыржай",correct:"Қоңыржай"},{x:50,y:10,label:"Арктикалық",correct:"Арктикалық"},{x:50,y:70,label:"Тропиктік",correct:"Тропиктік"}],
-   mapOpts:["Экваторлық","Тропиктік","Қоңыржай","Субтропиктік","Арктикалық"]
-  },
-  {id:9,kk:"Табиғат аймақтары",ru:"Природные зоны",
-   tkk:`<p><strong>Табиғат аймақтары</strong> — климат, топырақ, өсімдік ұқсастығымен сипатталатын аумақтар.</p><div class="fact-box"><div class="fact-title">🗺️ Қазақстан</div>Солтүстіктен оңтүстікке: Орман-дала → Дала → Шөлейт → Шөл</div><p>Әр аймақтың өзіне тән жануарлары мен өсімдіктері бар.</p>`,
-   tru:`<p><strong>Природные зоны</strong> — территории со сходным климатом, почвами и растительностью.</p><div class="fact-box"><div class="fact-title">🗺️ Казахстан</div>С севера на юг: Лесостепь → Степь → Полупустыня → Пустыня</div><p>В каждой зоне своя уникальная флора и фауна.</p>`,
-   qkk:"Қазақстанның оңтүстігіндегі табиғат аймағы?",ans:"D",opts:["A. Тундра","B. Тайга","C. Орман-дала","D. Шөл"],
-   openq:"Дала аймағының ерекшеліктерін жазыңыз (климат, өсімдік, жануар).",
-   mapq:"Қазақстанның табиғат аймақтарын картада орналастырыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kazakhstan_relief_map.jpg/800px-Kazakhstan_relief_map.jpg",
-   mapDots:[{x:50,y:20,label:"Орман-дала",correct:"Орман-дала"},{x:50,y:45,label:"Дала",correct:"Дала"},{x:50,y:65,label:"Шөлейт",correct:"Шөлейт"},{x:50,y:82,label:"Шөл",correct:"Шөл"}],
-   mapOpts:["Орман-дала","Дала","Шөлейт","Шөл","Тундра"]
-  },
-  {id:10,kk:"Мұхиттар мен теңіздер",ru:"Океаны и моря",
-   tkk:`<p>Дүниежүзілік мұхит Жер бетінің <strong>71%-ын</strong> алып жатыр. 4 мұхитқа бөлінеді.</p><div class="fact-box"><div class="fact-title">🌊 4 мұхит</div>Тынық — ең үлкені · Атлант · Үнді · Солтүстік Мұзды мұхиты</div><p>Ең терең жер — Мариана шұңқыры (<strong>11 034 м</strong>).</p>`,
-   tru:`<p>Мировой океан занимает <strong>71%</strong> поверхности Земли. Делится на 4 океана.</p><div class="fact-box"><div class="fact-title">🌊 4 океана</div>Тихий — крупнейший · Атлантический · Индийский · Северный Ледовитый</div><p>Самое глубокое место — Марианская впадина (<strong>11 034 м</strong>).</p>`,
-   qkk:"Дүниедегі ең үлкен мұхит қайсы?",ans:"B",opts:["A. Атлант","B. Тынық","C. Үнді","D. Солтүстік Мұзды"],
-   openq:"Мұхит пен теңіздің айырмашылығын жазыңыз.",
-   mapq:"4 мұхитты дүниежүзі картасында табыңыз",
-   mapImg:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png",
-   mapDots:[{x:18,y:50,label:"Тынық",correct:"Тынық мұхиты"},{x:37,y:45,label:"Атлант",correct:"Атлант мұхиты"},{x:60,y:58,label:"Үнді",correct:"Үнді мұхиты"},{x:50,y:8,label:"Солт.Мұзды",correct:"Солтүстік Мұзды"}],
-   mapOpts:["Тынық мұхиты","Атлант мұхиты","Үнді мұхиты","Солтүстік Мұзды","Оңтүстік мұхиты"]
+
+  {id:6,
+   kk:"Қазақстанның геосаяси жағдайындағы артықшылықтары мен мүмкіндіктері",
+   ru:"Геополитические преимущества и возможности Казахстана",
+   tkk:`<p>Геосаясат — мемлекеттің өз аумағын, ресурстары мен орналасу тәртібін <strong>ұлттық мүдде жолында пайдалана алу қабілеті</strong>. Қазақстан Еуразия құрлығының дәл орталығында орналаса отырып, бірегей геосаяси конфигурацияға ие.</p>
+<div class="fact-box"><div class="fact-title">🇰🇿 «Тұйық» аймақтан «Орталық хабқа»</div>Қазақстанның мұхитқа тікелей шығу жолы жоқ — бұл кемшілік емес, <strong>стратегиялық артықшылық</strong>! Шығыс пен Батысты (Қытай — Еуропа), Солтүстік пен Оңтүстікті (Ресей — Орталық Азия, Үндістан) жалғайтын жалғыз тиімді дәліз.</div>
+<p><strong>Транзиттік мүмкіндіктер:</strong> «Нұрлы жол» + «Бір белдеу — бір жол» = Транскаспий бағыты (Орта дәліз) — ең қауіпсіз және қысқа жол.</p>
+<p><strong>Ресурстық потенциал:</strong></p>
+<p>⚡ <strong>Уран:</strong> Әлемдік өндірістің 40%+ — Қазақстанда. Атом энергетикасына қайта оралу кезінде АҚШ, Франция, Қытай, Ресей үшін теңдессіз серіктес.</p>
+<p>🛢️ <strong>Мұнай-газ:</strong> Каспий қайраңы — Еуропа үшін баламалы энергия көзі.</p>
+<p>⚙️ <strong>Сирек металдар:</strong> Смартфон, электромобиль үшін литий, кобальт — болашақ экономикасының кілті.</p>
+<p><strong>Көпвекторлы саясат:</strong> Ресей мен Қытай арасында, Батыс пен Ислам дүниесінің түйіскен жерінде — прагматикалық теңгерім. Астана процесі, бітімгерлік рөл — «Тұрақтылық аралы».</p>`,
+   tru:`<p>Геополитика — это <strong>способность государства использовать свою территорию, ресурсы и положение в национальных интересах</strong>. Казахстан, расположенный в самом центре Евразии, обладает уникальной геополитической конфигурацией.</p>
+<div class="fact-box"><div class="fact-title">🇰🇿 От «тупиковой» зоны к «Центральному хабу»</div>У Казахстана нет прямого выхода к океану — это не недостаток, а <strong>стратегическое преимущество</strong>! Единственный эффективный коридор, связывающий Восток и Запад (Китай — Европа), Север и Юг (Россия — Центральная Азия, Индия).</div>
+<p><strong>Транзитный потенциал:</strong> «Нұрлы жол» + «Один пояс — один путь» = Транскаспийский маршрут (Средний коридор) — самый безопасный и короткий путь.</p>
+<p><strong>Ресурсный потенциал:</strong></p>
+<p>⚡ <strong>Уран:</strong> 40%+ мирового производства — в Казахстане. При возврате к атомной энергетике — незаменимый партнёр для США, Франции, Китая, России.</p>
+<p>🛢️ <strong>Нефть и газ:</strong> Каспийский шельф — альтернативный источник энергии для Европы.</p>
+<p>⚙️ <strong>Редкие металлы:</strong> Литий, кобальт для смартфонов и электромобилей — ключ к экономике будущего.</p>
+<p><strong>Многовекторная политика:</strong> Между Россией и Китаем, на стыке Запада и Исламского мира — прагматичный баланс. Астанинский процесс, миротворческая роль — «Остров стабильности».</p>`,
+   qkk:"Қазақстан дүниежүзілік уран өндірісінің қанша пайызын қамтамасыз етеді?",
+   ans:"D",
+   opts:["A. 10%","B. 20%","C. 30%","D. 40%-дан астам"],
+   openq:"Қазақстанның «тұйық» географиялық орналасуы қалай артықшылыққа айналды? Транскаспий бағытымен байланыстырып түсіндіріңіз.",
+   mapq:"Қазақстанның транзиттік дәліздерін картада белгілеңіз",
+   mapDots:[{x:52,y:42,label:"Қазақстан",correct:"Қазақстан (транзит орталығы)"},{x:68,y:38,label:"Қытай",correct:"Қытай (шығыс бастауы)"},{x:47,y:35,label:"Еуропа",correct:"Еуропа (батыс бастауы)"},{x:55,y:35,label:"Ресей",correct:"Ресей (солтүстік бағыт)"}],
+   mapOpts:["Қазақстан (транзит орталығы)","Қытай (шығыс бастауы)","Еуропа (батыс бастауы)","Ресей (солтүстік бағыт)","Үндістан (оңтүстік бағыт)","Каспий теңізі"]
   }
 ];
 
@@ -704,10 +890,18 @@ function hideLoading(){
   ls.classList.add('fade-out');
   setTimeout(()=>{ ls.style.display='none'; }, 450);
 }
+
+// Welcome screen → Auth screen transition
+function enterCourse(){
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.add('active');
+}
+
 function showAuthScreen(){
   hideLoading();
   document.getElementById('mainScreen').classList.remove('active');
-  document.getElementById('authScreen').classList.add('active');
+  document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('welcomeScreen').classList.add('active');
   document.getElementById('inLogin').value='';
   document.getElementById('inPass').value='';
   document.getElementById('authErr').textContent='';
@@ -763,6 +957,7 @@ function startSession(u){
   ST.currentUser = u;
   _prog = {};
   hideLoading();
+  document.getElementById('welcomeScreen').classList.remove('active');
   document.getElementById('authScreen').classList.remove('active');
   document.getElementById('mainScreen').classList.add('active');
   document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
@@ -806,9 +1001,9 @@ async function renderTopicsAsync(){
   const pts = calcPts(u.uid, T, prog);
 
   let h=`<div class="banner">
-    <div class="banner-badge">8-СЫНЫП • GEOGRAPHY</div>
-    <h2>🌍 География</h2>
-    <p>${T.length} тақырып · Барлық тесттер</p>
+    <div class="banner-badge">10-СЫНЫП • ЭЛЕКТИВТІ КУРС</div>
+    <h2>🌐 Геосаясат</h2>
+    <p>${lang==='kk'?'Жаһандық тұрақтылық және Қазақстан':'Глобальная стабильность и Казахстан'}</p>
     <div class="bstats">
       <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
       <div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
@@ -834,7 +1029,7 @@ async function renderTopicsAsync(){
   });
   h+=`</div>`;
   document.getElementById('tabTopics').innerHTML=h;
-  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`${lang==='kk'?'8-сынып Географиясы':'География 8 класса'}<span class="sync-dot" id="syncDot"></span>`;
+  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`${lang==='kk'?'Геосаясат курсы':'Курс геополитики'}<span class="sync-dot" id="syncDot"></span>`;
   showOnly('tabTopics');
 }
 
@@ -1157,72 +1352,19 @@ async function openEdit(i){
     document.getElementById('mC').value=t.opts?.[2]||'';
     document.getElementById('mD').value=t.opts?.[3]||'';
     document.getElementById('mOpenQ').value=t.openq||'';
-    // Map fields
-    document.getElementById('mMapQ').value=t.mapq||'';
-    document.getElementById('mMapOpts').value=(t.mapOpts||[]).join(', ');
-    // Load dot rows
-    const dots = t.mapDots||[];
-    document.getElementById('dotRowsWrap').innerHTML='';
-    dots.forEach(d=>addMapDotRow(d));
   } else {
-    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ','mMapQ','mMapOpts'].forEach(id=>document.getElementById(id).value='');
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('mQAns').value='A';
-    document.getElementById('dotRowsWrap').innerHTML='';
   }
   document.getElementById('editModal').classList.add('show');
 }
 
 function closeModal(){ document.getElementById('editModal').classList.remove('show'); }
 
-// ── MAP DOT ROW EDITOR ──
-let _dotRowId = 0;
-function addMapDotRow(d){
-  const id = _dotRowId++;
-  const label = d?.label||'';
-  const correct = d?.correct||'';
-  const x = d?.x!==undefined ? d.x : '';
-  const y = d?.y!==undefined ? d.y : '';
-  const wrap = document.getElementById('dotRowsWrap');
-  const row = document.createElement('div');
-  row.className='dot-row';
-  row.id='drow'+id;
-  row.innerHTML=`
-    <div>
-      <span class="dot-row-label">Нүкте атауы</span>
-      <input placeholder="Мысалы: Азия" value="${label}" class="drow-label">
-    </div>
-    <div>
-      <span class="dot-row-label">Дұрыс жауап</span>
-      <input placeholder="Азия" value="${correct}" class="drow-correct">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-      <div><span class="dot-row-label">X %</span><input type="number" min="0" max="100" placeholder="50" value="${x}" class="drow-x"></div>
-      <div><span class="dot-row-label">Y %</span><input type="number" min="0" max="100" placeholder="50" value="${y}" class="drow-y"></div>
-    </div>
-    <button class="dot-del" onclick="document.getElementById('drow${id}').remove()" title="Өшіру">✕</button>`;
-  wrap.appendChild(row);
-}
-
-function getMapDots(){
-  const rows = document.querySelectorAll('#dotRowsWrap .dot-row');
-  const dots = [];
-  rows.forEach(row=>{
-    const label   = row.querySelector('.drow-label').value.trim();
-    const correct = row.querySelector('.drow-correct').value.trim();
-    const x       = parseFloat(row.querySelector('.drow-x').value)||50;
-    const y       = parseFloat(row.querySelector('.drow-y').value)||50;
-    if(label) dots.push({label, correct: correct||label, x, y});
-  });
-  return dots;
-}
-
 async function saveModal(){
   const kk=document.getElementById('mTKk').value.trim();
   if(!kk){alert('Тақырып атауын жазыңыз!');return;}
   const T = await getTopics();
-  const mapOptsRaw = document.getElementById('mMapOpts').value.trim();
-  const mapOpts = mapOptsRaw ? mapOptsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
-  const mapDots = getMapDots();
   const entry={
     id: editIdx>=0?T[editIdx].id:Date.now(),
     kk, ru:document.getElementById('mTRu').value.trim(),
@@ -1232,13 +1374,15 @@ async function saveModal(){
     ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',
     opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],
     openq:document.getElementById('mOpenQ').value.trim(),
-    mapq: document.getElementById('mMapQ').value.trim(),
-    mapImg: '',
-    mapDots,
-    mapOpts
+    mapq:'', mapImg:'', mapDots:[], mapOpts:[]
   };
-  if(editIdx>=0) T[editIdx]=entry;
-  else T.push(entry);
+  if(editIdx>=0){
+    entry.mapq=T[editIdx].mapq||'';
+    entry.mapImg=T[editIdx].mapImg||'';
+    entry.mapDots=T[editIdx].mapDots||[];
+    entry.mapOpts=T[editIdx].mapOpts||[];
+    T[editIdx]=entry;
+  } else T.push(entry);
   await saveTopics(T);
   closeModal();
   renderAdminAsync();
