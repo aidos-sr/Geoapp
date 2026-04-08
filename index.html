@@ -69,13 +69,47 @@
   --r: 20px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
-.screen { display: none; min-height: 100vh; padding-bottom: 80px; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+
+/* All overlay screens are fixed and hidden by default */
+.screen { display: none; }
 .screen.active { display: block; }
+
+/* Full-screen overlay pages (welcome, auth) — fixed so they don't stack */
+#welcomeScreen, #authScreen {
+  position: fixed; inset: 0; z-index: 100;
+  max-width: 480px; left: 50%; transform: translateX(-50%);
+  overflow-y: auto;
+}
+
+/* Main screen is normal flow */
+#mainScreen { display: none; min-height: 100vh; padding-bottom: 80px; }
+#mainScreen.active { display: block; }
 
 /* ── ICONS (solid monolithic SVG) ── */
 .icon { display: inline-flex; align-items: center; justify-content: center; }
 .icon svg { display: block; }
+
+/* ── Global SVG icon sizing ── */
+.load-globe svg { width: 52px; height: 52px; stroke: #fff; margin-bottom: 18px; display: block; }
+.wc-globe svg { width: 72px; height: 72px; stroke: #a78bfa; filter: drop-shadow(0 0 24px rgba(124,58,237,.5)); }
+.wc-badge svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+.wc-card-icon svg { width: 28px; height: 28px; stroke: rgba(255,255,255,.85); display: block; margin: 0 auto 6px; }
+.wc-topic-pill svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 3px; flex-shrink: 0; }
+.auth-emblem svg { width: 36px; height: 36px; stroke: rgba(255,255,255,.9); }
+.firebase-badge svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 3px; }
+.nb-icon svg { display: block; width: 22px; height: 22px; }
+.nb.act .nb-icon svg { stroke: var(--accent); }
+.nb .nb-icon svg { stroke: var(--muted); }
+.banner h2 svg { width: 22px; height: 22px; vertical-align: middle; margin-right: 6px; stroke: #fff; }
+.fact-title svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; stroke: var(--accent); }
+.adm-header-title svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 5px; }
+.tres.ok svg { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; stroke: var(--green); }
+.tres.ko svg { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; stroke: var(--red); }
+.done-item svg { width: 18px; height: 18px; stroke: var(--green); }
+p svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; }
+p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
+.adm-sec-title svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 5px; stroke: var(--accent); }
 
 /* ── LOADING ── */
 #loadingScreen {
@@ -95,8 +129,8 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 /* ── WELCOME SCREEN ── */
 #welcomeScreen {
   background: linear-gradient(160deg, #0d1117 0%, #1a1a3e 40%, #2d1b69 70%, #4f46e5 100%);
-  min-height: 100vh; display: flex; flex-direction: column;
-  padding: 0 0 40px; overflow: hidden; position: relative;
+  display: flex; flex-direction: column;
+  padding-bottom: 0;
 }
 #welcomeScreen::before {
   content: '';
@@ -196,7 +230,6 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 #authScreen {
   background: linear-gradient(145deg, #1a1a2e 0%, #312e81 55%, #4f46e5 100%);
   flex-direction: column; align-items: center; justify-content: flex-end;
-  min-height: 100vh; padding-bottom: 0;
 }
 #authScreen.active { display: flex; }
 .auth-top { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px 0; }
@@ -263,7 +296,7 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
   gap: 4px;
 }
 .nb.act { color: var(--accent); }
-.nb-icon { width: 24px; height: 24px; }
+.nb-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
 
 /* ── BANNER ── */
 .banner {
@@ -443,7 +476,7 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
 <!-- LOADING -->
 <div id="loadingScreen">
-  <div class="load-globe">🌍</div>
+  <div class="load-globe"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
   <div class="load-logo">ГЕО 10</div>
   <div class="load-txt">Жүктелуде...</div>
   <div class="spin"></div>
@@ -452,8 +485,8 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 <!-- WELCOME / АВТОРЛЫҚ БАҒДАРЛАМА -->
 <div id="welcomeScreen" class="screen">
   <div class="wc-hero">
-    <div class="wc-badge">🏫 Сарыағаш · 2026</div>
-    <div class="wc-globe">🌍</div>
+    <div class="wc-badge"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/><rect x="9" y="9" width="6" height="4" rx="1"/></svg> Сарыағаш · 2026</div>
+    <div class="wc-globe"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
     <div class="wc-title">Геосаясат:<br><span>Жаһандық тұрақтылық</span><br>және Қазақстан</div>
     <div class="wc-subtitle">Элективті курс · 10-сынып<br>Қоғамдық-гуманитарлық бағыт</div>
     <div class="wc-authors">
@@ -470,22 +503,22 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
   <div class="wc-info-cards">
     <div class="wc-card">
-      <div class="wc-card-icon">📚</div>
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
       <div class="wc-card-val">6</div>
       <div class="wc-card-lbl">Тақырып</div>
     </div>
     <div class="wc-card">
-      <div class="wc-card-icon">⏱️</div>
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
       <div class="wc-card-val">34</div>
       <div class="wc-card-lbl">Сағат (жыл)</div>
     </div>
     <div class="wc-card">
-      <div class="wc-card-icon">🎯</div>
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
       <div class="wc-card-val">10</div>
       <div class="wc-card-lbl">Сынып</div>
     </div>
     <div class="wc-card">
-      <div class="wc-card-icon">🏆</div>
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16M9 22V12M15 22V12"/><path d="M18 2H6v10a6 6 0 0 0 12 0V2z"/></svg></div>
       <div class="wc-card-val">72</div>
       <div class="wc-card-lbl">Макс. балл</div>
     </div>
@@ -497,12 +530,12 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
       Курс оқушыларды қазіргі геосаяси процестерді талдауға, Қазақстанның әлемдік аренадағы орнын айқындауға және геосаяси тәуекелдерді бағалауға үйретеді.
     </div>
     <div class="wc-topics-preview">
-      <span class="wc-topic-pill">🌐 Геосаяси жағдай</span>
-      <span class="wc-topic-pill">⚖️ Геосаяси факторлар</span>
-      <span class="wc-topic-pill">🗺️ Әлем аймақтары</span>
-      <span class="wc-topic-pill">🕊️ Дін және қақтығыс</span>
-      <span class="wc-topic-pill">👥 Демография</span>
-      <span class="wc-topic-pill">🇰🇿 Қазақстан</span>
+      <span class="wc-topic-pill"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаяси жағдай</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Геосаяси факторлар</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Әлем аймақтары</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Дін және қақтығыс</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демография</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Қазақстан</span>
     </div>
     <button class="btn-enter" onclick="enterCourse()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
@@ -517,7 +550,7 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 <!-- AUTH -->
 <div id="authScreen" class="screen">
   <div class="auth-top">
-    <div class="auth-emblem">🌍</div>
+    <div class="auth-emblem"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
     <div class="auth-logo">ГЕО 10</div>
     <div class="auth-sub">Геосаясат элективті курсы · 10-сынып</div>
   </div>
@@ -540,7 +573,7 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
     </div>
     <div class="auth-err" id="authErr"></div>
     <button class="btn btn-primary" id="authBtn" onclick="doAuth()">Кіру</button>
-    <div class="firebase-badge">🔒 Firebase арқылы қорғалған</div>
+    <div class="firebase-badge"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Firebase арқылы қорғалған</div>
   </div>
 </div>
 
@@ -563,18 +596,15 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
   <div class="bnav">
     <button class="nb act" id="nb0" onclick="switchTab(0)">
-      <!-- Book icon -->
-      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 8H15a2 2 0 0 1-2-2V3.5zM8 12h8v1.5H8V12zm0 3h8v1.5H8V15zm0-6h4v1.5H8V9z"/></svg>
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
       <span id="nb0l">Тақырыптар</span>
     </button>
     <button class="nb" id="nb1" onclick="switchTab(1)">
-      <!-- User icon -->
-      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
       <span id="nb1l">Профиль</span>
     </button>
     <button class="nb hidden" id="nb2" onclick="switchTab(2)">
-      <!-- Settings/gear icon -->
-      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7.6-1.4-1.1-.9c.1-.5.1-.9 0-1.4l1.1-.9a.5.5 0 0 0 .1-.6l-1-1.7a.5.5 0 0 0-.6-.2l-1.3.5c-.4-.3-.8-.5-1.3-.7L15.2 6a.5.5 0 0 0-.5-.4h-2a.5.5 0 0 0-.5.4l-.2 1.4c-.5.2-.9.4-1.3.7l-1.3-.5a.5.5 0 0 0-.6.2l-1 1.7a.5.5 0 0 0 .1.6l1.1.9c-.1.5-.1.9 0 1.4l-1.1.9a.5.5 0 0 0-.1.6l1 1.7a.5.5 0 0 0 .6.2l1.3-.5c.4.3.8.5 1.3.7l.2 1.4a.5.5 0 0 0 .5.4h2a.5.5 0 0 0 .5-.4l.2-1.4c.5-.2.9-.4 1.3-.7l1.3.5a.5.5 0 0 0 .6-.2l1-1.7a.5.5 0 0 0-.1-.6z"/></svg>
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
       <span>Админ</span>
     </button>
   </div>
@@ -707,13 +737,17 @@ async function saveProg(p) {
     await fbSaveProg(window._fbUser.uid, p);
   }
 }
+const TOPICS_VERSION = 'v2-geosayasat-6'; // Change this to force-reset Firebase topics
+
 async function getTopics() {
   if (_topics) return _topics;
   const fbT = await fbGetTopics();
-  if (fbT && fbT.length > 0) {
+  // Check if Firebase topics match current version
+  if (fbT && fbT.length > 0 && fbT[0]._version === TOPICS_VERSION) {
     _topics = fbT;
   } else {
-    _topics = DEF_TOPICS;
+    // Force update: new topics or version mismatch
+    _topics = DEF_TOPICS.map(t => ({...t, _version: TOPICS_VERSION}));
     await fbSaveTopics(_topics);
   }
   return _topics;
@@ -735,14 +769,14 @@ const DEF_TOPICS = [
    kk:"Кіріспе. Геосаяси жағдай, басты ерекшеліктер",
    ru:"Введение. Геополитическая ситуация, основные особенности",
    tkk:`<p><strong>Геосаясат</strong> (грек: <em>geo</em> — жер, <em>politikos</em> — мемлекетті басқару) — мемлекеттердің сыртқы саясатына географиялық, тарихи, демографиялық және экономикалық факторлардың тигізетін әсерін зерттейтін пән.</p>
-<div class="fact-box"><div class="fact-title">🌐 Геосаясаттың негізгі мақсаты</div>Әлемдік кеңістіктегі күштердің орналасуын түсіну және мемлекеттердің ұлттық мүдделерін жаһандық аренада қалай қорғайтынын талдау. Ұғымды ғылыми айналымға алғаш <strong>Рудольф Челлен</strong> енгізген.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаясаттың негізгі мақсаты</div>Әлемдік кеңістіктегі күштердің орналасуын түсіну және мемлекеттердің ұлттық мүдделерін жаһандық аренада қалай қорғайтынын талдау. Ұғымды ғылыми айналымға алғаш <strong>Рудольф Челлен</strong> енгізген.</div>
 <p>ХХІ ғасырдағы геосаяси жағдайдың <strong>4 басты ерекшелігі:</strong></p>
 <p><strong>1. Көпполярлы әлем:</strong> Бірполярлы жүйеден (АҚШ үстемдігі) бірнеше күш орталықтары бар жүйеге өту — АҚШ, Қытай, ЕО, Үндістан.</p>
 <p><strong>2. Жаһандану және аймақтану:</strong> Экономикалық тұтастану бір жағынан жүрсе, аймақтық одақтар (ШЫҰ, ЕАЭО, АСЕАН) маңызы артуда.</p>
 <p><strong>3. Ресурстар үшін бәсеке:</strong> Мұнай, газбен қатар таза су, сирек металдар үшін геосаяси күрес күшеюде.</p>
 <p><strong>4. Ақпараттық-технологиялық майдан:</strong> Киберкеңістік, жасанды интеллект және ақпараттық қауіпсіздік жаңа геосаяси арена болды. Мемлекет қуаты енді тек әскермен емес, технологиялық әлеуетімен өлшенеді.</p>`,
    tru:`<p><strong>Геополитика</strong> (от греч. <em>geo</em> — земля, <em>politikos</em> — искусство управления) — наука, изучающая влияние географических, исторических, демографических и экономических факторов на внешнюю политику государств.</p>
-<div class="fact-box"><div class="fact-title">🌐 Основная цель геополитики</div>Понять расстановку сил в мировом пространстве и проанализировать, как государства защищают свои национальные интересы на глобальной арене. Термин введён <strong>Рудольфом Челленом</strong>.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Основная цель геополитики</div>Понять расстановку сил в мировом пространстве и проанализировать, как государства защищают свои национальные интересы на глобальной арене. Термин введён <strong>Рудольфом Челленом</strong>.</div>
 <p><strong>4 главные особенности современной геополитической ситуации:</strong></p>
 <p><strong>1. Многополярный мир:</strong> Переход от однополярной системы к системе с несколькими центрами силы — США, Китай, ЕС, Индия.</p>
 <p><strong>2. Глобализация и регионализация:</strong> С одной стороны — экономическое единение, с другой — рост региональных союзов (ШОС, ЕАЭС, АСЕАН).</p>
@@ -761,13 +795,13 @@ const DEF_TOPICS = [
    kk:"Әлем дамуына ықпал ететін геосаяси факторлар",
    ru:"Геополитические факторы, влияющие на развитие мира",
    tkk:`<p>Геосаясат — мемлекеттің сыртқы саясатын оның <strong>географиялық орналасуы, ресурстары және технологиялық деңгейі</strong> тұрғысынан зерттейтін ғылым. ХХІ ғасырда бұл факторлар трансформацияланып, жаңа сипатқа ие болды.</p>
-<div class="fact-box"><div class="fact-title">⚖️ Геосаяси факторлар жіктелуі</div>А) Физикалық-географиялық · Ә) Табиғи-ресурстық · Б) Технологиялық-экономикалық · В) Демографиялық және «Жұмсақ күш»</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Геосаяси факторлар жіктелуі</div>А) Физикалық-географиялық · Ә) Табиғи-ресурстық · Б) Технологиялық-экономикалық · В) Демографиялық және «Жұмсақ күш»</div>
 <p><strong>А. Физикалық-географиялық факторлар</strong> — мемлекеттің «тұрақты» мүмкіндіктері. Мұхитқа шығу — сауда басымдығы. Климат өзгеруіне байланысты Арктика жаңа геосаяси нүктеге айналуда.</p>
 <p><strong>Ә. Табиғи-ресурстық факторлар</strong> — мұнай, газ, уран халықаралық ықпалды арттырады. «Жасыл энергияға» өту кезінде <strong>литий мен кобальт</strong> үшін бәсеке күшеюде. Ауыз су — болашақтың басты геосаяси ресурсы.</p>
 <p><strong>Б. Технологиялық-экономикалық факторлар</strong> — «технологиялық егемендік» бірінші орынға шықты. Жасанды интеллект, микрочиптер, ғарыш технологиялары мемлекеттің дамуын белгілейді.</p>
 <p><strong>В. Демография және «Жұмсақ күш»</strong> — адам санымен қатар оның сапасы (білім, шығармашылық) маңызды. «Жұмсақ күш» — мәдениет, білім, өмір стандарты арқылы ықпал ету.</p>`,
    tru:`<p>Геополитика изучает внешнюю политику государства через призму его <strong>географического положения, ресурсов и технологического уровня</strong>. В XXI веке эти факторы трансформировались.</p>
-<div class="fact-box"><div class="fact-title">⚖️ Классификация геополитических факторов</div>А) Физико-географические · Б) Природно-ресурсные · В) Технологически-экономические · Г) Демографические и «Мягкая сила»</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Классификация геополитических факторов</div>А) Физико-географические · Б) Природно-ресурсные · В) Технологически-экономические · Г) Демографические и «Мягкая сила»</div>
 <p><strong>А. Физико-географические</strong> — «постоянные» возможности государства. Выход к океану = торговое преимущество. Из-за изменения климата Арктика становится новой геополитической точкой.</p>
 <p><strong>Б. Природно-ресурсные</strong> — нефть, газ, уран усиливают международное влияние. При переходе к «зелёной энергии» конкуренция за <strong>литий и кобальт</strong> усиливается. Пресная вода — главный геополитический ресурс будущего.</p>
 <p><strong>В. Технологически-экономические</strong> — на первое место вышло «технологическое суверенитет». ИИ, микрочипы, космические технологии определяют развитие государства.</p>
@@ -785,13 +819,13 @@ const DEF_TOPICS = [
    kk:"Әлем аймақтарының геосаяси кеңістіктегі рөлі",
    ru:"Роль регионов мира в геополитическом пространстве",
    tkk:`<p>Геосаясат — мемлекеттердің географиялық орналасуы мен олардың саяси ықпалы арасындағы байланысты зерттейтін ғылым. Аймақтардың рөлі жер көлемімен ғана емес, экономикалық қуат пен технологиялық әлеуетпен өлшенеді.</p>
-<div class="fact-box"><div class="fact-title">🗺️ Классикалық геосаяси модельдер</div><strong>Хартленд (Маккиндер):</strong> Еуразияның ішкі бөлігі — «Әлем жүрегі» — жаһандық үстемдіктің кілті. <strong>Римленд (Спикмен):</strong> Негізгі күш жағалау аймақтарында (Еуропа, Оңт.Азия, Қиыр Шығыс). Бүгінде бұларға «цифрлық геосаясат» қосылды.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Классикалық геосаяси модельдер</div><strong>Хартленд (Маккиндер):</strong> Еуразияның ішкі бөлігі — «Әлем жүрегі» — жаһандық үстемдіктің кілті. <strong>Римленд (Спикмен):</strong> Негізгі күш жағалау аймақтарында (Еуропа, Оңт.Азия, Қиыр Шығыс). Бүгінде бұларға «цифрлық геосаясат» қосылды.</div>
 <p><strong>Солтүстік Америка:</strong> АҚШ — технологиялық және әскери доминант. Жасанды интеллект, ғарыш, теңіз флоты арқылы әлемдік мұхит жолдарын бақылайды.</p>
 <p><strong>Еуропа:</strong> «Жұмсақ күш» үлгісі — халықаралық заңнама, экологиялық стандарт (Green Deal), демократиялық институттарды қалыптастырады.</p>
 <p><strong>Азия:</strong> «Атлант дәуірінен» «Тынық мұхиты дәуіріне» өтудің себепкері. Қытайдың «Бір белдеу — бір жол» жобасы құрлықтық логистиканы қайта құруда.</p>
 <p><strong>Орталық Азия және Қазақстан:</strong> Еуразияның «көпірі» — транзиттік әлеует пен көпвекторлы саясат арқылы стратегиялық маңыз.</p>`,
    tru:`<p>Геополитика изучает взаимосвязь между географическим положением государств и их политическим влиянием. Роль регионов определяется не только площадью, но и экономической мощью и технологическим потенциалом.</p>
-<div class="fact-box"><div class="fact-title">🗺️ Классические геополитические модели</div><strong>Хартленд (Маккиндер):</strong> Внутренняя часть Евразии — «сердце мира» — ключ к мировому господству. <strong>Римленд (Спикмен):</strong> Основная сила сосредоточена в прибрежных зонах. Сегодня к ним добавилась «цифровая геополитика».</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Классические геополитические модели</div><strong>Хартленд (Маккиндер):</strong> Внутренняя часть Евразии — «сердце мира» — ключ к мировому господству. <strong>Римленд (Спикмен):</strong> Основная сила сосредоточена в прибрежных зонах. Сегодня к ним добавилась «цифровая геополитика».</div>
 <p><strong>Северная Америка:</strong> США — технологический и военный доминант. Контролируют мировые морские пути через ИИ, космос и флот.</p>
 <p><strong>Европа:</strong> Модель «мягкой силы» — формирует международное право, экологические стандарты (Green Deal), демократические институты.</p>
 <p><strong>Азия:</strong> Главная причина перехода от «атлантической эпохи» к «тихоокеанской». Проект Китая «Один пояс — один путь» перестраивает континентальную логистику.</p>
@@ -809,18 +843,18 @@ const DEF_TOPICS = [
    kk:"Діни және ұлттық қақтығыстардың әлемнің саяси бейнесіне ықпалы",
    ru:"Влияние религиозных и национальных конфликтов на политическую картину мира",
    tkk:`<p>Әлемнің саяси картасы тұрақты емес — ол үнемі өзгеріп отырады. Бұл өзгерістердің басты себептерінің бірі — <strong>діни және этникалық қақтығыстар</strong>.</p>
-<div class="fact-box"><div class="fact-title">🕊️ Қақтығыстардың саяси картаға тікелей әсері</div><strong>Мемлекеттердің бөлшектенуі:</strong> Югославияның ыдырауы → Сербия, Хорватия, Словения, Босния пайда болды. <strong>Сепаратизм:</strong> Белгілі бір топтың бөлініп шығуға ұмтылуы. <strong>Анклавтар:</strong> Этностардың араласып қоныстануынан туындаған даулы аймақтар.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Қақтығыстардың саяси картаға тікелей әсері</div><strong>Мемлекеттердің бөлшектенуі:</strong> Югославияның ыдырауы → Сербия, Хорватия, Словения, Босния пайда болды. <strong>Сепаратизм:</strong> Белгілі бір топтың бөлініп шығуға ұмтылуы. <strong>Анклавтар:</strong> Этностардың араласып қоныстануынан туындаған даулы аймақтар.</div>
 <p><strong>Заманауи ірі қақтығыстар:</strong></p>
-<p>🔴 <strong>Палестина-Израиль:</strong> Діни және этникалық — Таяу Шығыстағы тұрақсыздық, АҚШ пен араб елдерінің екіге бөлінуі.</p>
-<p>🔴 <strong>Кашмир (Үндістан-Пәкістан):</strong> Діни (Индуизм-Ислам) — екі ядролық держава арасындағы тұрақты соғыс қаупі.</p>
-<p>🔴 <strong>Орталық Африка:</strong> Этникалық (тайпалық) — мемлекеттік институттардың әлсіреуі, БҰҰ бітімгершілік күштері.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Палестина-Израиль:</strong> Діни және этникалық — Таяу Шығыстағы тұрақсыздық, АҚШ пен араб елдерінің екіге бөлінуі.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Кашмир (Үндістан-Пәкістан):</strong> Діни (Индуизм-Ислам) — екі ядролық держава арасындағы тұрақты соғыс қаупі.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Орталық Африка:</strong> Этникалық (тайпалық) — мемлекеттік институттардың әлсіреуі, БҰҰ бітімгершілік күштері.</p>
 <p><strong>Қақтығыстардың жаһандық салдары:</strong> миграциялық толқындар, радикализмнің таралуы, экономикалық тоқырау. Отарлаудан қалған жасанды шекаралар мен ресурстарға талас — басты себептер.</p>`,
    tru:`<p>Политическая карта мира нестабильна — она постоянно меняется. Одна из главных причин этих изменений — <strong>религиозные и этнические конфликты</strong>.</p>
-<div class="fact-box"><div class="fact-title">🕊️ Прямое влияние конфликтов на политическую карту</div><strong>Распад государств:</strong> Югославия → Сербия, Хорватия, Словения, Босния. <strong>Сепаратизм:</strong> Стремление группы отделиться. <strong>Анклавы:</strong> Спорные зоны из-за смешанного расселения народов.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Прямое влияние конфликтов на политическую карту</div><strong>Распад государств:</strong> Югославия → Сербия, Хорватия, Словения, Босния. <strong>Сепаратизм:</strong> Стремление группы отделиться. <strong>Анклавы:</strong> Спорные зоны из-за смешанного расселения народов.</div>
 <p><strong>Крупные современные конфликты:</strong></p>
-<p>🔴 <strong>Палестина-Израиль:</strong> Религиозно-этнический — нестабильность Ближнего Востока, раскол между США и арабскими странами.</p>
-<p>🔴 <strong>Кашмир (Индия-Пакистан):</strong> Религиозный (Индуизм-Ислам) — постоянная угроза войны между двумя ядерными державами.</p>
-<p>🔴 <strong>Центральная Африка:</strong> Этнический (племенной) — ослабление государственных институтов, миротворцы ООН.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Палестина-Израиль:</strong> Религиозно-этнический — нестабильность Ближнего Востока, раскол между США и арабскими странами.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Кашмир (Индия-Пакистан):</strong> Религиозный (Индуизм-Ислам) — постоянная угроза войны между двумя ядерными державами.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Центральная Африка:</strong> Этнический (племенной) — ослабление государственных институтов, миротворцы ООН.</p>
 <p><strong>Глобальные последствия конфликтов:</strong> миграционные волны, распространение радикализма, экономический застой. Искусственные границы, оставшиеся от колониализма, и борьба за ресурсы — главные причины.</p>`,
    qkk:"Бір ірі мемлекеттің орнына бірнеше жаңа мемлекеттің пайда болуы қалай аталады?",
    ans:"C",
@@ -835,15 +869,15 @@ const DEF_TOPICS = [
    kk:"Геосаяси қуаттың демографиялық және экономикалық детерминанттары",
    ru:"Демографические и экономические детерминанты геополитической мощи",
    tkk:`<p>Мемлекеттің «қуаты» дегенде тек әскер ойға келеді. Бірақ ХХІ ғасырда нағыз қуат екі тірекке негізделеді: <strong>демография</strong> (халық) және <strong>экономика</strong> (ресурстар мен технология).</p>
-<div class="fact-box"><div class="fact-title">👥 Демографиялық детерминант</div><strong>Халық саны:</strong> Қытай, Үндістан, АҚШ — ауқымды ішкі нарық, жұмысшы қолы, әскери резерв. <strong>Демографиялық дивиденд:</strong> Жастар үлесі жоғары → экономикалық серпін. <strong>Адами капитал:</strong> Білім + денсаулық + технологиялық дағды = нағыз бәсекелестік.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демографиялық детерминант</div><strong>Халық саны:</strong> Қытай, Үндістан, АҚШ — ауқымды ішкі нарық, жұмысшы қолы, әскери резерв. <strong>Демографиялық дивиденд:</strong> Жастар үлесі жоғары → экономикалық серпін. <strong>Адами капитал:</strong> Білім + денсаулық + технологиялық дағды = нағыз бәсекелестік.</div>
 <p><strong>Ақыл-ойдың жылыстауы (Brain Drain):</strong> Дарынды мамандардың шетелге кетуі — мемлекеттің бәсекелестік артықшылығын кемітеді. Бұған қарсы шара — «ақыл-ойды қайтару» бағдарламалары.</p>
 <p><strong>Қазақстан үшін маңыздылығы:</strong> Жер аумағы бойынша әлемде 9-шы орын, бірақ халқы тек ~20 млн. Бос шекара аймақтары — геосаяси осал тұс. Демографиялық өсу — стратегиялық міндет.</p>
-<div class="fact-box"><div class="fact-title">💰 Экономикалық детерминант</div><strong>ІЖӨ:</strong> Мемлекеттің сыртқы саясатын жүргізу мүмкіндігі. <strong>«Голланд ауруы»:</strong> Ресурстарға тәуелділік — өнеркәсіптің дамуын тежейді. <strong>Технологиялық егемендік:</strong> Өз чипін, бағдарламасын, инфрақұрылымын жасай алу.</div>`,
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Экономикалық детерминант</div><strong>ІЖӨ:</strong> Мемлекеттің сыртқы саясатын жүргізу мүмкіндігі. <strong>«Голланд ауруы»:</strong> Ресурстарға тәуелділік — өнеркәсіптің дамуын тежейді. <strong>Технологиялық егемендік:</strong> Өз чипін, бағдарламасын, инфрақұрылымын жасай алу.</div>`,
    tru:`<p>Когда говорят о «мощи» государства, думают об армии. Но в XXI веке истинная мощь основана на двух опорах: <strong>демография</strong> (население) и <strong>экономика</strong> (ресурсы и технологии).</p>
-<div class="fact-box"><div class="fact-title">👥 Демографический детерминант</div><strong>Численность населения:</strong> Китай, Индия, США — большой внутренний рынок, рабочая сила, военный резерв. <strong>Демографический дивиденд:</strong> Высокая доля молодёжи → экономический рост. <strong>Человеческий капитал:</strong> Образование + здоровье + технологические навыки = конкурентоспособность.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демографический детерминант</div><strong>Численность населения:</strong> Китай, Индия, США — большой внутренний рынок, рабочая сила, военный резерв. <strong>Демографический дивиденд:</strong> Высокая доля молодёжи → экономический рост. <strong>Человеческий капитал:</strong> Образование + здоровье + технологические навыки = конкурентоспособность.</div>
 <p><strong>Утечка мозгов (Brain Drain):</strong> Эмиграция талантливых специалистов снижает конкурентные преимущества государства. Контрмера — программы «возврата мозгов».</p>
 <p><strong>Значение для Казахстана:</strong> 9-е место в мире по площади, но население всего ~20 млн. Малонаселённые приграничные районы — геополитически уязвимое место. Демографический рост — стратегическая задача.</p>
-<div class="fact-box"><div class="fact-title">💰 Экономический детерминант</div><strong>ВВП:</strong> Основа для проведения внешней политики. <strong>«Голландская болезнь»:</strong> Зависимость от ресурсов тормозит развитие промышленности. <strong>Технологический суверенитет:</strong> Способность создавать собственные чипы, программы, инфраструктуру.</div>`,
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Экономический детерминант</div><strong>ВВП:</strong> Основа для проведения внешней политики. <strong>«Голландская болезнь»:</strong> Зависимость от ресурсов тормозит развитие промышленности. <strong>Технологический суверенитет:</strong> Способность создавать собственные чипы, программы, инфраструктуру.</div>`,
    qkk:"«Демографиялық дивиденд» ұғымы нені білдіреді?",
    ans:"B",
    opts:["A. Халық санының азаюы","B. Жастар үлесі жоғары болғандықтан экономикалық өсімнің артуы","C. Зейнеткерлер санының өсуі","D. Иммиграциядан түскен пайда"],
@@ -857,20 +891,20 @@ const DEF_TOPICS = [
    kk:"Қазақстанның геосаяси жағдайындағы артықшылықтары мен мүмкіндіктері",
    ru:"Геополитические преимущества и возможности Казахстана",
    tkk:`<p>Геосаясат — мемлекеттің өз аумағын, ресурстары мен орналасу тәртібін <strong>ұлттық мүдде жолында пайдалана алу қабілеті</strong>. Қазақстан Еуразия құрлығының дәл орталығында орналаса отырып, бірегей геосаяси конфигурацияға ие.</p>
-<div class="fact-box"><div class="fact-title">🇰🇿 «Тұйық» аймақтан «Орталық хабқа»</div>Қазақстанның мұхитқа тікелей шығу жолы жоқ — бұл кемшілік емес, <strong>стратегиялық артықшылық</strong>! Шығыс пен Батысты (Қытай — Еуропа), Солтүстік пен Оңтүстікті (Ресей — Орталық Азия, Үндістан) жалғайтын жалғыз тиімді дәліз.</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> «Тұйық» аймақтан «Орталық хабқа»</div>Қазақстанның мұхитқа тікелей шығу жолы жоқ — бұл кемшілік емес, <strong>стратегиялық артықшылық</strong>! Шығыс пен Батысты (Қытай — Еуропа), Солтүстік пен Оңтүстікті (Ресей — Орталық Азия, Үндістан) жалғайтын жалғыз тиімді дәліз.</div>
 <p><strong>Транзиттік мүмкіндіктер:</strong> «Нұрлы жол» + «Бір белдеу — бір жол» = Транскаспий бағыты (Орта дәліз) — ең қауіпсіз және қысқа жол.</p>
 <p><strong>Ресурстық потенциал:</strong></p>
-<p>⚡ <strong>Уран:</strong> Әлемдік өндірістің 40%+ — Қазақстанда. Атом энергетикасына қайта оралу кезінде АҚШ, Франция, Қытай, Ресей үшін теңдессіз серіктес.</p>
-<p>🛢️ <strong>Мұнай-газ:</strong> Каспий қайраңы — Еуропа үшін баламалы энергия көзі.</p>
-<p>⚙️ <strong>Сирек металдар:</strong> Смартфон, электромобиль үшін литий, кобальт — болашақ экономикасының кілті.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Уран:</strong> Әлемдік өндірістің 40%+ — Қазақстанда. Атом энергетикасына қайта оралу кезінде АҚШ, Франция, Қытай, Ресей үшін теңдессіз серіктес.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> <strong>Мұнай-газ:</strong> Каспий қайраңы — Еуропа үшін баламалы энергия көзі.</p>
+<p><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <strong>Сирек металдар:</strong> Смартфон, электромобиль үшін литий, кобальт — болашақ экономикасының кілті.</p>
 <p><strong>Көпвекторлы саясат:</strong> Ресей мен Қытай арасында, Батыс пен Ислам дүниесінің түйіскен жерінде — прагматикалық теңгерім. Астана процесі, бітімгерлік рөл — «Тұрақтылық аралы».</p>`,
    tru:`<p>Геополитика — это <strong>способность государства использовать свою территорию, ресурсы и положение в национальных интересах</strong>. Казахстан, расположенный в самом центре Евразии, обладает уникальной геополитической конфигурацией.</p>
-<div class="fact-box"><div class="fact-title">🇰🇿 От «тупиковой» зоны к «Центральному хабу»</div>У Казахстана нет прямого выхода к океану — это не недостаток, а <strong>стратегическое преимущество</strong>! Единственный эффективный коридор, связывающий Восток и Запад (Китай — Европа), Север и Юг (Россия — Центральная Азия, Индия).</div>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> От «тупиковой» зоны к «Центральному хабу»</div>У Казахстана нет прямого выхода к океану — это не недостаток, а <strong>стратегическое преимущество</strong>! Единственный эффективный коридор, связывающий Восток и Запад (Китай — Европа), Север и Юг (Россия — Центральная Азия, Индия).</div>
 <p><strong>Транзитный потенциал:</strong> «Нұрлы жол» + «Один пояс — один путь» = Транскаспийский маршрут (Средний коридор) — самый безопасный и короткий путь.</p>
 <p><strong>Ресурсный потенциал:</strong></p>
-<p>⚡ <strong>Уран:</strong> 40%+ мирового производства — в Казахстане. При возврате к атомной энергетике — незаменимый партнёр для США, Франции, Китая, России.</p>
-<p>🛢️ <strong>Нефть и газ:</strong> Каспийский шельф — альтернативный источник энергии для Европы.</p>
-<p>⚙️ <strong>Редкие металлы:</strong> Литий, кобальт для смартфонов и электромобилей — ключ к экономике будущего.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Уран:</strong> 40%+ мирового производства — в Казахстане. При возврате к атомной энергетике — незаменимый партнёр для США, Франции, Китая, России.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> <strong>Нефть и газ:</strong> Каспийский шельф — альтернативный источник энергии для Европы.</p>
+<p><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <strong>Редкие металлы:</strong> Литий, кобальт для смартфонов и электромобилей — ключ к экономике будущего.</p>
 <p><strong>Многовекторная политика:</strong> Между Россией и Китаем, на стыке Запада и Исламского мира — прагматичный баланс. Астанинский процесс, миротворческая роль — «Остров стабильности».</p>`,
    qkk:"Қазақстан дүниежүзілік уран өндірісінің қанша пайызын қамтамасыз етеді?",
    ans:"D",
@@ -893,6 +927,7 @@ function hideLoading(){
 
 // Welcome screen → Auth screen transition
 function enterCourse(){
+  localStorage.setItem('seen_welcome', '1');
   document.getElementById('welcomeScreen').classList.remove('active');
   document.getElementById('authScreen').classList.add('active');
 }
@@ -901,7 +936,13 @@ function showAuthScreen(){
   hideLoading();
   document.getElementById('mainScreen').classList.remove('active');
   document.getElementById('authScreen').classList.remove('active');
-  document.getElementById('welcomeScreen').classList.add('active');
+  document.getElementById('welcomeScreen').classList.remove('active');
+  // Show welcome only once (new visitors)
+  if(localStorage.getItem('seen_welcome')) {
+    document.getElementById('authScreen').classList.add('active');
+  } else {
+    document.getElementById('welcomeScreen').classList.add('active');
+  }
   document.getElementById('inLogin').value='';
   document.getElementById('inPass').value='';
   document.getElementById('authErr').textContent='';
@@ -1002,7 +1043,7 @@ async function renderTopicsAsync(){
 
   let h=`<div class="banner">
     <div class="banner-badge">10-СЫНЫП • ЭЛЕКТИВТІ КУРС</div>
-    <h2>🌐 Геосаясат</h2>
+    <h2><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаясат</h2>
     <p>${lang==='kk'?'Жаһандық тұрақтылық және Қазақстан':'Глобальная стабильность и Казахстан'}</p>
     <div class="bstats">
       <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
@@ -1054,7 +1095,7 @@ async function openDetailAsync(idx){
     </div>
     <div class="tq">${t.qkk}</div>`;
   if(tp){
-    testH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
+    testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
   } else {
     t.opts.forEach((o,i)=>{
       testH+=`<button class="opt" id="opt${i}" onclick="answerTest(${idx},${i},'${t.ans}')">${o}</button>`;
@@ -1069,7 +1110,7 @@ async function openDetailAsync(idx){
     </div>
     <div class="tq">${t.openq||'Тақырып бойынша 2-3 сөйлем жазыңыз.'}</div>`;
   if(op){
-    openH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
+    openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
   } else {
     openH+=`<textarea class="open-inp" id="openAns" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
     <button class="tsub" onclick="submitOpen(${idx})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
@@ -1083,7 +1124,7 @@ async function openDetailAsync(idx){
     </div>
     <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
   if(mp){
-    mapH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
+    mapH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
   } else if(t.mapDots && t.mapDots.length){
     mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
     mapH+=`<div class="map-wrap" id="mapWrap" style="background:#e0e7ff;min-height:180px;">${buildMapSVG(t, idx)}</div>`;
@@ -1122,12 +1163,12 @@ async function answerTest(idx, optIdx, correct){
     await saveProg(prog);
     setTimeout(()=>{
       const sec=document.querySelector('.tsec');
-      if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok">✅ Дұрыс! +5 балл</div>');
+      if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Дұрыс! +5 балл</div>');
     },600);
   } else {
     setTimeout(()=>{
       const firstSec=document.querySelector('.tsec');
-      if(firstSec) firstSec.insertAdjacentHTML('beforeend','<div class="tres ko">❌ '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
+      if(firstSec) firstSec.insertAdjacentHTML('beforeend','<div class="tres ko"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
     },600);
   }
 }
@@ -1143,7 +1184,7 @@ async function submitOpen(idx){
   if(openSec){
     const ta=openSec.querySelector('.open-inp'); const sb=openSec.querySelector('.tsub');
     if(ta) ta.remove(); if(sb) sb.remove();
-    openSec.insertAdjacentHTML('beforeend','<div class="tres ok">✅ '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
+    openSec.insertAdjacentHTML('beforeend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
   }
 }
 function selectMapOpt(opt, oi){
@@ -1179,7 +1220,7 @@ async function submitMap(topicIdx){
   const mapSec=document.querySelectorAll('.tsec')[2];
   if(mapSec){
     const sbtn=document.getElementById('mapSubmitBtn'); if(sbtn) sbtn.remove();
-    mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'✅':'❌'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
+    mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
   }
 }
 function goBack(){
@@ -1204,7 +1245,7 @@ async function renderProfileAsync(){
     const op=prog[pk(u.uid,t.id,'open')]||0;
     const mp=prog[pk(u.uid,t.id,'map')]||0;
     doneH+=`<div class="done-item">
-      <div style="width:34px;height:34px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">✅</div>
+      <div style="width:34px;height:34px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
       <div style="flex:1"><div class="done-title">${t[lang]}</div>
       <div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div>
       <strong style="color:var(--accent);font-family:'Space Grotesk',sans-serif">${tp+op+mp}</strong></div>`;
@@ -1293,7 +1334,7 @@ async function renderAdminAsync(){
 
   document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap">
     <div class="adm-header">
-      <div class="adm-header-title">⚙️ Админ панелі</div>
+      <div class="adm-header-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Админ панелі</div>
       <div class="adm-header-sub">${T.length} тақырып · ${students.length} оқушы</div>
     </div>
 
