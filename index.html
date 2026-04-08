@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Геосаясат — 10-сынып</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>География 8</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -25,259 +25,590 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-  window._fbAuth = auth; window._fbDb = db;
-  window._fbFns = { set, get, ref, update, onValue, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbFns = { set, get, ref, update, onValue,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    signOut, onAuthStateChanged };
+
+  // Firebase auth state — бір рет шақырылады
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const snap = await get(ref(db, 'users/' + user.uid));
       if (snap.exists()) {
-        window._fbUser = { uid: user.uid, email: user.email, ...snap.val() };
+        const data = snap.val();
+        window._fbUser = { uid: user.uid, email: user.email, ...data };
       } else {
-        const login = user.email.split('@')[0];
-        window._fbUser = { uid: user.uid, email: user.email, login, cls: '', isAdmin: false };
-        await set(ref(db, 'users/' + user.uid), { login, cls: '', isAdmin: false, email: user.email, createdAt: Date.now() });
+        window._fbUser = { uid: user.uid, email: user.email, login: user.email.split('@')[0], cls: '', isAdmin: false };
+        await set(ref(db, 'users/' + user.uid), { login: window._fbUser.login, cls: '', isAdmin: false, createdAt: Date.now() });
       }
-      startSession(window._fbUser);
+      window._authReady = true;
+      // Welcome экраны ашық болса — startSession шақырмаймыз, enterCourse күтеміз
+      const welcomeActive = document.getElementById('welcomeScreen').classList.contains('active');
+      if (!welcomeActive) {
+        startSession(window._fbUser);
+      }
+      // Бірақ Welcome ашық болса — enterCourse() батырмасы басылғанда proceed() өзі шақырады
     } else {
       window._fbUser = null;
-      showWelcomeScreen();
+      window._authReady = true;
+      showAuthScreen();
     }
   });
 </script>
 
 <style>
-:root{
-  --p:#6c47ff;--pd:#3d1fa8;--pl:#a78bfa;--pll:#ede9fe;
-  --acc:#f59e0b;--red:#ef4444;--g:#16a34a;--gll:#dcfce7;
-  --bg:#f5f3ff;--card:#fff;--text:#1e1b4b;--muted:#6b7280;
-  --shadow:0 4px 24px rgba(108,71,255,.12);--r:18px;
+:root {
+  --primary: #1a1a2e;
+  --accent: #4f46e5;
+  --accent2: #7c3aed;
+  --green: #059669;
+  --green-light: #d1fae5;
+  --amber: #d97706;
+  --red: #dc2626;
+  --bg: #f8f7ff;
+  --card: #ffffff;
+  --text: #0f0f1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 2px 16px rgba(79,70,229,.10);
+  --r: 20px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
 
-/* SCREEN SYSTEM — барлығы display:none, тек .active болғанда көрінеді */
-.screen{display:none;min-height:100vh;}
-.screen.active{display:block;}
-#loadingScreen.active{display:flex!important;position:fixed;inset:0;z-index:9999;}
-#welcomeScreen.active{display:flex!important;}
-#authScreen.active{display:flex!important;}
+/* All overlay screens are fixed and hidden by default */
+.screen { display: none; }
+.screen.active { display: block; }
 
-/* LOADING */
-#loadingScreen{background:linear-gradient(160deg,#3d1fa8 0%,#6c47ff 55%,#f59e0b 100%);flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s;}
-#loadingScreen.fade{opacity:0;pointer-events:none;}
-.spin{width:48px;height:48px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;margin-bottom:20px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-logo{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:8px;}
-.load-txt{color:rgba(255,255,255,.8);font-size:14px;}
+/* Full-screen overlay pages (welcome, auth) — fixed so they don't stack */
+#welcomeScreen, #authScreen {
+  position: fixed; inset: 0; z-index: 100;
+  max-width: 480px; left: 50%; transform: translateX(-50%);
+  overflow-y: auto;
+}
 
-/* WELCOME */
-#welcomeScreen{background:linear-gradient(160deg,#0f0a2e 0%,#2d1b69 40%,#1e1b4b 100%);flex-direction:column;align-items:center;overflow:hidden;}
-.wlc-top{width:100%;padding:28px 24px 0;display:flex;flex-direction:column;align-items:center;flex:1;justify-content:center;}
-.wlc-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:22px;}
-.wlc-icon{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pl));display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:20px;box-shadow:0 0 40px rgba(108,71,255,.5);}
-.wlc-title{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:#fff;text-align:center;line-height:1.25;margin-bottom:10px;}
-.wlc-title span{color:var(--pl);}
-.wlc-sub{color:rgba(255,255,255,.6);font-size:13px;text-align:center;margin-bottom:6px;}
-.wlc-authors{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 16px;margin:18px 0;width:100%;max-width:340px;}
-.wlc-av{width:36px;height:36px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;}
-.wlc-av2{width:36px;height:36px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;margin-left:-12px;}
-.wlc-aname{font-size:12px;font-weight:700;color:#fff;line-height:1.4;}
-.wlc-arole{font-size:10px;color:rgba(255,255,255,.55);}
-.wlc-stats{display:flex;gap:10px;width:100%;max-width:340px;margin-bottom:18px;}
-.wlc-stat{flex:1;background:rgba(255,255,255,.08);border-radius:13px;padding:10px 6px;text-align:center;}
-.wlc-stat-n{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:#fff;}
-.wlc-stat-l{font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;font-weight:700;line-height:1.3;}
-.wlc-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:24px;max-width:340px;}
-.wlc-tag{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 12px;font-size:11px;color:rgba(255,255,255,.7);}
-.wlc-sheet{background:#fff;border-radius:28px 28px 0 0;padding:24px 24px 40px;width:100%;box-shadow:0 -8px 40px rgba(0,0,0,.3);}
-.wlc-about-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;}
-.wlc-about-txt{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px;}
-.wlc-btn{width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;}
-.wlc-btn:active{transform:scale(.97);}
-.wlc-school{font-size:10px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5;}
+/* Main screen is normal flow */
+#mainScreen { display: none; min-height: 100vh; padding-bottom: 80px; }
+#mainScreen.active { display: block; }
 
-/* AUTH */
-#authScreen{background:linear-gradient(160deg,#0f0a2e 0%,#2d1b69 50%,#f59e0b 100%);flex-direction:column;align-items:center;justify-content:flex-end;min-height:100vh;}
-.auth-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 0;}
-.auth-logo{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#fff;text-align:center;margin-bottom:4px;}
-.auth-sub{color:rgba(255,255,255,.65);font-size:12px;text-align:center;}
-.auth-sheet{background:#fff;border-radius:28px 28px 0 0;padding:0 24px 40px;width:100%;max-width:480px;box-shadow:0 -8px 40px rgba(0,0,0,.2);}
-.auth-tabs{display:flex;border-bottom:1px solid #f3f4f6;margin-bottom:24px;}
-.auth-tab{flex:1;padding:18px 0 14px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;margin-bottom:-1px;}
-.auth-tab.act{color:var(--p);border-bottom-color:var(--p);}
-.inp-wrap{margin-bottom:14px;}
-.inp-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
-.inp{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border .2s;background:#fff;}
-.inp:focus{border-color:var(--p);}
-.btn{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;}
-.btn:active{transform:scale(.97);}
-.btn-p{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;margin-top:2px;}
-.auth-err{color:var(--red);font-size:12px;text-align:center;margin-top:6px;min-height:16px;font-weight:700;}
-.firebase-badge{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;color:var(--muted);font-size:11px;}
+/* ── ICONS (solid monolithic SVG) ── */
+.icon { display: inline-flex; align-items: center; justify-content: center; }
+.icon svg { display: block; }
 
-/* MAIN */
-#mainScreen{padding-bottom:80px;}
-.offline-banner{background:#fef3c7;border-bottom:1px solid #fde68a;padding:7px 14px;font-size:11px;font-weight:700;color:#92400e;text-align:center;display:none;}
-.offline-banner.show{display:block;}
-.header{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(108,71,255,.3);}
-.hrow{display:flex;align-items:center;gap:10px;}
-.hback{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
-.hback.show{display:flex;}
-.htitle{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;flex:1;text-align:center;line-height:1.2;}
-.hlang{background:var(--acc);border:none;color:#1a1a1a;font-family:'Unbounded',sans-serif;font-weight:700;font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;flex-shrink:0;}
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #e5e7eb;display:flex;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 0 11px;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border:none;background:none;font-family:'Nunito',sans-serif;transition:color .2s;}
-.nb.act{color:var(--p);}
-.nb-icon{font-size:22px;margin-bottom:2px;}
-.banner{background:linear-gradient(150deg,var(--pd) 0%,var(--p) 60%,#7c3aed 100%);color:#fff;padding:24px 18px 30px;position:relative;overflow:hidden;}
-.banner::before{content:'🌍';font-size:90px;position:absolute;top:-10px;right:-10px;opacity:.09;}
-.banner h2{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;margin-bottom:5px;line-height:1.3;}
-.banner p{font-size:12px;opacity:.8;}
-.bstats{display:flex;gap:10px;margin-top:16px;}
-.bstat{background:rgba(255,255,255,.15);border-radius:12px;padding:9px 12px;flex:1;text-align:center;}
-.bstat-n{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;}
-.bstat-l{font-size:10px;opacity:.8;margin-top:1px;}
-.slabel{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:16px 16px 7px;}
-.tlist{padding:0 12px 8px;display:flex;flex-direction:column;gap:8px;}
-.tcard{background:var(--card);border-radius:var(--r);padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:var(--shadow);border-left:4px solid var(--pl);transition:transform .15s;}
-.tcard:active{transform:scale(.98);}
-.tcard.done{border-left-color:var(--acc);}
-.tnum{background:var(--p);color:#fff;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
-.tcard.done .tnum{background:var(--acc);}
-.tinfo{flex:1;}
-.ttitle{font-weight:700;font-size:13px;line-height:1.3;margin-bottom:3px;}
-.tmeta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.badge{background:var(--pll);color:var(--p);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
-.badge.done{background:#fef3c7;color:#b45309;}
-.dwrap{padding:18px 15px 24px;}
-.det-badge{display:inline-block;background:var(--p);color:#fff;font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:9px;}
-.det-title{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--pd);margin-bottom:12px;line-height:1.3;}
-.det-body{font-size:14px;line-height:1.85;color:#374151;}
-.det-body p{margin-bottom:12px;}
-.det-body strong{color:var(--pd);}
-.fact-box{background:var(--pll);border-left:4px solid var(--pl);border-radius:10px;padding:11px 13px;margin:12px 0;font-size:13px;}
-.fact-title{font-weight:800;color:var(--pd);margin-bottom:4px;font-size:12px;}
-.tsec{margin-top:16px;background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);}
-.thead{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--pd);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.tq{font-size:14px;font-weight:700;color:var(--text);margin-bottom:11px;line-height:1.4;}
-.opt{width:100%;text-align:left;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;margin-bottom:7px;transition:all .2s;color:var(--text);}
-.opt.correct{border-color:var(--g)!important;background:var(--gll)!important;color:#14532d!important;font-weight:700;}
-.opt.wrong{border-color:var(--red)!important;background:#fef2f2!important;color:var(--red)!important;}
-.opt:disabled{cursor:default;}
-.open-inp{width:100%;min-height:88px;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;resize:none;outline:none;color:var(--text);}
-.open-inp:focus{border-color:var(--p);}
-.tsub{margin-top:9px;padding:12px;border:none;border-radius:12px;background:var(--p);color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:100%;cursor:pointer;}
-.tres{margin-top:9px;padding:11px;border-radius:12px;text-align:center;font-weight:700;font-size:13px;}
-.tres.ok{background:var(--gll);color:#14532d;}
-.tres.ko{background:#fef2f2;color:var(--red);}
-.schip{display:inline-flex;align-items:center;gap:3px;background:var(--acc);color:#fff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;}
-.map-wrap{border-radius:12px;overflow:hidden;border:2px solid #e5e7eb;margin-bottom:10px;}
-.map-opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
-.map-opt{padding:8px 13px;border:2px solid #e5e7eb;border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.map-opt.selected{border-color:var(--p);background:var(--pll);color:var(--pd);}
-.map-inst{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
-.phero{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:28px 20px 22px;text-align:center;}
-.avatar{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px;}
-.pname{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px;}
-.pcls{font-size:12px;opacity:.8;}
-.pstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:14px;}
-.pstat{background:var(--card);border-radius:13px;padding:12px 8px;text-align:center;box-shadow:var(--shadow);}
-.pstat-n{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:900;color:var(--p);}
-.pstat-l{font-size:10px;color:var(--muted);margin-top:2px;font-weight:700;}
-.done-item{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-.done-title{font-size:12px;font-weight:700;}
-.done-pts{font-size:11px;color:var(--muted);}
-.logout-btn{margin:4px 16px 16px;padding:13px;border:2px solid var(--red);border-radius:13px;background:transparent;color:var(--red);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:calc(100% - 32px);cursor:pointer;}
-.adm-wrap{padding:14px;}
-.adm-sec{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
-.adm-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--pd);margin-bottom:12px;}
-.adm-row{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #f3f4f6;}
-.adm-row:last-child{border-bottom:none;}
-.adm-nm{flex:1;font-size:13px;font-weight:600;}
-.abtn{padding:6px 11px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
-.aedit{background:var(--pll);color:var(--pd);}
-.adel{background:#fef2f2;color:var(--red);}
-.adm-add{width:100%;padding:11px;border:2px dashed var(--pl);border-radius:11px;background:transparent;color:var(--p);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:7px;}
-.adm-inp{width:100%;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:14px;outline:none;margin-bottom:9px;color:var(--text);background:#fff;}
-.adm-inp:focus{border-color:var(--p);}
-.adm-ta{width:100%;min-height:75px;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:none;margin-bottom:9px;color:var(--text);background:#fff;}
-.adm-ta:focus{border-color:var(--p);}
-.stud-card{background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(108,71,255,.08);}
-.stud-name{font-weight:700;font-size:13px;margin-bottom:4px;}
-.stud-bar-wrap{background:#f3f4f6;border-radius:8px;height:7px;margin-bottom:4px;overflow:hidden;}
-.stud-bar{background:linear-gradient(90deg,var(--p),var(--pl));height:100%;border-radius:8px;}
-.stud-info{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;}
-.overlay.show{display:flex;}
-.modal{background:#fff;border-radius:24px 24px 0 0;padding:22px 18px 30px;width:100%;max-height:85vh;overflow-y:auto;}
-.modal-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--pd);margin-bottom:16px;}
-.modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin-top:-4px;}
-.hidden{display:none!important;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;margin-left:5px;animation:pulse 2s infinite;vertical-align:middle;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ── Global SVG icon sizing ── */
+.load-globe svg { width: 52px; height: 52px; stroke: #fff; margin-bottom: 18px; display: block; }
+.wc-badge svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; }
+.wc-card-icon svg { width: 28px; height: 28px; stroke: rgba(255,255,255,.85); display: block; margin: 0 auto 6px; }
+.wc-topic-pill svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 3px; flex-shrink: 0; }
+.auth-emblem svg { width: 36px; height: 36px; stroke: rgba(255,255,255,.9); }
+.firebase-badge svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 3px; }
+.nb-icon svg { display: block; width: 22px; height: 22px; }
+.nb.act .nb-icon svg { stroke: var(--accent); }
+.nb .nb-icon svg { stroke: var(--muted); }
+.banner h2 svg { width: 22px; height: 22px; vertical-align: middle; margin-right: 6px; stroke: #fff; }
+.fact-title svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; stroke: var(--accent); }
+.adm-header-title svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 5px; }
+.tres.ok svg { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; stroke: var(--green); }
+.tres.ko svg { width: 16px; height: 16px; vertical-align: middle; margin-right: 4px; stroke: var(--red); }
+.done-item svg { width: 18px; height: 18px; stroke: var(--green); }
+p svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; }
+p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
+.adm-sec-title svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 5px; stroke: var(--accent); }
+
+/* ── LOADING ── */
+#loadingScreen {
+  position: fixed; inset: 0;
+  background: linear-gradient(145deg, #1a1a2e 0%, #4f46e5 60%, #7c3aed 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; transition: opacity .4s ease;
+}
+#loadingScreen.fade-out { opacity: 0; pointer-events: none; }
+.load-globe { font-size: 52px; margin-bottom: 18px; animation: float 2s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.load-logo { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px; }
+.load-txt { color: rgba(255,255,255,.6); font-size: 13px; }
+.spin { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin-top: 20px; }
+@keyframes spin { to { transform: rotate(360deg) } }
+
+/* ── WELCOME SCREEN — бір экранға сыйады, scroll жоқ ── */
+#welcomeScreen {
+  background: linear-gradient(160deg, #0d1117 0%, #1a1a3e 45%, #2d1b69 75%, #4f46e5 100%);
+  display: flex; flex-direction: column;
+  overflow: hidden; /* no scroll at all */
+}
+#welcomeScreen::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 70% 20%, rgba(124,58,237,.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(79,70,229,.2) 0%, transparent 50%);
+}
+
+/* Top dark section — compact */
+.wc-hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 16px 20px 12px;
+  position: relative; text-align: center; gap: 8px;
+}
+.wc-badge {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(8px); border-radius: 20px; padding: 5px 14px;
+  color: rgba(255,255,255,.85); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.wc-globe {
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(124,58,237,.6));
+  display: flex; align-items: center; justify-content: center;
+}
+.wc-globe svg { width: 52px; height: 52px; stroke: #a78bfa; }
+.wc-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 700; color: #fff;
+  line-height: 1.2; letter-spacing: -0.5px;
+}
+.wc-title span { color: #a78bfa; }
+.wc-subtitle {
+  font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.5;
+}
+.wc-authors {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px; padding: 8px 14px;
+  backdrop-filter: blur(8px); width: 100%;
+}
+.wc-author-avatars { display: flex; }
+.wc-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border: 2px solid rgba(255,255,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+  margin-right: -6px; flex-shrink: 0;
+}
+.wc-avatar:last-child { margin-right: 0; }
+.wc-author-text { flex: 1; margin-left: 10px; }
+.wc-author-name { color: #fff; font-size: 11px; font-weight: 700; line-height: 1.3; }
+.wc-author-role { color: rgba(255,255,255,.5); font-size: 9px; margin-top: 1px; }
+
+/* 4 info cards — compact row */
+.wc-info-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; padding: 0 16px 12px; position: relative;
+}
+.wc-card {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 10px 6px; backdrop-filter: blur(8px);
+  text-align: center;
+}
+.wc-card-icon { margin-bottom: 4px; display: flex; justify-content: center; }
+.wc-card-icon svg { width: 18px; height: 18px; stroke: rgba(255,255,255,.8); }
+.wc-card-val { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
+.wc-card-lbl { font-size: 9px; color: rgba(255,255,255,.5); font-weight: 600; margin-top: 1px; }
+
+/* White bottom sheet */
+.wc-sheet {
+  background: #fff; border-radius: 24px 24px 0 0; padding: 18px 18px 28px;
+  box-shadow: 0 -12px 40px rgba(0,0,0,.4); position: relative; flex-shrink: 0;
+}
+.wc-sheet-title {
+  font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+}
+.wc-sheet-sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+.wc-topics-preview {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
+}
+.wc-topic-pill {
+  background: #f0f0ff; color: var(--accent); border-radius: 20px;
+  padding: 4px 10px; font-size: 10px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.wc-topic-pill svg { width: 11px; height: 11px; }
+.btn-enter {
+  width: 100%; padding: 14px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(79,70,229,.4);
+  transition: transform .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-enter:active { transform: scale(.97); }
+.wc-skip {
+  text-align: center; margin-top: 10px; font-size: 10px;
+  color: var(--muted); cursor: pointer; line-height: 1.4;
+}
+
+/* ── AUTH ── */
+#authScreen {
+  background: linear-gradient(145deg, #1a1a2e 0%, #312e81 55%, #4f46e5 100%);
+  flex-direction: column; align-items: center; justify-content: flex-end;
+}
+#authScreen.active { display: flex; }
+.auth-top { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px 0; }
+.auth-emblem { width: 72px; height: 72px; background: rgba(255,255,255,.12); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+.auth-logo { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -1px; }
+.auth-sub { color: rgba(255,255,255,.6); font-size: 13px; }
+
+.auth-sheet {
+  background: var(--card); border-radius: 28px 28px 0 0; padding: 0 22px 44px;
+  width: 100%; max-width: 480px; box-shadow: 0 -12px 50px rgba(0,0,0,.3);
+}
+.auth-tabs { display: flex; gap: 4px; padding: 16px 0 12px; }
+.auth-tab {
+  flex: 1; padding: 11px 0; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
+  text-align: center; cursor: pointer; color: var(--muted); border: none; background: #f3f4f6;
+  border-radius: 12px; transition: all .2s;
+}
+.auth-tab.act { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,.35); }
+
+.inp-wrap { margin-bottom: 12px; }
+.inp-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block; }
+.inp { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 14px; font-family: 'Manrope', sans-serif; font-size: 15px; color: var(--text); outline: none; transition: border .2s; background: #fafafa; }
+.inp:focus { border-color: var(--accent); background: #fff; }
+.btn { width: 100%; padding: 15px; border: none; border-radius: 14px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 6px 20px rgba(79,70,229,.4); margin-top: 4px; }
+.auth-err { color: var(--red); font-size: 12px; text-align: center; margin-top: 6px; min-height: 16px; font-weight: 700; }
+.firebase-badge { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+
+/* ── HEADER ── */
+.header {
+  background: var(--card); color: var(--text); padding: 14px 16px 12px;
+  position: sticky; top: 0; z-index: 50;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.hrow { display: flex; align-items: center; gap: 10px; }
+.hback {
+  background: var(--bg); border: none; color: var(--text);
+  width: 38px; height: 38px; border-radius: 12px; font-size: 18px; cursor: pointer;
+  display: none; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.hback.show { display: flex; }
+.htitle { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; flex: 1; text-align: center; line-height: 1.2; }
+.hlang {
+  background: var(--bg); border: 2px solid var(--border); color: var(--text);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px;
+  padding: 5px 12px; border-radius: 10px; cursor: pointer; flex-shrink: 0;
+}
+
+/* ── BOTTOM NAV ── */
+.bnav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px; background: var(--card);
+  border-top: 1px solid var(--border); display: flex; z-index: 50;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.nb {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 10px 0 12px; cursor: pointer;
+  font-size: 10px; font-weight: 700; color: var(--muted); border: none;
+  background: none; font-family: 'Manrope', sans-serif; letter-spacing: .3px; transition: color .2s;
+  gap: 4px;
+}
+.nb.act { color: var(--accent); }
+.nb-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
+
+/* ── BANNER ── */
+.banner {
+  background: linear-gradient(140deg, #1a1a2e 0%, #312e81 50%, #4f46e5 100%);
+  color: #fff; padding: 24px 18px 26px; position: relative; overflow: hidden;
+}
+.banner::after {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,.05); pointer-events: none;
+}
+.banner-badge { background: rgba(255,255,255,.15); border-radius: 8px; padding: 3px 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; display: inline-block; margin-bottom: 10px; backdrop-filter: blur(4px); }
+.banner h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.5px; }
+.banner p { font-size: 12px; opacity: .7; }
+.bstats { display: flex; gap: 8px; margin-top: 18px; }
+.bstat { background: rgba(255,255,255,.12); border-radius: 14px; padding: 10px 12px; flex: 1; text-align: center; backdrop-filter: blur(4px); }
+.bstat-n { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+.bstat-l { font-size: 10px; opacity: .7; margin-top: 1px; font-weight: 600; }
+
+/* ── SECTION LABEL ── */
+.slabel { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 18px 16px 8px; }
+
+/* ── TOPIC LIST ── */
+.tlist { padding: 0 12px 8px; display: flex; flex-direction: column; gap: 8px; }
+.tcard {
+  background: var(--card); border-radius: var(--r); padding: 14px 15px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: transform .15s, box-shadow .15s;
+}
+.tcard:active { transform: scale(.98); box-shadow: none; }
+.tcard.done { border-color: #c7d2fe; background: #fafbff; }
+.tnum {
+  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+}
+.tcard.done .tnum { background: linear-gradient(135deg, var(--green), #047857); }
+.tinfo { flex: 1; }
+.ttitle { font-weight: 700; font-size: 13px; line-height: 1.3; margin-bottom: 4px; }
+.tmeta { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.badge { background: #ede9fe; color: var(--accent); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.badge.done { background: var(--green-light); color: var(--green); }
+.tcard-arrow { color: var(--border); font-size: 18px; font-weight: 600; }
+
+/* ── DETAIL ── */
+.dwrap { padding: 18px 15px 24px; }
+.det-badge { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: var(--accent); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 8px; margin-bottom: 10px; }
+.det-title { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 14px; line-height: 1.3; letter-spacing: -0.3px; }
+.det-body { font-size: 14px; line-height: 1.9; color: #374151; }
+.det-body p { margin-bottom: 12px; }
+.det-body strong { color: var(--primary); }
+.fact-box { background: #fafbff; border: 1px solid #c7d2fe; border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: 13px; }
+.fact-title { font-weight: 800; color: var(--accent); margin-bottom: 5px; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; }
+
+/* ── TASK ── */
+.tsec { margin-top: 14px; background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.thead { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; text-transform: uppercase; letter-spacing: .5px; }
+.tq { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.5; }
+.opt {
+  width: 100%; text-align: left; padding: 12px 14px; border: 2px solid var(--border);
+  border-radius: 12px; background: #fafafa; font-family: 'Manrope', sans-serif;
+  font-size: 13px; cursor: pointer; margin-bottom: 7px; transition: all .2s; color: var(--text); font-weight: 600;
+}
+.opt:hover { border-color: #a5b4fc; background: #fff; }
+.opt.correct { border-color: var(--green) !important; background: var(--green-light) !important; color: var(--green) !important; font-weight: 700; }
+.opt.wrong { border-color: var(--red) !important; background: #fef2f2 !important; color: var(--red) !important; }
+.opt:disabled { cursor: default; }
+.open-inp { width: 100%; min-height: 88px; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; resize: none; outline: none; color: var(--text); background: #fafafa; }
+.open-inp:focus { border-color: var(--accent); background: #fff; }
+.tsub { margin-top: 10px; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; letter-spacing: .5px; }
+.tres { margin-top: 10px; padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 13px; }
+.tres.ok { background: var(--green-light); color: var(--green); }
+.tres.ko { background: #fef2f2; color: var(--red); }
+.schip { display: inline-flex; align-items: center; gap: 3px; background: var(--accent); color: #fff; border-radius: 8px; padding: 2px 9px; font-size: 11px; font-weight: 700; }
+
+/* ── MAP ── */
+.map-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; background: #e0e7ff; }
+.map-wrap img { width: 100%; display: block; user-select: none; }
+.map-dot { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; cursor: pointer; transform: translate(-50%,-50%); box-shadow: 0 2px 8px rgba(0,0,0,.25); transition: transform .2s; }
+.map-dot:hover { transform: translate(-50%,-50%) scale(1.2); }
+.map-dot.unanswered { background: var(--amber); }
+.map-dot.answered-ok { background: var(--green); }
+.map-dot.answered-ko { background: var(--red); }
+.map-opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.map-opt { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; background: #fff; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.map-opt.selected { border-color: var(--accent); background: #ede9fe; color: var(--accent); }
+.map-inst { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; font-weight: 600; }
+
+/* ── PROFILE ── */
+.phero { background: linear-gradient(140deg, #1a1a2e, #4f46e5); color: #fff; padding: 30px 20px 24px; text-align: center; }
+.avatar { width: 72px; height: 72px; border-radius: 22px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; backdrop-filter: blur(8px); }
+.pname { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+.pcls { font-size: 12px; opacity: .7; }
+.pstats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 16px; }
+.pstat { background: var(--card); border-radius: 16px; padding: 14px 8px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.pstat-n { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
+.pstat-l { font-size: 10px; color: var(--muted); margin-top: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.done-item { background: var(--card); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.05); border: 1px solid var(--border); }
+.done-title { font-size: 13px; font-weight: 700; }
+.done-pts { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.logout-btn { margin: 4px 16px 16px; padding: 13px; border: 2px solid #fecaca; border-radius: 14px; background: #fff5f5; color: var(--red); font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; width: calc(100% - 32px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* ── ADMIN PANEL ── */
+.adm-wrap { padding: 14px; }
+.adm-header { background: linear-gradient(135deg, #1a1a2e, #4f46e5); border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; color: #fff; }
+.adm-header-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.adm-header-sub { font-size: 12px; opacity: .7; }
+.adm-sec { background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; border: 1px solid var(--border); }
+.adm-sec-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .8px; display: flex; align-items: center; gap: 8px; }
+.adm-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f9fafb; }
+.adm-row:last-child { border-bottom: none; }
+.adm-num { width: 28px; height: 28px; border-radius: 8px; background: #ede9fe; color: var(--accent); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.adm-nm { flex: 1; font-size: 13px; font-weight: 600; }
+.adm-nm small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+.abtn { padding: 7px 13px; border: none; border-radius: 9px; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .1s; display: flex; align-items: center; gap: 5px; }
+.abtn:active { transform: scale(.95); }
+.aedit { background: #ede9fe; color: var(--accent); }
+.adel { background: #fef2f2; color: var(--red); }
+.adm-add {
+  width: 100%; padding: 12px; border: 2px dashed #c7d2fe;
+  border-radius: 14px; background: #fafbff; color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s;
+}
+.adm-add:hover { background: #ede9fe; }
+.student-card { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f9fafb; }
+.student-card:last-child { border-bottom: none; }
+.student-avatar { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.student-info { flex: 1; }
+.student-name { font-size: 13px; font-weight: 700; }
+.student-cls { font-size: 11px; color: var(--muted); }
+.student-score { text-align: right; }
+.student-pts { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: var(--accent); }
+.student-done { font-size: 10px; color: var(--muted); }
+.progress-bar-wrap { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 4px; }
+.progress-bar { height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .3s; }
+.adm-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.adm-stat { background: var(--bg); border-radius: 12px; padding: 12px 8px; text-align: center; border: 1px solid var(--border); }
+.adm-stat-n { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent); }
+.adm-stat-l { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 1px; }
+
+/* ── MODAL ── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: none; align-items: flex-end; backdrop-filter: blur(3px); }
+.overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 28px 28px 0 0; padding: 22px 18px 36px; width: 100%; max-height: 88vh; overflow-y: auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 10px; font-size: 16px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.adm-inp { width: 100%; padding: 11px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; margin-bottom: 10px; color: var(--text); background: #fafafa; }
+.adm-inp:focus { border-color: var(--accent); background: #fff; }
+.adm-ta { width: 100%; min-height: 80px; padding: 11px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 13px; outline: none; resize: none; margin-bottom: 10px; color: var(--text); background: #fafafa; }
+.adm-ta:focus { border-color: var(--accent); background: #fff; }
+.modal-section { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.modal-section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+.ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.ans-item label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .5px; display: block; margin-bottom: 4px; }
+.inp-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block; }
+
+/* ── LESSON PLAN ── */
+.plan-sec { margin-top: 14px; background: linear-gradient(135deg, #fafbff, #f0f0ff); border-radius: var(--r); padding: 16px; border: 1px solid #c7d2fe; }
+.plan-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.plan-header-left { display: flex; align-items: center; gap: 8px; }
+.plan-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+.plan-toggle { width: 28px; height: 28px; border-radius: 8px; background: #ede9fe; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); transition: transform .2s; }
+.plan-toggle.open { transform: rotate(180deg); }
+.plan-body { display: none; margin-top: 12px; }
+.plan-body.open { display: block; }
+.plan-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e0e7ff; }
+.plan-row:last-child { border-bottom: none; }
+.plan-step-num { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.plan-step-content { flex: 1; }
+.plan-step-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.plan-step-time { font-size: 10px; color: var(--accent); font-weight: 700; background: #ede9fe; padding: 1px 7px; border-radius: 4px; display: inline-block; margin-bottom: 3px; }
+.plan-step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.plan-goal { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid #e0e7ff; }
+.plan-goal-label { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 4px; }
+.plan-goal-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+
+.offline-banner { background: #fef3c7; border-bottom: 1px solid #fde68a; padding: 7px 14px; font-size: 11px; font-weight: 700; color: #92400e; text-align: center; display: none; }
+.offline-banner.show { display: block; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; display: inline-block; margin-left: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hidden { display: none !important; }
+
+/* ── ANSWER SELECT BADGE ── */
+.answer-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.answer-letter { width: 26px; height: 26px; border-radius: 8px; background: var(--bg); border: 2px solid var(--border); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; }
+.answer-select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; background: #fafafa; color: var(--text); outline: none; cursor: pointer; }
+.answer-select:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
 
 <!-- LOADING -->
-<div id="loadingScreen" class="screen active">
-  <div class="load-logo">🌍 ГЕО 10</div>
+<div id="loadingScreen">
+  <div class="load-globe"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+  <div class="load-logo">ГЕО 10</div>
+  <div class="load-txt">Жүктелуде...</div>
   <div class="spin"></div>
-  <div class="load-txt">Firebase жүктелуде...</div>
 </div>
 
-<!-- WELCOME -->
+<!-- WELCOME / АВТОРЛЫҚ БАҒДАРЛАМА -->
 <div id="welcomeScreen" class="screen">
-  <div class="wlc-top">
-    <div class="wlc-chip">🏫 САРЫАҒАШ · 2026</div>
-    <div class="wlc-icon">🌐</div>
-    <div class="wlc-title">Геосаясат:<br><span>Жаһандық тұрақтылық</span><br>және Қазақстан</div>
-    <div class="wlc-sub">Элективті курс · 10-сынып · Қоғамдық-гуманитарлық бағыт</div>
-    <div class="wlc-authors">
-      <div class="wlc-av">ТЕ</div><div class="wlc-av2">АА</div>
-      <div><div class="wlc-aname">Т.Қ.Есенов · А.Аимбаева</div><div class="wlc-arole">педагог-шебер · педагог-зерттеуші</div></div>
-    </div>
-    <div class="wlc-stats">
-      <div class="wlc-stat"><div class="wlc-stat-n">6</div><div class="wlc-stat-l">Тақырып</div></div>
-      <div class="wlc-stat"><div class="wlc-stat-n">34</div><div class="wlc-stat-l">Сағат (жыл)</div></div>
-      <div class="wlc-stat"><div class="wlc-stat-n">10</div><div class="wlc-stat-l">Сынып</div></div>
-      <div class="wlc-stat"><div class="wlc-stat-n">72</div><div class="wlc-stat-l">Макс. балл</div></div>
-    </div>
-    <div class="wlc-tags">
-      <span class="wlc-tag">🌐 Геосаяси жағдай</span>
-      <span class="wlc-tag">⚡ Геосаяси факторлар</span>
-      <span class="wlc-tag">🗺️ Әлем аймақтары</span>
-      <span class="wlc-tag">✝️ Дін және қақтығыс</span>
-      <span class="wlc-tag">👥 Демография</span>
-      <span class="wlc-tag">🇰🇿 Қазақстан</span>
+  <div class="wc-hero">
+    <div class="wc-badge"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/><rect x="9" y="9" width="6" height="4" rx="1"/></svg> Сарыағаш · 2026</div>
+    <div class="wc-globe"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+    <div class="wc-title">Геосаясат:<br><span>Жаһандық тұрақтылық</span><br>және Қазақстан</div>
+    <div class="wc-subtitle">Элективті курс · 10-сынып<br>Қоғамдық-гуманитарлық бағыт</div>
+    <div class="wc-authors">
+      <div class="wc-author-avatars">
+        <div class="wc-avatar">ТЕ</div>
+        <div class="wc-avatar">АА</div>
+      </div>
+      <div class="wc-author-text">
+        <div class="wc-author-name">Т.Қ.Есенов · А.Аимбаева</div>
+        <div class="wc-author-role">педагог-шебер · педагог-зерттеуші</div>
+      </div>
     </div>
   </div>
-  <div class="wlc-sheet">
-    <div class="wlc-about-title">Курс туралы</div>
-    <div class="wlc-about-txt">Курс оқушыларды қазіргі геосаяси процестерді талдауға, Қазақстанның әлемдік аренадағы орнын айқындауға және геосаяси тәуекелдерді бағалауға үйретеді.</div>
-    <button class="wlc-btn" onclick="showAuthScreen()">➜ Курсқа кіру</button>
-    <div class="wlc-school">№4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы</div>
+
+  <div class="wc-info-cards">
+    <div class="wc-card">
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <div class="wc-card-val">6</div>
+      <div class="wc-card-lbl">Тақырып</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="wc-card-val">34</div>
+      <div class="wc-card-lbl">Сағат (жыл)</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+      <div class="wc-card-val">10</div>
+      <div class="wc-card-lbl">Сынып</div>
+    </div>
+    <div class="wc-card">
+      <div class="wc-card-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16M9 22V12M15 22V12"/><path d="M18 2H6v10a6 6 0 0 0 12 0V2z"/></svg></div>
+      <div class="wc-card-val">72</div>
+      <div class="wc-card-lbl">Макс. балл</div>
+    </div>
+  </div>
+
+  <div class="wc-sheet">
+    <div class="wc-sheet-title">Курс туралы</div>
+    <div class="wc-sheet-sub">
+      Курс оқушыларды қазіргі геосаяси процестерді талдауға, Қазақстанның әлемдік аренадағы орнын айқындауға және геосаяси тәуекелдерді бағалауға үйретеді.
+    </div>
+    <div class="wc-topics-preview">
+      <span class="wc-topic-pill"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаяси жағдай</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Геосаяси факторлар</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Әлем аймақтары</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Дін және қақтығыс</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демография</span>
+      <span class="wc-topic-pill"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Қазақстан</span>
+    </div>
+    <button class="btn-enter" onclick="enterCourse()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Курсқа кіру
+    </button>
+    <div class="wc-skip" onclick="enterCourse()">
+      №4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы
+    </div>
   </div>
 </div>
 
 <!-- AUTH -->
 <div id="authScreen" class="screen">
   <div class="auth-top">
-    <div class="auth-logo">🌍 ГЕО 10</div>
-    <div class="auth-sub">Геосаясат элективті курсы</div>
+    <div class="auth-emblem"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+    <div class="auth-logo">ГЕО 10</div>
+    <div class="auth-sub">Геосаясат элективті курсы · 10-сынып</div>
   </div>
   <div class="auth-sheet">
     <div class="auth-tabs">
       <button class="auth-tab act" id="tabLogin" onclick="setAuthMode(false)">Кіру</button>
       <button class="auth-tab" id="tabReg" onclick="setAuthMode(true)">Тіркелу</button>
     </div>
-    <div class="inp-wrap"><label class="inp-label">Email</label><input class="inp" id="inLogin" placeholder="email@gmail.com" type="email" autocomplete="username"></div>
-    <div class="inp-wrap"><label class="inp-label">Пароль</label><input class="inp" id="inPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
-    <div class="inp-wrap hidden" id="regExtra"><label class="inp-label">Сынып</label><input class="inp" id="inClass" placeholder="10А"></div>
+    <div class="inp-wrap">
+      <label class="inp-label">Email</label>
+      <input class="inp" id="inLogin" placeholder="email@gmail.com" type="email" autocomplete="username">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Пароль</label>
+      <input class="inp" id="inPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="inp-wrap hidden" id="regExtra">
+      <label class="inp-label">Сынып (мысалы: 8А)</label>
+      <input class="inp" id="inClass" placeholder="8А">
+    </div>
     <div class="auth-err" id="authErr"></div>
-    <button class="btn btn-p" id="authBtn" onclick="doAuth()">Кіру</button>
-    <div class="firebase-badge">🔒 Firebase арқылы қорғалған</div>
+    <button class="btn btn-primary" id="authBtn" onclick="doAuth()">Кіру</button>
+    <div class="firebase-badge"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Firebase арқылы қорғалған</div>
   </div>
 </div>
 
@@ -286,289 +617,1044 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="offline-banner" id="offlineBanner">📡 Интернет жоқ — офлайн режим</div>
   <div class="header">
     <div class="hrow">
-      <button class="hback" id="backBtn" onclick="goBack()">←</button>
-      <div class="htitle" id="hTitle">Геосаясат<span class="sync-dot"></span></div>
+      <button class="hback" id="backBtn" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="htitle" id="hTitle">Геосаясат: Жаһандық тұрақтылық<span class="sync-dot" id="syncDot"></span></div>
       <button class="hlang" id="langBtn" onclick="toggleLang()">РУС</button>
     </div>
   </div>
+
   <div id="tabTopics" class="tab"></div>
   <div id="tabProfile" class="tab hidden"></div>
   <div id="tabAdmin" class="tab hidden"></div>
+
   <div class="bnav">
-    <button class="nb act" id="nb0" onclick="switchTab(0)"><span class="nb-icon">📚</span><span id="nb0l">Тақырыптар</span></button>
-    <button class="nb" id="nb1" onclick="switchTab(1)"><span class="nb-icon">👤</span><span id="nb1l">Профиль</span></button>
-    <button class="nb hidden" id="nb2" onclick="switchTab(2)"><span class="nb-icon">⚙️</span><span>Админ</span></button>
+    <button class="nb act" id="nb0" onclick="switchTab(0)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      <span id="nb0l">Тақырыптар</span>
+    </button>
+    <button class="nb" id="nb1" onclick="switchTab(1)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span id="nb1l">Профиль</span>
+    </button>
+    <button class="nb hidden" id="nb2" onclick="switchTab(2)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+      <span>Админ</span>
+    </button>
   </div>
 </div>
 
 <!-- EDIT MODAL -->
 <div class="overlay" id="editModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
-    <label class="inp-label">Тақырып атауы (ҚАЗ)</label><input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
-    <label class="inp-label">Тема названия (РУС)</label><input class="adm-inp" id="mTRu" placeholder="Название темы">
-    <label class="inp-label">Мәтін (ҚАЗ)</label><textarea class="adm-ta" id="mTxtKk" rows="4" placeholder="Параграф мәтіні..."></textarea>
-    <label class="inp-label">Текст (РУС)</label><textarea class="adm-ta" id="mTxtRu" rows="4" placeholder="Текст параграфа..."></textarea>
-    <label class="inp-label">Тест сұрағы</label><input class="adm-inp" id="mQKk" placeholder="Сұрақ мәтіні">
-    <label class="inp-label">Дұрыс жауап (A/B/C/D)</label><input class="adm-inp" id="mQAns" placeholder="A">
-    <label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ...">
-    <label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ...">
-    <label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ...">
-    <label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ...">
-    <label class="inp-label">Ашық сұрақ</label><input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні">
-    <button class="btn btn-p" onclick="saveModal()">💾 Сақтау</button>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-section">Тақырып атаулары</div>
+    <label class="inp-label">Тақырып (ҚАЗ)</label>
+    <input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
+    <label class="inp-label">Тема (РУС)</label>
+    <input class="adm-inp" id="mTRu" placeholder="Название темы">
+
+    <div class="modal-section">Мәтін / Текст</div>
+    <label class="inp-label">Мәтін (ҚАЗ)</label>
+    <textarea class="adm-ta" id="mTxtKk" rows="3" placeholder="Параграф мәтіні..."></textarea>
+    <label class="inp-label">Текст (РУС)</label>
+    <textarea class="adm-ta" id="mTxtRu" rows="3" placeholder="Текст параграфа..."></textarea>
+
+    <div class="modal-section">Тест сұрағы</div>
+    <label class="inp-label">Сұрақ (ҚАЗ)</label>
+    <input class="adm-inp" id="mQKk" placeholder="Сұрақ мәтіні">
+    <div class="ans-grid">
+      <div><label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ..."></div>
+      <div><label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ..."></div>
+      <div><label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ..."></div>
+      <div><label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ..."></div>
+    </div>
+    <label class="inp-label">Дұрыс жауап</label>
+    <div class="answer-label-row">
+      <select class="answer-select adm-inp" id="mQAns" style="margin-bottom:0;flex:1">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+    </div>
+
+    <div class="modal-section">Ашық сұрақ</div>
+    <label class="inp-label">Ашық сұрақ (ҚАЗ)</label>
+    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні" style="margin-bottom:16px">
+
+    <button class="btn btn-primary" onclick="saveModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+      Сақтау
+    </button>
   </div>
 </div>
 
 <script>
-window.addEventListener('online', ()=>document.getElementById('offlineBanner').classList.remove('show'));
-window.addEventListener('offline',()=>document.getElementById('offlineBanner').classList.add('show'));
+window.addEventListener('online',  () => document.getElementById('offlineBanner').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offlineBanner').classList.add('show'));
 
-// ══ FIREBASE HELPERS ══
-async function fbGetProg(uid){try{const{get,ref}=window._fbFns;const s=await get(ref(window._fbDb,'progress/'+uid));return s.exists()?s.val():{};}catch{return{};}}
-async function fbSaveProg(uid,p){try{const{set,ref}=window._fbFns;await set(ref(window._fbDb,'progress/'+uid),p);}catch(e){console.warn(e);}}
-async function fbGetTopics(){try{const{get,ref}=window._fbFns;const s=await get(ref(window._fbDb,'topics'));return s.exists()?Object.values(s.val()):null;}catch{return null;}}
-async function fbSaveTopics(t){try{const{set,ref}=window._fbFns;const o={};t.forEach((x,i)=>o[i]=x);await set(ref(window._fbDb,'topics'),o);}catch(e){console.warn(e);}}
-async function fbGetAllUsers(){try{const{get,ref}=window._fbFns;const s=await get(ref(window._fbDb,'users'));return s.exists()?Object.entries(s.val()).map(([uid,d])=>({uid,...d})):[];}catch{return[];}}
-async function fbGetAllProgress(){try{const{get,ref}=window._fbFns;const s=await get(ref(window._fbDb,'progress'));return s.exists()?s.val():{};}catch{return{};}}
-
-let _prog={},_topics=null;
-function pk(uid,id,type){return uid+'__'+id+'__'+type;}
-async function getProg(){if(!window._fbUser)return _prog;if(Object.keys(_prog).length===0)_prog=await fbGetProg(window._fbUser.uid);return _prog;}
-async function saveProg(p){_prog=p;if(window._fbUser)await fbSaveProg(window._fbUser.uid,p);}
-async function getTopics(){if(_topics)return _topics;const fb=await fbGetTopics();if(fb&&fb.length>0){_topics=fb;}else{_topics=DEF_TOPICS;await fbSaveTopics(_topics);}return _topics;}
-async function saveTopics(t){_topics=t;await fbSaveTopics(t);}
-function calcPts(uid,T,p){return T.reduce((s,t)=>s+(p[pk(uid,t.id,'test')]||0)+(p[pk(uid,t.id,'open')]||0)+(p[pk(uid,t.id,'map')]||0),0);}
-
-// ══ TOPICS DATA ══
-const DEF_TOPICS=[
-  {id:1,kk:"Кіріспе. Геосаяси жағдай, басты ерекшеліктер",ru:"Введение. Геополитическая ситуация",
-   tkk:`<p><strong>Геосаясат</strong> (грек: geo – жер, politikos – мемлекетті басқару) — мемлекеттердің сыртқы саясатына географиялық, тарихи, демографиялық және экономикалық факторлардың тигізетін әсерін зерттейтін пән.</p><div class="fact-box"><div class="fact-title">📌 Негізгі ұғымдар</div>Геосаясатты ғылыми айналымға алғаш рет швед ғалымы <strong>Рудольф Челлен</strong> енгізді. Мақсаты — әлемдік кеңістіктегі күштер балансын түсіну.</div><p>ХХІ ғасырда <strong>көпполярлы әлем</strong> қалыптасуда: АҚШ, Қытай, Еуропалық Одақ, Үндістан — бірнеше күш орталықтары пайда болды. Жаһандану мен аймақтану (ШЫҰ, ЕАЭО, ЕО, АСЕАН) бір мезгілде жүруде.</p>`,
-   tru:`<p><strong>Геополитика</strong> (греч: geo – земля) — наука о влиянии географических факторов на внешнюю политику государств.</p><div class="fact-box"><div class="fact-title">📌 Ключевые понятия</div>Термин введён <strong>Рудольфом Челленом</strong>. Цель — понять баланс сил в мировом пространстве.</div><p>В XXI веке формируется <strong>многополярный мир</strong>: США, Китай, ЕС, Индия — несколько центров силы.</p>`,
-   qkk:"«Геосаясат» терминін алғаш рет кім ғылыми айналымға енгізді?",ans:"B",opts:["A. Маккиндер","B. Рудольф Челлен","C. Спикмен","D. Бжезинский"],
-   openq:"Геосаясаттың маңызын және ХХІ ғасырдағы маңыздылығын өз сөзіңізбен түсіндіріңіз.",
-   mapq:"Геосаяси күш орталықтарын картада табыңыз",
-   mapDots:[{x:25,y:38,label:"АҚШ",correct:"АҚШ"},{x:50,y:35,label:"Еуропа",correct:"Еуропалық Одақ"},{x:70,y:42,label:"Қытай",correct:"Қытай"},{x:65,y:55,label:"Үндістан",correct:"Үндістан"}],
-   mapOpts:["АҚШ","Еуропалық Одақ","Қытай","Үндістан","Ресей"]},
-  {id:2,kk:"Әлем дамуына ықпал ететін геосаяси факторлар",ru:"Геополитические факторы развития мира",
-   tkk:`<p>Геосаясат — мемлекеттің сыртқы саясатын оның <strong>географиялық орналасуы, ресурстары және технологиялық деңгейі</strong> тұрғысынан зерттейтін ғылым.</p><div class="fact-box"><div class="fact-title">⚡ Факторлар түрлері</div><strong>Физикалық-географиялық:</strong> мұхитқа шығу, территория, климат<br><strong>Ресурстық:</strong> мұнай, газ, сирек металдар, су<br><strong>Технологиялық:</strong> жасанды интеллект, кибербезопасность, ғарыш</div><p>ХХІ ғасырда <strong>технологиялық егемендік</strong> дәстүрлі ресурстар сияқты маңызды. Литий, кобальт сияқты <strong>сирек металдар</strong> үшін жаңа геосаяси бәсеке басталды.</p>`,
-   tru:`<p>Геополитика изучает внешнюю политику с точки зрения <strong>географического положения, ресурсов и технологий</strong>.</p><div class="fact-box"><div class="fact-title">⚡ Виды факторов</div><strong>Физико-географические:</strong> выход к морю, территория<br><strong>Ресурсные:</strong> нефть, газ, редкие металлы<br><strong>Технологические:</strong> ИИ, кибербезопасность, космос</div><p>В XXI веке началась геополитическая борьба за <strong>редкие металлы</strong> — литий, кобальт.</p>`,
-   qkk:"ХХІ ғасырда жаңа геосаяси бәсеке қай ресурс үшін күшейді?",ans:"C",opts:["A. Алтын мен күміс","B. Темір кені","C. Литий мен кобальт","D. Мұнай мен газ"],
-   openq:"Технологиялық фактордың дәстүрлі географиялық факторлардан қандай айырмашылығы бар?",
-   mapq:"Негізгі ресурс аймақтарын картада анықтаңыз",
-   mapDots:[{x:55,y:30,label:"Ресей газы",correct:"Ресей"},{x:55,y:65,label:"Таяу Шығыс мұнайы",correct:"Таяу Шығыс"},{x:72,y:70,label:"Австралия",correct:"Австралия"},{x:30,y:65,label:"Конго",correct:"Конго"}],
-   mapOpts:["Ресей","Таяу Шығыс","Австралия","Конго","Қазақстан"]},
-  {id:3,kk:"Әлем аймақтарының геосаяси кеңістіктегі рөлі",ru:"Роль регионов мира в геополитическом пространстве",
-   tkk:`<p>Геосаясатта екі негізгі классикалық теория бар:</p><div class="fact-box"><div class="fact-title">🗺️ Классикалық модельдер</div><strong>Хартленд (Маккиндер):</strong> Еуразияның ішкі бөлігін бақылаған — әлемді бақылайды<br><strong>Римленд (Спикмен):</strong> Негізгі күш жағалау аймақтарында — Еуропа, Оңтүстік Азия, Қиыр Шығыс</div><p>Қазіргі кезде бұларға <strong>«Цифрлық геосаясат»</strong> (киберкеңістік) және <strong>«Геоэкономика»</strong> қосылды. <strong>Орталық Азия</strong> — «Хартленд» пен «Римленд» арасын жалғайтын стратегиялық «көпір».</p>`,
-   tru:`<p>В геополитике две классические теории:</p><div class="fact-box"><div class="fact-title">🗺️ Классические модели</div><strong>Хартленд (Маккиндер):</strong> кто контролирует внутреннюю Евразию — контролирует мир<br><strong>Римленд (Спикмен):</strong> главная сила в прибрежных зонах</div><p>Сегодня добавились <strong>«Цифровая геополитика»</strong> и <strong>«Геоэкономика»</strong>. <strong>Центральная Азия</strong> — стратегический «мост».</p>`,
-   qkk:"Маккиндер теориясы бойынша әлемдік үстемдіктің кілті қайда?",ans:"A",opts:["A. Еуразияның ішкі бөлігі (Хартленд)","B. Жағалау аймақтары","C. Теңіз кеңістігі","D. Арктика"],
-   openq:"Орталық Азияның «геосаяси көпір» рөлін мысалдармен түсіндіріңіз.",
-   mapq:"Хартленд пен Римленд аймақтарын картада белгілеңіз",
-   mapDots:[{x:55,y:35,label:"Хартленд",correct:"Хартленд — Еуразия"},{x:20,y:40,label:"Батыс Римленд",correct:"Батыс Римленд — Еуропа"},{x:65,y:55,label:"Шығыс Римленд",correct:"Шығыс Римленд — Азия"},{x:55,y:45,label:"Орт.Азия",correct:"Орталық Азия — Қазақстан"}],
-   mapOpts:["Хартленд — Еуразия","Батыс Римленд — Еуропа","Шығыс Римленд — Азия","Орталық Азия — Қазақстан","Теңіздік держава"]},
-  {id:4,kk:"Діни және ұлттық қақтығыстардың саяси бейнеге ықпалы",ru:"Влияние религиозных и национальных конфликтов",
-   tkk:`<p>Әлемнің саяси картасы үнемі өзгеріп отырады. Осы өзгерістердің басты себебі — <strong>діни және этникалық қақтығыстар</strong>.</p><div class="fact-box"><div class="fact-title">⚠️ Қақтығыс түрлері</div><strong>Мемлекет бөлшектенуі:</strong> Югославияның ыдырауы → Сербия, Хорватия, БиГ, т.б.<br><strong>Сепаратизм:</strong> Каталония, Шотландия, Курдистан<br><strong>Анклавтар:</strong> шекара даулары</div><p>Қазіргі ірі қақтығыстар: <strong>Таяу Шығыс</strong> (Израиль-Палестина), <strong>Еуропа</strong> (Украина), <strong>Африка</strong> (Судан). Бұлар жаһандық тепе-теңдікті бұзады.</p>`,
-   tru:`<p>Политическая карта мира постоянно меняется. Главная причина — <strong>религиозные и этнические конфликты</strong>.</p><div class="fact-box"><div class="fact-title">⚠️ Виды конфликтов</div><strong>Распад государств:</strong> распад Югославии<br><strong>Сепаратизм:</strong> Каталония, Шотландия<br><strong>Анклавы:</strong> территориальные споры</div><p>Крупные конфликты: <strong>Ближний Восток</strong>, <strong>Украина</strong>, <strong>Африка</strong>.</p>`,
-   qkk:"Югославияның ыдырауы негізінен қандай себептен болды?",ans:"B",opts:["A. Экономикалық дағдарыс","B. Этникалық-діни қайшылықтар","C. Табиғи апат","D. Сыртқы интервенция"],
-   openq:"Сепаратизм мен федерализмнің айырмашылығын мысалдармен жазыңыз.",
-   mapq:"Қазіргі ірі қақтығыс ошақтарын картада белгілеңіз",
-   mapDots:[{x:52,y:52,label:"Таяу Шығыс",correct:"Таяу Шығыс"},{x:48,y:30,label:"Украина",correct:"Украина"},{x:45,y:62,label:"Африка",correct:"Африка"},{x:35,y:50,label:"Атлант",correct:"Солтүстік Атлантика"}],
-   mapOpts:["Таяу Шығыс","Украина","Африка","Солтүстік Атлантика","Балқан"]},
-  {id:5,kk:"Геосаяси қуаттың демографиялық және экономикалық детерминанттары",ru:"Демографические и экономические детерминанты геополитики",
-   tkk:`<p>Мемлекеттің нағыз қуаты екі тірекке негізделеді: <strong>демография (халық)</strong> және <strong>экономика (ресурстар, технология, ақша)</strong>.</p><div class="fact-box"><div class="fact-title">👥 Негізгі ұғымдар</div><strong>Демографиялық дивиденд:</strong> жас халық → еңбек күші → өсу<br><strong>Ақыл-ой жылыстауы (Brain drain):</strong> білімді мамандардың кетуі<br><strong>«Голланд ауруы»:</strong> табиғи байлыққа тәуелді экономика</div><p><strong>Технологиялық егемендік</strong> — жеке чип, бағдарлама, ғарыш — мемлекеттің нағыз тәуелсіздігінің белгісі. Қазақстан: 20 млн халық, 9-шы аумақтан үлкен ел.</p>`,
-   tru:`<p>Истинная мощь государства опирается на <strong>демографию</strong> и <strong>экономику</strong>.</p><div class="fact-box"><div class="fact-title">👥 Ключевые понятия</div><strong>Демографический дивиденд:</strong> молодое население → рост<br><strong>Утечка мозгов:</strong> эмиграция специалистов<br><strong>«Голландская болезнь»:</strong> зависимость от ресурсов</div><p><strong>Технологический суверенитет</strong> — признак истинной независимости. Казахстан: 20 млн чел., 9-я страна по площади.</p>`,
-   qkk:"«Голланд ауруы» деген не?",ans:"C",opts:["A. Жұқпалы ауру","B. Халық санының азаюы","C. Табиғи байлыққа тәуелділіктен өнеркәсіптің дамымауы","D. Технологиялық артта қалу"],
-   openq:"Қазақстан «голланд ауруынан» қалай қорғана алады? Өз ұсыныстарыңызды жазыңыз.",
-   mapq:"Демографиялық алыптарды картада белгілеңіз",
-   mapDots:[{x:70,y:42,label:"Қытай",correct:"Қытай — 1,4 млрд"},{x:65,y:55,label:"Үндістан",correct:"Үндістан — 1,4 млрд"},{x:25,y:38,label:"АҚШ",correct:"АҚШ — 335 млн"},{x:53,y:43,label:"Қазақстан",correct:"Қазақстан — 20 млн"}],
-   mapOpts:["Қытай — 1,4 млрд","Үндістан — 1,4 млрд","АҚШ — 335 млн","Қазақстан — 20 млн","Нигерия"]},
-  {id:6,kk:"Қазақстанның геосаяси жағдайындағы артықшылықтары мен мүмкіндіктері",ru:"Геополитические преимущества и возможности Казахстана",
-   tkk:`<p>Қазақстан Еуразияның дәл орталығында орналасып, <strong>бірегей геосаяси конфигурацияға</strong> ие — бұл кемшілік емес, стратегиялық артықшылыққа айналды.</p><div class="fact-box"><div class="fact-title">🇰🇿 Қазақстанның артықшылықтары</div><strong>Транзит:</strong> «Нұрлы жол» + «Бір белдеу — бір жол» → Еуразия логистика орталығы<br><strong>Энергетика:</strong> Мұнай, газ, уран (әлемде 1-ші орын)<br><strong>Дипломатия:</strong> Ресей, Қытай, Батыс арасындағы «көпір»</div><p><strong>Көпвекторлы саясат</strong> — Қазақстанның ресми геосаяси доктринасы. <strong>Транскаспий бағыты (Орта дәліз)</strong> — қазіргі жағдайда стратегиялық маңызы арта түсті.</p>`,
-   tru:`<p>Казахстан расположен в центре Евразии и обладает <strong>уникальной геополитической конфигурацией</strong>.</p><div class="fact-box"><div class="fact-title">🇰🇿 Преимущества Казахстана</div><strong>Транзит:</strong> «Нурлы жол» + «Один пояс — один путь»<br><strong>Энергетика:</strong> Нефть, газ, уран (1-е место в мире)<br><strong>Дипломатия:</strong> «Мост» между Россией, Китаем и Западом</div><p><strong>Многовекторная политика</strong> — официальная доктрина Казахстана. <strong>Транскаспийский маршрут</strong> — его значение резко возросло.</p>`,
-   qkk:"Қазақстанның ресми геосаяси доктринасы қалай аталады?",ans:"D",opts:["A. Нейтралитет саясаты","B. Батыс интеграциясы","C. Еуразиялық одақ","D. Көпвекторлы саясат"],
-   openq:"Қазақстанның «Орта дәліз» жобасының геосаяси маңызын талдаңыз.",
-   mapq:"Қазақстанның транзиттік бағыттарын картада белгілеңіз",
-   mapDots:[{x:53,y:43,label:"Қазақстан",correct:"Қазақстан — орталық"},{x:38,y:43,label:"Каспий-Кавказ",correct:"Транскаспий бағыты"},{x:70,y:43,label:"Қытайға",correct:"Қытай бағыты"},{x:48,y:33,label:"Ресейге",correct:"Солтүстік бағыт"}],
-   mapOpts:["Қазақстан — орталық","Транскаспий бағыты","Қытай бағыты","Солтүстік бағыт","Оңтүстік бағыт"]}
-];
-
-// ══ STATE ══
-let ST={lang:'kk',tab:0,view:'list',detIdx:0,currentUser:null,mapAnswers:{},selectedMapOpt:null};
-let isRegMode=false;
-
-// ══ SCREEN MANAGER ══
-function showScreen(id){
-  ['loadingScreen','welcomeScreen','authScreen','mainScreen'].forEach(s=>document.getElementById(s).classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+// ═══ FIREBASE HELPERS ═══
+async function fbGetProg(uid) {
+  try {
+    if (!window._fbDb) return {};
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'progress/' + uid));
+    return snap.exists() ? snap.val() : {};
+  } catch { return {}; }
 }
-function hideLoading(){
-  const ls=document.getElementById('loadingScreen');
-  ls.classList.add('fade');
-  setTimeout(()=>{ls.classList.remove('active','fade');},450);
+async function fbSaveProg(uid, prog) {
+  try {
+    if (!window._fbDb) return;
+    const {set, ref} = window._fbFns;
+    await set(ref(window._fbDb, 'progress/' + uid), prog);
+  } catch(e) { console.warn('Save error:', e); }
 }
-function showWelcomeScreen(){hideLoading();showScreen('welcomeScreen');}
-function showAuthScreen(){showScreen('authScreen');document.getElementById('inLogin').value='';document.getElementById('inPass').value='';document.getElementById('authErr').textContent='';setAuthMode(false);}
-function startSession(u){
-  ST.currentUser=u;_prog={};
-  hideLoading();showScreen('mainScreen');
-  document.getElementById('nb2').classList.toggle('hidden',!u.isAdmin);
-  switchTab(0);
-  document.getElementById('authBtn').textContent=isRegMode?'Тіркелу':'Кіру';
-  document.getElementById('authBtn').disabled=false;
+async function fbGetTopics() {
+  try {
+    if (!window._fbDb) return null;
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'topics'));
+    return snap.exists() ? Object.values(snap.val()) : null;
+  } catch { return null; }
 }
-async function logout(){
-  const{signOut}=window._fbFns;_prog={};_topics=null;
-  await signOut(window._fbAuth);ST.currentUser=null;
-  showWelcomeScreen();
+async function fbSaveTopics(topics) {
+  try {
+    if (!window._fbDb) return;
+    const {set, ref} = window._fbFns;
+    const obj = {};
+    topics.forEach((t,i) => obj[i] = t);
+    await set(ref(window._fbDb, 'topics'), obj);
+  } catch(e) { console.warn('Topics save error:', e); }
+}
+async function fbGetAllUsers() {
+  try {
+    if (!window._fbDb) return [];
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'users'));
+    if (!snap.exists()) return [];
+    return Object.entries(snap.val()).map(([uid, d]) => ({uid, ...d}));
+  } catch { return []; }
+}
+async function fbGetAllProgress() {
+  try {
+    if (!window._fbDb) return {};
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'progress'));
+    return snap.exists() ? snap.val() : {};
+  } catch { return {}; }
 }
 
-// ══ AUTH ══
-function setAuthMode(reg){
-  isRegMode=reg;
-  document.getElementById('tabLogin').classList.toggle('act',!reg);
-  document.getElementById('tabReg').classList.toggle('act',reg);
-  document.getElementById('regExtra').classList.toggle('hidden',!reg);
-  document.getElementById('authBtn').textContent=reg?'Тіркелу':'Кіру';
-  document.getElementById('authErr').textContent='';
+const LS = {
+  get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set(k,v){localStorage.setItem(k,JSON.stringify(v));}
+};
+function pk(uid, id, type){ return uid + '__' + id + '__' + type; }
+
+let _prog = {};
+let _topics = null;
+
+async function getProg() {
+  if (!window._fbUser) return _prog;
+  if (Object.keys(_prog).length === 0) {
+    _prog = await fbGetProg(window._fbUser.uid);
+  }
+  return _prog;
 }
-async function doAuth(){
-  const email=document.getElementById('inLogin').value.trim();
-  const pass=document.getElementById('inPass').value.trim();
-  const cls=document.getElementById('inClass').value.trim();
-  const err=document.getElementById('authErr');const btn=document.getElementById('authBtn');
-  err.textContent='';
-  if(!email){err.textContent='Email енгізіңіз!';return;}
-  if(!pass){err.textContent='Пароль енгізіңіз!';return;}
-  btn.textContent='⏳ Жүктелуде...';btn.disabled=true;
-  const{createUserWithEmailAndPassword,signInWithEmailAndPassword}=window._fbFns;
-  try{
-    if(isRegMode){
-      const cred=await createUserWithEmailAndPassword(window._fbAuth,email,pass);
-      const{set,ref}=window._fbFns;const login=email.split('@')[0];
-      await set(ref(window._fbDb,'users/'+cred.user.uid),{login,cls:cls||'10',isAdmin:false,email,createdAt:Date.now()});
-    } else {await signInWithEmailAndPassword(window._fbAuth,email,pass);}
-  }catch(e){
-    const msgs={'auth/user-not-found':'Пайдаланушы табылмады!','auth/wrong-password':'Пароль қате!','auth/invalid-credential':'Email немесе пароль қате!','auth/email-already-in-use':'Бұл email тіркелген!','auth/weak-password':'Пароль кем дегенде 6 символ болуы керек!','auth/invalid-email':'Email форматы қате!'};
-    err.textContent=msgs[e.code]||('Қате: '+e.message);
-    btn.textContent=isRegMode?'Тіркелу':'Кіру';btn.disabled=false;
+async function saveProg(p) {
+  _prog = p;
+  if (window._fbUser) {
+    await fbSaveProg(window._fbUser.uid, p);
   }
 }
+const TOPICS_VERSION = 'v2-geosayasat-6'; // Change this to force-reset Firebase topics
 
-// ══ TABS ══
-function switchTab(t){ST.tab=t;ST.view='list';document.getElementById('backBtn').classList.remove('show');['nb0','nb1','nb2'].forEach((id,i)=>document.getElementById(id).classList.toggle('act',i===t));renderTab();}
-function renderTab(){if(ST.tab===0)renderTopicsAsync();else if(ST.tab===1)renderProfileAsync();else renderAdminAsync();}
-function showOnly(id){['tabTopics','tabProfile','tabAdmin'].forEach(t=>document.getElementById(t).classList.toggle('hidden',t!==id));}
+async function getTopics() {
+  if (_topics) return _topics;
+  const fbT = await fbGetTopics();
+  // Check if Firebase topics match current version
+  if (fbT && fbT.length > 0 && fbT[0]._version === TOPICS_VERSION) {
+    _topics = fbT;
+  } else {
+    // Force update: new topics or version mismatch
+    _topics = DEF_TOPICS.map(t => ({...t, _version: TOPICS_VERSION}));
+    await fbSaveTopics(_topics);
+  }
+  return _topics;
+}
+async function saveTopics(t) {
+  _topics = t;
+  await fbSaveTopics(t);
+}
+function calcPts(uid, T, prog) {
+  return T.reduce((s,t) => {
+    s += (prog[pk(uid,t.id,'test')]||0) + (prog[pk(uid,t.id,'open')]||0) + (prog[pk(uid,t.id,'map')]||0);
+    return s;
+  }, 0);
+}
 
-// ══ TOPICS ══
+// ═══ DEFAULT TOPICS ═══
+const DEF_TOPICS = [
+  {id:1,
+   plan:{
+     goal:"«Геосаясат» ұғымын түсіндіру, қазіргі жаһандық геосаяси жағдайдың басты ерекшеліктері мен факторларын талдау.",
+     steps:[
+       {t:"Ұйымдастыру",min:"3-5 мин",d:"Сәлемдесу. «Миға шабуыл»: «Жері үлкен мемлекет па, технологиясы дамыған мемлекет па?»"},
+       {t:"Жаңа материал",min:"15-20 мин",d:"«Геосаясат» ұғымы. Қазіргі геосаяси жағдайдың 4 ерекшелігі: Көпполярлы әлем, жаһандану, ресурстар үшін күрес, ақпараттық майдан."},
+       {t:"Бекіту",min:"15 мин",d:"2 топтық тапсырма: 1) Қазақстанның геосаяси артықшылықтары; 2) Жас буын технологиясының мемлекет бәсекеге қабілеттілігіне әсері."},
+       {t:"Экспресс-тест",min:"5 мин",d:"3 сұрақтан тұратын тест. Өзін-өзі тексеру."}
+     ]
+   },
+   kk:"Кіріспе. Геосаяси жағдай, басты ерекшеліктер",
+   ru:"Введение. Геополитическая ситуация, основные особенности",
+   tkk:`<p><strong>Геосаясат</strong> (грек: <em>geo</em> — жер, <em>politikos</em> — мемлекетті басқару) — мемлекеттердің сыртқы саясатына географиялық, тарихи, демографиялық және экономикалық факторлардың тигізетін әсерін зерттейтін пән.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаясаттың негізгі мақсаты</div>Әлемдік кеңістіктегі күштердің орналасуын түсіну және мемлекеттердің ұлттық мүдделерін жаһандық аренада қалай қорғайтынын талдау. Ұғымды ғылыми айналымға алғаш <strong>Рудольф Челлен</strong> енгізген.</div>
+<p>ХХІ ғасырдағы геосаяси жағдайдың <strong>4 басты ерекшелігі:</strong></p>
+<p><strong>1. Көпполярлы әлем:</strong> Бірполярлы жүйеден (АҚШ үстемдігі) бірнеше күш орталықтары бар жүйеге өту — АҚШ, Қытай, ЕО, Үндістан.</p>
+<p><strong>2. Жаһандану және аймақтану:</strong> Экономикалық тұтастану бір жағынан жүрсе, аймақтық одақтар (ШЫҰ, ЕАЭО, АСЕАН) маңызы артуда.</p>
+<p><strong>3. Ресурстар үшін бәсеке:</strong> Мұнай, газбен қатар таза су, сирек металдар үшін геосаяси күрес күшеюде.</p>
+<p><strong>4. Ақпараттық-технологиялық майдан:</strong> Киберкеңістік, жасанды интеллект және ақпараттық қауіпсіздік жаңа геосаяси арена болды. Мемлекет қуаты енді тек әскермен емес, технологиялық әлеуетімен өлшенеді.</p>`,
+   tru:`<p><strong>Геополитика</strong> (от греч. <em>geo</em> — земля, <em>politikos</em> — искусство управления) — наука, изучающая влияние географических, исторических, демографических и экономических факторов на внешнюю политику государств.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Основная цель геополитики</div>Понять расстановку сил в мировом пространстве и проанализировать, как государства защищают свои национальные интересы на глобальной арене. Термин введён <strong>Рудольфом Челленом</strong>.</div>
+<p><strong>4 главные особенности современной геополитической ситуации:</strong></p>
+<p><strong>1. Многополярный мир:</strong> Переход от однополярной системы к системе с несколькими центрами силы — США, Китай, ЕС, Индия.</p>
+<p><strong>2. Глобализация и регионализация:</strong> С одной стороны — экономическое единение, с другой — рост региональных союзов (ШОС, ЕАЭС, АСЕАН).</p>
+<p><strong>3. Борьба за ресурсы:</strong> Наряду с нефтью и газом усиливается борьба за пресную воду и редкие металлы.</p>
+<p><strong>4. Информационно-технологический фронт:</strong> Киберпространство и ИИ стали новой геополитической ареной. Мощь государства измеряется не только армией, но и технологическим потенциалом.</p>`,
+   qkk:"«Геосаясат» ұғымын ғылыми айналымға алғаш рет кім енгізген?",
+   ans:"B",
+   opts:["A. Х.Маккиндер","B. Рудольф Челлен","C. Н.Спикмен","D. К.Хаусхофер"],
+   openq:"ХХІ ғасырдағы геосаяси жағдайдың 4 ерекшелігін өз сөзіңізбен түсіндіріңіз.",
+   mapq:"Әлемдік күш орталықтарын картада орналастырыңыз",
+   mapDots:[{x:22,y:40,label:"АҚШ",correct:"АҚШ"},{x:47,y:38,label:"ЕО",correct:"Еуропалық Одақ"},{x:68,y:38,label:"Қытай",correct:"Қытай"},{x:63,y:55,label:"Үндістан",correct:"Үндістан"}],
+   mapOpts:["АҚШ","Еуропалық Одақ","Қытай","Үндістан","Ресей","Бразилия"]
+  },
+
+  {id:2,
+   plan:{
+     goal:"Физикалық-географиялық, ресурстық, экономикалық, демографиялық факторлардың мемлекет күшіне әсерін талдау.",
+     steps:[
+       {t:"Кіріспе",min:"5 мин",d:"Кейс-стади: «Мұхитқа шығу жолы жоқ, бірақ IT-хаб» мемлекетін талқылау."},
+       {t:"Теориялық блок",min:"15 мин",d:"4 фактор түрі: Географиялық, ресурстық, экономикалық-технологиялық, демографиялық. Мысалдармен талдау."},
+       {t:"Тәжірибелік жұмыс",min:"15 мин",d:"Сәйкестендіру кестесі: Панама каналы, литий, жасанды интеллект → геосаяси рөлі."},
+       {t:"Қорытынды",min:"5 мин",d:"«Жұмсақ күш» (Soft Power) ұғымын талқылау. Мемлекет қуатының жаңа өлшемдері."}
+     ]
+   },
+   kk:"Әлем дамуына ықпал ететін геосаяси факторлар",
+   ru:"Геополитические факторы, влияющие на развитие мира",
+   tkk:`<p>Геосаясат — мемлекеттің сыртқы саясатын оның <strong>географиялық орналасуы, ресурстары және технологиялық деңгейі</strong> тұрғысынан зерттейтін ғылым. ХХІ ғасырда бұл факторлар трансформацияланып, жаңа сипатқа ие болды.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Геосаяси факторлар жіктелуі</div>А) Физикалық-географиялық · Ә) Табиғи-ресурстық · Б) Технологиялық-экономикалық · В) Демографиялық және «Жұмсақ күш»</div>
+<p><strong>А. Физикалық-географиялық факторлар</strong> — мемлекеттің «тұрақты» мүмкіндіктері. Мұхитқа шығу — сауда басымдығы. Климат өзгеруіне байланысты Арктика жаңа геосаяси нүктеге айналуда.</p>
+<p><strong>Ә. Табиғи-ресурстық факторлар</strong> — мұнай, газ, уран халықаралық ықпалды арттырады. «Жасыл энергияға» өту кезінде <strong>литий мен кобальт</strong> үшін бәсеке күшеюде. Ауыз су — болашақтың басты геосаяси ресурсы.</p>
+<p><strong>Б. Технологиялық-экономикалық факторлар</strong> — «технологиялық егемендік» бірінші орынға шықты. Жасанды интеллект, микрочиптер, ғарыш технологиялары мемлекеттің дамуын белгілейді.</p>
+<p><strong>В. Демография және «Жұмсақ күш»</strong> — адам санымен қатар оның сапасы (білім, шығармашылық) маңызды. «Жұмсақ күш» — мәдениет, білім, өмір стандарты арқылы ықпал ету.</p>`,
+   tru:`<p>Геополитика изучает внешнюю политику государства через призму его <strong>географического положения, ресурсов и технологического уровня</strong>. В XXI веке эти факторы трансформировались.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l9-6 9 6"/><path d="M3 15h6l-3 4z"/><path d="M15 15h6l-3 4z"/></svg> Классификация геополитических факторов</div>А) Физико-географические · Б) Природно-ресурсные · В) Технологически-экономические · Г) Демографические и «Мягкая сила»</div>
+<p><strong>А. Физико-географические</strong> — «постоянные» возможности государства. Выход к океану = торговое преимущество. Из-за изменения климата Арктика становится новой геополитической точкой.</p>
+<p><strong>Б. Природно-ресурсные</strong> — нефть, газ, уран усиливают международное влияние. При переходе к «зелёной энергии» конкуренция за <strong>литий и кобальт</strong> усиливается. Пресная вода — главный геополитический ресурс будущего.</p>
+<p><strong>В. Технологически-экономические</strong> — на первое место вышло «технологическое суверенитет». ИИ, микрочипы, космические технологии определяют развитие государства.</p>
+<p><strong>Г. Демография и «Мягкая сила»</strong> — важно не только количество, но и качество населения (образование, креативность). «Мягкая сила» — влияние через культуру, образование, стандарты жизни.</p>`,
+   qkk:"«Жұмсақ күш» (Soft Power) ұғымы нені білдіреді?",
+   ans:"C",
+   opts:["A. Ядролық қаруды қолдану","B. Экономикалық санкция","C. Мәдениет, білім арқылы ықпал ету","D. Теңіз флотының күші"],
+   openq:"Технологиялық егемендік неліктен қазіргі геосаясатта бірінші орынға шықты? Мысал келтіріңіз.",
+   mapq:"Табиғи ресурстары бай аймақтарды картада белгілеңіз",
+   mapDots:[{x:55,y:35,label:"Мұнай",correct:"Орта Шығыс (мұнай)"},{x:48,y:25,label:"Газ",correct:"Ресей (газ)"},{x:52,y:55,label:"Уран",correct:"Қазақстан (уран)"},{x:28,y:65,label:"Литий",correct:"Оңт.Америка (литий)"}],
+   mapOpts:["Орта Шығыс (мұнай)","Ресей (газ)","Қазақстан (уран)","Оңт.Америка (литий)","Австралия (кобальт)"]
+  },
+
+  {id:3,
+   plan:{
+     goal:"Хартленд/Римленд модельдерін түсіндіру. Негізгі аймақтардың стратегиялық ерекшеліктерін талдау. Қазақстанның «көпір» рөлін анықтау.",
+     steps:[
+       {t:"Қызығушылықты ояту",min:"5 мин",d:"Сұрақ: «Мемлекеттің орналасқан жері оның байлығына немесе күшіне әсер ете ме?»"},
+       {t:"Теориялық негіз",min:"10 мин",d:"Хартленд (Маккиндер) vs Римленд (Спикмен). Цифрлық геосаясат пен геоэкономика ұғымдары."},
+       {t:"Топтық жұмыс",min:"15 мин",d:"3 топ: Батыс (АҚШ+ЕО), Шығыс (Азия+Таяу Шығыс), Орталық Азия (Қазақстан транзиті). Әр топ аймақтың рөлін таныстырады."},
+       {t:"Дискуссия",min:"10 мин",d:"ХХІ ғасырда: Әскери күш пе, инновация мен логистика ма? Болашақта тұщы су үшін күрес болады ма?"},
+       {t:"Тест",min:"5 мин",d:"5 сұрақтан тұратын тест. Хартленд, Жұмсақ күш, Орталық Азия рөлі бойынша."}
+     ]
+   },
+   kk:"Әлем аймақтарының геосаяси кеңістіктегі рөлі",
+   ru:"Роль регионов мира в геополитическом пространстве",
+   tkk:`<p>Геосаясат — мемлекеттердің географиялық орналасуы мен олардың саяси ықпалы арасындағы байланысты зерттейтін ғылым. Аймақтардың рөлі жер көлемімен ғана емес, экономикалық қуат пен технологиялық әлеуетпен өлшенеді.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Классикалық геосаяси модельдер</div><strong>Хартленд (Маккиндер):</strong> Еуразияның ішкі бөлігі — «Әлем жүрегі» — жаһандық үстемдіктің кілті. <strong>Римленд (Спикмен):</strong> Негізгі күш жағалау аймақтарында (Еуропа, Оңт.Азия, Қиыр Шығыс). Бүгінде бұларға «цифрлық геосаясат» қосылды.</div>
+<p><strong>Солтүстік Америка:</strong> АҚШ — технологиялық және әскери доминант. Жасанды интеллект, ғарыш, теңіз флоты арқылы әлемдік мұхит жолдарын бақылайды.</p>
+<p><strong>Еуропа:</strong> «Жұмсақ күш» үлгісі — халықаралық заңнама, экологиялық стандарт (Green Deal), демократиялық институттарды қалыптастырады.</p>
+<p><strong>Азия:</strong> «Атлант дәуірінен» «Тынық мұхиты дәуіріне» өтудің себепкері. Қытайдың «Бір белдеу — бір жол» жобасы құрлықтық логистиканы қайта құруда.</p>
+<p><strong>Орталық Азия және Қазақстан:</strong> Еуразияның «көпірі» — транзиттік әлеует пен көпвекторлы саясат арқылы стратегиялық маңыз.</p>`,
+   tru:`<p>Геополитика изучает взаимосвязь между географическим положением государств и их политическим влиянием. Роль регионов определяется не только площадью, но и экономической мощью и технологическим потенциалом.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Классические геополитические модели</div><strong>Хартленд (Маккиндер):</strong> Внутренняя часть Евразии — «сердце мира» — ключ к мировому господству. <strong>Римленд (Спикмен):</strong> Основная сила сосредоточена в прибрежных зонах. Сегодня к ним добавилась «цифровая геополитика».</div>
+<p><strong>Северная Америка:</strong> США — технологический и военный доминант. Контролируют мировые морские пути через ИИ, космос и флот.</p>
+<p><strong>Европа:</strong> Модель «мягкой силы» — формирует международное право, экологические стандарты (Green Deal), демократические институты.</p>
+<p><strong>Азия:</strong> Главная причина перехода от «атлантической эпохи» к «тихоокеанской». Проект Китая «Один пояс — один путь» перестраивает континентальную логистику.</p>
+<p><strong>Центральная Азия и Казахстан:</strong> «Мост» Евразии — стратегическое значение благодаря транзитному потенциалу и многовекторной политике.</p>`,
+   qkk:"Маккиндердің «Хартленд» теориясы бойынша жаһандық үстемдіктің кілті қайда?",
+   ans:"A",
+   opts:["A. Еуразияның ішкі аймағы","B. Атлант мұхиты","C. Тынық мұхиты жағалауы","D. Африка континенті"],
+   openq:"Қазақстанның «Еуразия көпірі» ретіндегі рөлін түсіндіріңіз.",
+   mapq:"Геосаяси модельдердегі негізгі аймақтарды белгілеңіз",
+   mapDots:[{x:22,y:38,label:"Солт.Америка",correct:"Солтүстік Америка"},{x:47,y:36,label:"Еуропа",correct:"Еуропа"},{x:65,y:38,label:"Азия",correct:"Азия"},{x:52,y:52,label:"Орт.Азия",correct:"Орталық Азия"}],
+   mapOpts:["Солтүстік Америка","Еуропа","Азия","Орталық Азия","Африка","Австралия"]
+  },
+
+  {id:4,
+   plan:{
+     goal:"Діни және этникалық қақтығыстардың саяси картаға тікелей әсерін талдау, заманауи ошақтарды анықтау, жаһандық салдарын бағалау.",
+     steps:[
+       {t:"Білу және Түсіну",min:"10 мин",d:"Негізгі ұғымдар: Мемлекеттің бөлшектенуі, сепаратизм, анклавтар. Сұрақ: «Саяси карта неліктен өзгеріп отырады?»"},
+       {t:"Қолдану және Талдау",min:"15 мин",d:"Кесте жұмысы: Палестина-Израиль, Кашмир, Орталық Африка — себебі, сипаты, саяси салдары. Жасанды шекаралар мен ресурстарға талас мәселесі."},
+       {t:"Жинақтау және Бағалау",min:"10 мин",d:"Жаһандық 3 салдар: Миграция, Радикализм, Халықаралық құқықтың дағдарысы. Топтық баға беру."},
+       {t:"Қорытындылау",min:"5 мин",d:"Сәйкестендіру тесті. Терминдер мен оқиғаларды сәйкестендіру."}
+     ]
+   },
+   kk:"Діни және ұлттық қақтығыстардың әлемнің саяси бейнесіне ықпалы",
+   ru:"Влияние религиозных и национальных конфликтов на политическую картину мира",
+   tkk:`<p>Әлемнің саяси картасы тұрақты емес — ол үнемі өзгеріп отырады. Бұл өзгерістердің басты себептерінің бірі — <strong>діни және этникалық қақтығыстар</strong>.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Қақтығыстардың саяси картаға тікелей әсері</div><strong>Мемлекеттердің бөлшектенуі:</strong> Югославияның ыдырауы → Сербия, Хорватия, Словения, Босния пайда болды. <strong>Сепаратизм:</strong> Белгілі бір топтың бөлініп шығуға ұмтылуы. <strong>Анклавтар:</strong> Этностардың араласып қоныстануынан туындаған даулы аймақтар.</div>
+<p><strong>Заманауи ірі қақтығыстар:</strong></p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Палестина-Израиль:</strong> Діни және этникалық — Таяу Шығыстағы тұрақсыздық, АҚШ пен араб елдерінің екіге бөлінуі.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Кашмир (Үндістан-Пәкістан):</strong> Діни (Индуизм-Ислам) — екі ядролық держава арасындағы тұрақты соғыс қаупі.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Орталық Африка:</strong> Этникалық (тайпалық) — мемлекеттік институттардың әлсіреуі, БҰҰ бітімгершілік күштері.</p>
+<p><strong>Қақтығыстардың жаһандық салдары:</strong> миграциялық толқындар, радикализмнің таралуы, экономикалық тоқырау. Отарлаудан қалған жасанды шекаралар мен ресурстарға талас — басты себептер.</p>`,
+   tru:`<p>Политическая карта мира нестабильна — она постоянно меняется. Одна из главных причин этих изменений — <strong>религиозные и этнические конфликты</strong>.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="12" y1="12" x2="4.2" y2="16.8"/><line x1="12" y1="12" x2="19.8" y2="16.8"/></svg> Прямое влияние конфликтов на политическую карту</div><strong>Распад государств:</strong> Югославия → Сербия, Хорватия, Словения, Босния. <strong>Сепаратизм:</strong> Стремление группы отделиться. <strong>Анклавы:</strong> Спорные зоны из-за смешанного расселения народов.</div>
+<p><strong>Крупные современные конфликты:</strong></p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Палестина-Израиль:</strong> Религиозно-этнический — нестабильность Ближнего Востока, раскол между США и арабскими странами.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Кашмир (Индия-Пакистан):</strong> Религиозный (Индуизм-Ислам) — постоянная угроза войны между двумя ядерными державами.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <strong>Центральная Африка:</strong> Этнический (племенной) — ослабление государственных институтов, миротворцы ООН.</p>
+<p><strong>Глобальные последствия конфликтов:</strong> миграционные волны, распространение радикализма, экономический застой. Искусственные границы, оставшиеся от колониализма, и борьба за ресурсы — главные причины.</p>`,
+   qkk:"Бір ірі мемлекеттің орнына бірнеше жаңа мемлекеттің пайда болуы қалай аталады?",
+   ans:"C",
+   opts:["A. Федерализм","B. Конфедерация","C. Мемлекеттің бөлшектенуі","D. Анексия"],
+   openq:"Діни-этникалық қақтығыстардың жаһандық салдарларына 2 мысал келтіріңіз.",
+   mapq:"Қақтығыс ошақтарын дүниежүзі картасында табыңыз",
+   mapDots:[{x:55,y:45,label:"Палестина",correct:"Таяу Шығыс (Палестина-Израиль)"},{x:63,y:47,label:"Кашмир",correct:"Кашмир (Үндістан-Пәкістан)"},{x:48,y:58,label:"Африка",correct:"Орталық Африка"},{x:43,y:30,label:"Еуропа",correct:"Балқан (Бывш.Югославия)"}],
+   mapOpts:["Таяу Шығыс (Палестина-Израиль)","Кашмир (Үндістан-Пәкістан)","Орталық Африка","Балқан (Бывш.Югославия)","Украина","Сирия"]
+  },
+
+  {id:5,
+   plan:{
+     goal:"Оқушыларға геосаяси қуаттың негізгі факторлары ретінде демография мен экономиканың рөлін түсіндіру.",
+     steps:[
+       {t:"Ұйымдастыру",min:"3 мин",d:"«Миға шабуыл»: «Сіздер үшін ең қуатты мемлекет қандай?»"},
+       {t:"Білу және Түсіну",min:"7 мин",d:"Геосаяси қуаттың 2 тірегі: Демография + Экономика. Негізгі терминдер: детерминанттар, демографиялық дивиденд, адами капитал."},
+       {t:"Деңгейлік тапсырмалар",min:"20 мин",d:"А тобы: Халқы көп мемлекеттердің артықшылықтары. В тобы: «Голланд ауруын» талдау. С тобы: Миграция, 5G, ЖИ және Қазақстанның транзиттік әлеуеті."},
+       {t:"Рефлексия",min:"10 мин",d:"«Brain Drain» мен «Brain Gain» — Қазақстан үшін маңызы. Технологиялық егемендік ұғымы."},
+       {t:"Қорытынды тест",min:"5 мин",d:"Деңгейлік тест: А, В, С деңгейлері бойынша сұрақтар."}
+     ]
+   },
+   kk:"Геосаяси қуаттың демографиялық және экономикалық детерминанттары",
+   ru:"Демографические и экономические детерминанты геополитической мощи",
+   tkk:`<p>Мемлекеттің «қуаты» дегенде тек әскер ойға келеді. Бірақ ХХІ ғасырда нағыз қуат екі тірекке негізделеді: <strong>демография</strong> (халық) және <strong>экономика</strong> (ресурстар мен технология).</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демографиялық детерминант</div><strong>Халық саны:</strong> Қытай, Үндістан, АҚШ — ауқымды ішкі нарық, жұмысшы қолы, әскери резерв. <strong>Демографиялық дивиденд:</strong> Жастар үлесі жоғары → экономикалық серпін. <strong>Адами капитал:</strong> Білім + денсаулық + технологиялық дағды = нағыз бәсекелестік.</div>
+<p><strong>Ақыл-ойдың жылыстауы (Brain Drain):</strong> Дарынды мамандардың шетелге кетуі — мемлекеттің бәсекелестік артықшылығын кемітеді. Бұған қарсы шара — «ақыл-ойды қайтару» бағдарламалары.</p>
+<p><strong>Қазақстан үшін маңыздылығы:</strong> Жер аумағы бойынша әлемде 9-шы орын, бірақ халқы тек ~20 млн. Бос шекара аймақтары — геосаяси осал тұс. Демографиялық өсу — стратегиялық міндет.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Экономикалық детерминант</div><strong>ІЖӨ:</strong> Мемлекеттің сыртқы саясатын жүргізу мүмкіндігі. <strong>«Голланд ауруы»:</strong> Ресурстарға тәуелділік — өнеркәсіптің дамуын тежейді. <strong>Технологиялық егемендік:</strong> Өз чипін, бағдарламасын, инфрақұрылымын жасай алу.</div>`,
+   tru:`<p>Когда говорят о «мощи» государства, думают об армии. Но в XXI веке истинная мощь основана на двух опорах: <strong>демография</strong> (население) и <strong>экономика</strong> (ресурсы и технологии).</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Демографический детерминант</div><strong>Численность населения:</strong> Китай, Индия, США — большой внутренний рынок, рабочая сила, военный резерв. <strong>Демографический дивиденд:</strong> Высокая доля молодёжи → экономический рост. <strong>Человеческий капитал:</strong> Образование + здоровье + технологические навыки = конкурентоспособность.</div>
+<p><strong>Утечка мозгов (Brain Drain):</strong> Эмиграция талантливых специалистов снижает конкурентные преимущества государства. Контрмера — программы «возврата мозгов».</p>
+<p><strong>Значение для Казахстана:</strong> 9-е место в мире по площади, но население всего ~20 млн. Малонаселённые приграничные районы — геополитически уязвимое место. Демографический рост — стратегическая задача.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Экономический детерминант</div><strong>ВВП:</strong> Основа для проведения внешней политики. <strong>«Голландская болезнь»:</strong> Зависимость от ресурсов тормозит развитие промышленности. <strong>Технологический суверенитет:</strong> Способность создавать собственные чипы, программы, инфраструктуру.</div>`,
+   qkk:"«Демографиялық дивиденд» ұғымы нені білдіреді?",
+   ans:"B",
+   opts:["A. Халық санының азаюы","B. Жастар үлесі жоғары болғандықтан экономикалық өсімнің артуы","C. Зейнеткерлер санының өсуі","D. Иммиграциядан түскен пайда"],
+   openq:"«Голланд ауруы» деген не және Қазақстанға қалай қатысты? Түсіндіріңіз.",
+   mapq:"Халқы көп мемлекеттерді картада белгілеңіз",
+   mapDots:[{x:68,y:42,label:"Қытай",correct:"Қытай (~1,4 млрд)"},{x:63,y:50,label:"Үндістан",correct:"Үндістан (~1,4 млрд)"},{x:22,y:40,label:"АҚШ",correct:"АҚШ (~340 млн)"},{x:48,y:48,label:"Нигерия",correct:"Нигерия (~220 млн)"}],
+   mapOpts:["Қытай (~1,4 млрд)","Үндістан (~1,4 млрд)","АҚШ (~340 млн)","Нигерия (~220 млн)","Ресей (~145 млн)","Бразилия (~215 млн)"]
+  },
+
+  {id:6,
+   plan:{
+     goal:"Қазақстанның Еуразия орталығындағы стратегиялық рөлін, ресурстық әлеуетін және көпвекторлы саясатының маңызын талдау.",
+     steps:[
+       {t:"Қызығушылықты ояту",min:"5 мин",d:"«Геосаясат — бұл...» сөйлемін аяқтау. «Сөз бұлты» бойынша ең бейнелі анықтаманы марапаттау."},
+       {t:"Мағынаны тану",min:"15 мин",d:"Мәтінді 3 блокта оқу: 1) География; 2) Ресурстар; 3) Саясат. «Тұйық аймақтан — Орталық хабқа» айналу эволюциясын сызба түрінде көрсету."},
+       {t:"Шығармашылық жұмыс",min:"15 мин",d:"«Болашақтың жобасы»: Цифрлық, Жасыл немесе Азық-түлік геосаясатын таңдап, Қазақстанның 2030 жылғы бейнесін «Pitch» форматында таныстыру. «Виртуалды грант» беру."},
+       {t:"Қорытынды",min:"5 мин",d:"Альтернативті тест: «Себеп пен салдар» сәйкестендіруі. Уран, ауыл шаруашылығы, транзит → геосаяси маңызы."}
+     ]
+   },
+   kk:"Қазақстанның геосаяси жағдайындағы артықшылықтары мен мүмкіндіктері",
+   ru:"Геополитические преимущества и возможности Казахстана",
+   tkk:`<p>Геосаясат — мемлекеттің өз аумағын, ресурстары мен орналасу тәртібін <strong>ұлттық мүдде жолында пайдалана алу қабілеті</strong>. Қазақстан Еуразия құрлығының дәл орталығында орналаса отырып, бірегей геосаяси конфигурацияға ие.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> «Тұйық» аймақтан «Орталық хабқа»</div>Қазақстанның мұхитқа тікелей шығу жолы жоқ — бұл кемшілік емес, <strong>стратегиялық артықшылық</strong>! Шығыс пен Батысты (Қытай — Еуропа), Солтүстік пен Оңтүстікті (Ресей — Орталық Азия, Үндістан) жалғайтын жалғыз тиімді дәліз.</div>
+<p><strong>Транзиттік мүмкіндіктер:</strong> «Нұрлы жол» + «Бір белдеу — бір жол» = Транскаспий бағыты (Орта дәліз) — ең қауіпсіз және қысқа жол.</p>
+<p><strong>Ресурстық потенциал:</strong></p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Уран:</strong> Әлемдік өндірістің 40%+ — Қазақстанда. Атом энергетикасына қайта оралу кезінде АҚШ, Франция, Қытай, Ресей үшін теңдессіз серіктес.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> <strong>Мұнай-газ:</strong> Каспий қайраңы — Еуропа үшін баламалы энергия көзі.</p>
+<p><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <strong>Сирек металдар:</strong> Смартфон, электромобиль үшін литий, кобальт — болашақ экономикасының кілті.</p>
+<p><strong>Көпвекторлы саясат:</strong> Ресей мен Қытай арасында, Батыс пен Ислам дүниесінің түйіскен жерінде — прагматикалық теңгерім. Астана процесі, бітімгерлік рөл — «Тұрақтылық аралы».</p>`,
+   tru:`<p>Геополитика — это <strong>способность государства использовать свою территорию, ресурсы и положение в национальных интересах</strong>. Казахстан, расположенный в самом центре Евразии, обладает уникальной геополитической конфигурацией.</p>
+<div class="fact-box"><div class="fact-title"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> От «тупиковой» зоны к «Центральному хабу»</div>У Казахстана нет прямого выхода к океану — это не недостаток, а <strong>стратегическое преимущество</strong>! Единственный эффективный коридор, связывающий Восток и Запад (Китай — Европа), Север и Юг (Россия — Центральная Азия, Индия).</div>
+<p><strong>Транзитный потенциал:</strong> «Нұрлы жол» + «Один пояс — один путь» = Транскаспийский маршрут (Средний коридор) — самый безопасный и короткий путь.</p>
+<p><strong>Ресурсный потенциал:</strong></p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <strong>Уран:</strong> 40%+ мирового производства — в Казахстане. При возврате к атомной энергетике — незаменимый партнёр для США, Франции, Китая, России.</p>
+<p><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> <strong>Нефть и газ:</strong> Каспийский шельф — альтернативный источник энергии для Европы.</p>
+<p><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <strong>Редкие металлы:</strong> Литий, кобальт для смартфонов и электромобилей — ключ к экономике будущего.</p>
+<p><strong>Многовекторная политика:</strong> Между Россией и Китаем, на стыке Запада и Исламского мира — прагматичный баланс. Астанинский процесс, миротворческая роль — «Остров стабильности».</p>`,
+   qkk:"Қазақстан дүниежүзілік уран өндірісінің қанша пайызын қамтамасыз етеді?",
+   ans:"D",
+   opts:["A. 10%","B. 20%","C. 30%","D. 40%-дан астам"],
+   openq:"Қазақстанның «тұйық» географиялық орналасуы қалай артықшылыққа айналды? Транскаспий бағытымен байланыстырып түсіндіріңіз.",
+   mapq:"Қазақстанның транзиттік дәліздерін картада белгілеңіз",
+   mapDots:[{x:52,y:42,label:"Қазақстан",correct:"Қазақстан (транзит орталығы)"},{x:68,y:38,label:"Қытай",correct:"Қытай (шығыс бастауы)"},{x:47,y:35,label:"Еуропа",correct:"Еуропа (батыс бастауы)"},{x:55,y:35,label:"Ресей",correct:"Ресей (солтүстік бағыт)"}],
+   mapOpts:["Қазақстан (транзит орталығы)","Қытай (шығыс бастауы)","Еуропа (батыс бастауы)","Ресей (солтүстік бағыт)","Үндістан (оңтүстік бағыт)","Каспий теңізі"]
+  }
+];
+
+let ST = { lang:'kk', tab:0, view:'list', detIdx:0, currentUser:null, mapAnswers:{}, selectedMapOpt:null };
+let isRegMode = false;
+
+function hideLoading(){
+  const ls = document.getElementById('loadingScreen');
+  ls.classList.add('fade-out');
+  setTimeout(()=>{ ls.style.display='none'; }, 450);
+}
+
+// Welcome screen → Auth screen transition
+function showAuthScreen(){
+  hideLoading();
+  // Барлық экрандарды жабамыз
+  document.getElementById('mainScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('welcomeScreen').classList.remove('active');
+  // Welcome тек бір рет көрсетіледі
+  if(localStorage.getItem('seen_welcome')) {
+    document.getElementById('authScreen').classList.add('active');
+  } else {
+    document.getElementById('welcomeScreen').classList.add('active');
+  }
+  document.getElementById('inLogin').value='';
+  document.getElementById('inPass').value='';
+  document.getElementById('authErr').textContent='';
+  setAuthMode(false);
+}
+function setAuthMode(reg){
+  isRegMode = reg;
+  document.getElementById('tabLogin').classList.toggle('act', !reg);
+  document.getElementById('tabReg').classList.toggle('act', reg);
+  document.getElementById('regExtra').classList.toggle('hidden', !reg);
+  document.getElementById('authBtn').textContent = reg ? 'Тіркелу' : 'Кіру';
+  document.getElementById('authErr').textContent = '';
+}
+async function doAuth(){
+  const email = document.getElementById('inLogin').value.trim();
+  const pass  = document.getElementById('inPass').value.trim();
+  const cls   = document.getElementById('inClass').value.trim();
+  const err   = document.getElementById('authErr');
+  const btn   = document.getElementById('authBtn');
+  err.textContent = '';
+  if(!email){ err.textContent='Email енгізіңіз!'; return; }
+  if(!pass) { err.textContent='Пароль енгізіңіз!'; return; }
+  btn.textContent = '⏳ Жүктелуде...';
+  btn.disabled = true;
+  const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window._fbFns;
+  const auth = window._fbAuth;
+  try {
+    if(isRegMode){
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const {set, ref} = window._fbFns;
+      const login = email.split('@')[0];
+      await set(ref(window._fbDb, 'users/' + cred.user.uid), {
+        login, cls: cls||'8', isAdmin: false, email, createdAt: Date.now()
+      });
+    } else {
+      await signInWithEmailAndPassword(auth, email, pass);
+    }
+  } catch(e){
+    const msgs = {
+      'auth/user-not-found':'Пайдаланушы табылмады!',
+      'auth/wrong-password':'Пароль қате!',
+      'auth/invalid-credential':'Логин немесе пароль қате!',
+      'auth/email-already-in-use':'Бұл email тіркелген!',
+      'auth/weak-password':'Пароль кем дегенде 6 символ болуы керек!',
+      'auth/invalid-email':'Email форматы қате!'
+    };
+    err.textContent = msgs[e.code] || ('Қате: ' + e.message);
+    btn.textContent = isRegMode ? 'Тіркелу' : 'Кіру';
+    btn.disabled = false;
+  }
+}
+function startSession(u){
+  ST.currentUser = u;
+  _prog = {};
+  hideLoading();
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.remove('active');
+  // Тіркелген адам — тікелей курсқа, welcome жоқ
+  document.getElementById('mainScreen').classList.add('active');
+  document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
+  switchTab(0);
+  document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
+  document.getElementById('authBtn').disabled = false;
+}
+function enterCourse(){
+  localStorage.setItem('seen_welcome', '1');
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('mainScreen').classList.remove('active');
+  document.getElementById('authScreen').classList.remove('active');
+
+  function proceed(){
+    if(window._fbUser) {
+      // Тіркелген → тікелей курсқа
+      document.getElementById('mainScreen').classList.add('active');
+      document.getElementById('nb2').classList.toggle('hidden', !window._fbUser.isAdmin);
+      if(!ST.currentUser) {
+        ST.currentUser = window._fbUser;
+        _prog = {};
+      }
+      switchTab(0);
+    } else {
+      // Тіркелмеген → авторизацияға
+      document.getElementById('authScreen').classList.add('active');
+    }
+  }
+
+  if(window._authReady) {
+    proceed();
+  } else {
+    // Auth әлі тексерілуде — 100ms сайын тексер
+    const check = setInterval(()=>{
+      if(window._authReady){ clearInterval(check); proceed(); }
+    }, 100);
+    // 5 секундтан артық күтпе
+    setTimeout(()=>{ clearInterval(check); document.getElementById('authScreen').classList.add('active'); }, 5000);
+  }
+}
+async function logout(){
+  const {signOut} = window._fbFns;
+  _prog = {}; _topics = null;
+  await signOut(window._fbAuth);
+  ST.currentUser = null;
+  document.getElementById('mainScreen').classList.remove('active');
+  showAuthScreen();
+}
+
+// ═══ TABS ═══
+function switchTab(t){
+  ST.tab=t; ST.view='list';
+  document.getElementById('backBtn').classList.remove('show');
+  ['nb0','nb1','nb2'].forEach((id,i)=>document.getElementById(id).classList.toggle('act',i===t));
+  renderTab();
+}
+function renderTab(){
+  if(ST.tab===0) renderTopicsAsync();
+  else if(ST.tab===1) renderProfileAsync();
+  else renderAdminAsync();
+}
+function showOnly(id){
+  ['tabTopics','tabProfile','tabAdmin'].forEach(t=>
+    document.getElementById(t).classList.toggle('hidden', t!==id));
+}
+
+// ═══ TOPICS ═══
 async function renderTopicsAsync(){
-  const T=await getTopics();const u=ST.currentUser;const prog=await getProg();const{lang}=ST;
-  const doneCount=T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]).length;
-  const pts=calcPts(u.uid,T,prog);
-  let h=`<div class="banner"><h2>🌍 Геосаясат:<br>Жаһандық тұрақтылық</h2><p>${lang==='kk'?'10-сынып • Элективті курс':'10 класс • Элективный курс'}</p><div class="bstats"><div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div><div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div><div class="bstat"><div class="bstat-n">${pts}</div><div class="bstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div></div></div><div class="slabel">${lang==='kk'?'ТАҚЫРЫПТАР ТІЗІМІ':'СПИСОК ТЕМ'}</div><div class="tlist">`;
+  const T = await getTopics();
+  const u = ST.currentUser;
+  const prog = await getProg();
+  const {lang} = ST;
+  const doneCount = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]).length;
+  const pts = calcPts(u.uid, T, prog);
+
+  let h=`<div class="banner">
+    <div class="banner-badge">10-СЫНЫП • ЭЛЕКТИВТІ КУРС</div>
+    <h2><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаясат</h2>
+    <p>${lang==='kk'?'Жаһандық тұрақтылық және Қазақстан':'Глобальная стабильность и Казахстан'}</p>
+    <div class="bstats">
+      <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
+      <div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
+      <div class="bstat"><div class="bstat-n">${pts}</div><div class="bstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
+    </div></div>
+  <div class="slabel">${lang==='kk'?'ТАҚЫРЫПТАР ТІЗІМІ':'СПИСОК ТЕМ'}</div>
+  <div class="tlist">`;
+
   T.forEach((t,i)=>{
-    const tp=prog[pk(u.uid,t.id,'test')]||0,op=prog[pk(u.uid,t.id,'open')]||0,mp=prog[pk(u.uid,t.id,'map')]||0;const done=tp||op||mp;
-    let b='';if(tp)b+=`<span class="badge done">✓ Тест</span>`;if(op)b+=`<span class="badge done">✓ Ашық</span>`;if(mp)b+=`<span class="badge done">✓ Карта</span>`;if(!done)b=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
-    h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})"><div class="tnum">${i+1}</div><div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${b}</div></div><span style="color:#9ca3af;font-size:20px">›</span></div>`;
+    const tp=prog[pk(u.uid,t.id,'test')]||0;
+    const op=prog[pk(u.uid,t.id,'open')]||0;
+    const mp=prog[pk(u.uid,t.id,'map')]||0;
+    const done=tp||op||mp;
+    let badges='';
+    if(tp) badges+=`<span class="badge done">✓ Тест</span>`;
+    if(op) badges+=`<span class="badge done">✓ Ашық</span>`;
+    if(mp) badges+=`<span class="badge done">✓ Карта</span>`;
+    if(!done) badges=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
+    h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
+      <div class="tnum">${i+1}</div>
+      <div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${badges}</div></div>
+      <span class="tcard-arrow">›</span></div>`;
   });
   h+=`</div>`;
   document.getElementById('tabTopics').innerHTML=h;
-  document.getElementById('hTitle').innerHTML=`Геосаясат<span class="sync-dot"></span>`;
+  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`${lang==='kk'?'Геосаясат курсы':'Курс геополитики'}<span class="sync-dot" id="syncDot"></span>`;
   showOnly('tabTopics');
 }
 
 async function openDetailAsync(idx){
-  ST.view='detail';ST.detIdx=idx;ST.mapAnswers={};ST.selectedMapOpt=null;
-  const T=await getTopics();const t=T[idx];const{lang}=ST;const u=ST.currentUser;const prog=await getProg();
-  const tp=prog[pk(u.uid,t.id,'test')]||0,op=prog[pk(u.uid,t.id,'open')]||0,mp=prog[pk(u.uid,t.id,'map')]||0;
-  document.getElementById('hTitle').textContent=t[lang];document.getElementById('backBtn').classList.add('show');
-  let tH=`<div class="tsec"><div class="thead">📝 ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}</div><div class="tq">${t.qkk}</div>`;
-  if(tp){tH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;}else{t.opts.forEach((o,i)=>{tH+=`<button class="opt" id="opt${i}" onclick="answerTest(${idx},${i},'${t.ans}')">${o}</button>`;});}tH+=`</div>`;
-  let oH=`<div class="tsec"><div class="thead">✏️ ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}</div><div class="tq">${t.openq||'Жазыңыз.'}</div>`;
-  if(op){oH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;}else{oH+=`<textarea class="open-inp" id="openAns" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea><button class="tsub" onclick="submitOpen(${idx})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;}oH+=`</div>`;
-  let mH=`<div class="tsec"><div class="thead">🗺️ ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}</div><div class="tq">${t.mapq||'Картадан белгілеңіз.'}</div>`;
-  if(mp){mH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;}else if(t.mapDots&&t.mapDots.length){mH+=`<div class="map-inst">👇 ${lang==='kk'?'Алдымен жауапты таңдаңыз, сосын нүктені басыңыз.':'Сначала выберите ответ, затем нажмите на точку.'}</div><div class="map-wrap" id="mapWrap">${buildMapSVG(t,idx)}</div><div class="map-opts" id="mapOpts">`;(t.mapOpts||[]).forEach((o,oi)=>{mH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;});mH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="margin-top:10px;opacity:.4;pointer-events:none">${lang==='kk'?'✓ Картаны тексеру':'✓ Проверить карту'}</button>`;}else{mH+=`<div class="tres ko" style="text-align:left">ℹ️ Карта тапсырмасы жоқ.</div>`;}mH+=`</div>`;
-  document.getElementById('tabTopics').innerHTML=`<div class="dwrap"><div class="det-badge">§${idx+1}</div><div class="det-title">${t[lang]}</div><div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>${tH}${oH}${mH}</div>`;
+  ST.view='detail'; ST.detIdx=idx;
+  ST.mapAnswers={}; ST.selectedMapOpt=null;
+  const T = await getTopics();
+  const t = T[idx];
+  const {lang} = ST;
+  const u = ST.currentUser;
+  const prog = await getProg();
+  const tp = prog[pk(u.uid,t.id,'test')]||0;
+  const op = prog[pk(u.uid,t.id,'open')]||0;
+  const mp = prog[pk(u.uid,t.id,'map')]||0;
+  document.getElementById('hTitle').textContent = t[lang];
+  document.getElementById('backBtn').classList.add('show');
+
+  // ── САБАҚ ЖОСПАРЫ ──
+  let planH = '';
+  if(t.plan){
+    const p = t.plan;
+    let stepsH = '';
+    p.steps.forEach((s,i)=>{
+      stepsH += `<div class="plan-row">
+        <div class="plan-step-num">${i+1}</div>
+        <div class="plan-step-content">
+          <div class="plan-step-title">${s.t}</div>
+          <div class="plan-step-time">${s.min}</div>
+          <div class="plan-step-desc">${s.d}</div>
+        </div>
+      </div>`;
+    });
+    planH = `<div class="plan-sec">
+      <div class="plan-header" onclick="togglePlan(this)">
+        <div class="plan-header-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span class="plan-title">📋 ${lang==='kk'?'Қысқа мерзімді жоспар':'Краткосрочный план'}</span>
+        </div>
+        <button class="plan-toggle">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="plan-body">
+        <div class="plan-goal">
+          <div class="plan-goal-label">${lang==='kk'?'Сабақ мақсаты':'Цель урока'}</div>
+          <div class="plan-goal-text">${p.goal}</div>
+        </div>
+        ${stepsH}
+      </div>
+    </div>`;
+  }
+
+  let testH=`<div class="tsec">
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
+      ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}
+    </div>
+    <div class="tq">${t.qkk}</div>`;
+  if(tp){
+    testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
+  } else {
+    t.opts.forEach((o,i)=>{
+      testH+=`<button class="opt" id="opt${i}" onclick="answerTest(${idx},${i},'${t.ans}')">${o}</button>`;
+    });
+  }
+  testH+=`</div>`;
+
+  let openH=`<div class="tsec">
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}
+    </div>
+    <div class="tq">${t.openq||'Тақырып бойынша 2-3 сөйлем жазыңыз.'}</div>`;
+  if(op){
+    openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
+  } else {
+    openH+=`<textarea class="open-inp" id="openAns" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
+    <button class="tsub" onclick="submitOpen(${idx})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+  }
+  openH+=`</div>`;
+
+  let mapH=`<div class="tsec">
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+      ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}
+    </div>
+    <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
+  if(mp){
+    mapH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
+  } else if(t.mapDots && t.mapDots.length){
+    mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
+    mapH+=`<div class="map-wrap" id="mapWrap" style="background:#e0e7ff;min-height:180px;">${buildMapSVG(t, idx)}</div>`;
+    mapH+=`<div class="map-opts" id="mapOpts">`;
+    (t.mapOpts||[]).forEach((o,oi)=>{
+      mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
+    });
+    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+  }
+  mapH+=`</div>`;
+
+  document.getElementById('tabTopics').innerHTML=`
+    <div class="dwrap">
+      <div class="det-badge">§${idx+1}</div>
+      <div class="det-title">${t[lang]}</div>
+      ${planH}
+      <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
+      ${testH}${openH}${mapH}
+    </div>`;
   showOnly('tabTopics');
 }
 
-async function answerTest(idx,optIdx,correct){
-  const letters=['A','B','C','D'];const chosen=letters[optIdx];const isOk=chosen===correct;
-  for(let i=0;i<4;i++){const b=document.getElementById('opt'+i);if(b){b.disabled=true;if(letters[i]===correct)b.classList.add('correct');else if(i===optIdx&&!isOk)b.classList.add('wrong');}}
-  if(isOk){const T=await getTopics();const t=T[idx];const prog=await getProg();prog[pk(ST.currentUser.uid,t.id,'test')]=5;await saveProg(prog);setTimeout(()=>{const s=document.querySelector('.tsec');if(s)s.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok">✅ Дұрыс! +5 балл</div>');},600);}
-  else{setTimeout(()=>{const s=document.querySelector('.tsec');if(s)s.insertAdjacentHTML('beforeend','<div class="tres ko">❌ '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');},600);}
+// ═══ ANSWER HANDLERS ═══
+async function answerTest(idx, optIdx, correct){
+  const letters=['A','B','C','D'];
+  const chosen = letters[optIdx];
+  const isOk = chosen === correct;
+  for(let i=0;i<4;i++){
+    const b=document.getElementById('opt'+i);
+    if(b){ b.disabled=true; if(letters[i]===correct) b.classList.add('correct'); else if(i===optIdx&&!isOk) b.classList.add('wrong'); }
+  }
+  if(isOk){
+    const T = await getTopics();
+    const t = T[idx];
+    const prog = await getProg();
+    prog[pk(ST.currentUser.uid, t.id, 'test')] = 5;
+    await saveProg(prog);
+    setTimeout(()=>{
+      const sec=document.querySelector('.tsec');
+      if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Дұрыс! +5 балл</div>');
+    },600);
+  } else {
+    setTimeout(()=>{
+      const firstSec=document.querySelector('.tsec');
+      if(firstSec) firstSec.insertAdjacentHTML('beforeend','<div class="tres ko"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
+    },600);
+  }
 }
 async function submitOpen(idx){
-  const T=await getTopics();const t=T[idx];const ans=document.getElementById('openAns').value.trim();
-  if(ans.length<10){alert(ST.lang==='kk'?'Кем дегенде 10 символ жазыңыз!':'Напишите хотя бы 10 символов!');return;}
-  const prog=await getProg();prog[pk(ST.currentUser.uid,t.id,'open')]=3;await saveProg(prog);
-  const sec=document.querySelectorAll('.tsec')[1];if(sec){const ta=sec.querySelector('.open-inp'),sb=sec.querySelector('.tsub');if(ta)ta.remove();if(sb)sb.remove();sec.insertAdjacentHTML('beforeend','<div class="tres ok">✅ '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');}
+  const T = await getTopics();
+  const t = T[idx];
+  const ans = document.getElementById('openAns').value.trim();
+  if(ans.length<10){ alert(ST.lang==='kk'?'Кем дегенде 10 символ жазыңыз!':'Напишите хотя бы 10 символов!'); return; }
+  const prog = await getProg();
+  prog[pk(ST.currentUser.uid, t.id, 'open')] = 3;
+  await saveProg(prog);
+  const openSec = document.querySelectorAll('.tsec')[1];
+  if(openSec){
+    const ta=openSec.querySelector('.open-inp'); const sb=openSec.querySelector('.tsub');
+    if(ta) ta.remove(); if(sb) sb.remove();
+    openSec.insertAdjacentHTML('beforeend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
+  }
 }
-function selectMapOpt(opt,oi){ST.selectedMapOpt=opt;document.querySelectorAll('.map-opt').forEach(b=>b.classList.remove('selected'));const btn=document.getElementById('mopt'+oi);if(btn)btn.classList.add('selected');}
-async function tapDot(tIdx,dIdx){
-  if(!ST.selectedMapOpt){alert(ST.lang==='kk'?'Алдымен жауапты таңдаңыз!':'Сначала выберите ответ!');return;}
-  ST.mapAnswers[dIdx]=ST.selectedMapOpt;updateSVGDot(dIdx,'selected');
-  const T=await getTopics();const t=T[tIdx];const all=(t.mapDots||[]).every((_,i)=>ST.mapAnswers[i]!==undefined);
-  const sb=document.getElementById('mapSubmitBtn');if(sb&&all){sb.style.opacity='1';sb.style.pointerEvents='auto';}
+function selectMapOpt(opt, oi){
+  ST.selectedMapOpt=opt;
+  document.querySelectorAll('.map-opt').forEach(b=>b.classList.remove('selected'));
+  const btn=document.getElementById('mopt'+oi); if(btn) btn.classList.add('selected');
 }
-async function submitMap(tIdx){
-  const T=await getTopics();const t=T[tIdx];let correct=0;
-  (t.mapDots||[]).forEach((d,i)=>{if(ST.mapAnswers[i]===d.correct){correct++;updateSVGDot(i,'ok');}else{updateSVGDot(i,'ko');}});
-  const total=(t.mapDots||[]).length;const pts=correct>=total?4:correct>0?2:0;
-  if(pts>0){const prog=await getProg();prog[pk(ST.currentUser.uid,t.id,'map')]=pts;await saveProg(prog);}
-  const sec=document.querySelectorAll('.tsec')[2];if(sec){const sb=document.getElementById('mapSubmitBtn');if(sb)sb.remove();sec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'✅':'❌'} ${correct}/${total} дұрыс · +${pts} балл</div>`);}
+async function tapDot(topicIdx, dotIdx){
+  if(!ST.selectedMapOpt){ alert(ST.lang==='kk'?'Алдымен жауапты таңдаңыз!':'Сначала выберите ответ!'); return; }
+  ST.mapAnswers[dotIdx]=ST.selectedMapOpt;
+  updateSVGDot(dotIdx, 'ok');
+  const T = await getTopics();
+  const t = T[topicIdx];
+  const allAnswered = (t.mapDots||[]).every((_,i)=>ST.mapAnswers[i]!==undefined);
+  const sbtn=document.getElementById('mapSubmitBtn');
+  if(sbtn&&allAnswered){ sbtn.style.opacity='1'; sbtn.style.pointerEvents='auto'; }
 }
-function goBack(){ST.view='list';document.getElementById('backBtn').classList.remove('show');renderTopicsAsync();}
+async function submitMap(topicIdx){
+  const T = await getTopics();
+  const t = T[topicIdx];
+  let correct=0;
+  (t.mapDots||[]).forEach((d,i)=>{
+    const answered=ST.mapAnswers[i];
+    if(answered===d.correct){ correct++; updateSVGDot(i,'ok'); } else { updateSVGDot(i,'ko'); }
+  });
+  const total=(t.mapDots||[]).length;
+  const pts=correct>=total?4:correct>0?2:0;
+  if(pts>0){
+    const prog = await getProg();
+    prog[pk(ST.currentUser.uid, t.id, 'map')] = pts;
+    await saveProg(prog);
+  }
+  const mapSec=document.querySelectorAll('.tsec')[2];
+  if(mapSec){
+    const sbtn=document.getElementById('mapSubmitBtn'); if(sbtn) sbtn.remove();
+    mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
+  }
+}
+function goBack(){
+  ST.view='list';
+  document.getElementById('backBtn').classList.remove('show');
+  renderTopicsAsync();
+}
 
-function buildMapSVG(t,tIdx){
-  const dots=t.mapDots||[];const W=360,H=190;
-  const worldPath=`<path d="M20,80 Q50,55 90,70 Q110,60 130,72 Q150,62 170,72 Q195,60 220,70 Q250,58 280,68 Q310,58 340,72 L340,130 Q310,140 280,132 Q250,140 220,130 Q195,140 170,128 Q150,138 130,128 Q110,138 90,128 Q50,138 20,128 Z" fill="#1e3a5f" opacity=".7"/>
-  <line x1="180" y1="30" x2="180" y2="170" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
-  <line x1="0" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,.05)" stroke-width="1"/>`;
-  let dSVG='';dots.forEach((d,i)=>{const cx=(d.x/100)*W,cy=(d.y/100)*H;dSVG+=`<g id="sdot${i}" onclick="tapDot(${tIdx},${i})" style="cursor:pointer"><circle cx="${cx}" cy="${cy}" r="13" fill="#6c47ff" stroke="white" stroke-width="2.5" id="sdotc${i}"/><text x="${cx}" y="${cy+5}" text-anchor="middle" fill="white" font-size="11" font-weight="800" font-family="Nunito">${i+1}</text></g>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:10px"><rect width="${W}" height="${H}" fill="#0f172a"/>${worldPath}${dSVG}</svg>`;
-}
-function updateSVGDot(i,s){const c=document.getElementById('sdotc'+i);if(!c)return;c.setAttribute('fill',s==='ok'?'#16a34a':s==='ko'?'#ef4444':s==='selected'?'#f59e0b':'#6c47ff');}
-
+// ═══ PROFILE ═══
 async function renderProfileAsync(){
-  const T=await getTopics();const u=ST.currentUser;const{lang}=ST;const prog=await getProg();
-  const pts=calcPts(u.uid,T,prog);const done=T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]);
-  let dH='';done.forEach(t=>{const tp=prog[pk(u.uid,t.id,'test')]||0,op=prog[pk(u.uid,t.id,'open')]||0,mp=prog[pk(u.uid,t.id,'map')]||0;dH+=`<div class="done-item"><span style="font-size:20px">✅</span><div style="flex:1"><div class="done-title">${t[lang]}</div><div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div><strong style="color:var(--acc)">${tp+op+mp}</strong></div>`;});
-  if(!done.length)dH=`<p style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${lang==='kk'?'Тапсырылған тапсырма жоқ':'Нет выполненных заданий'}</p>`;
-  document.getElementById('tabProfile').innerHTML=`<div class="phero"><div class="avatar">👤</div><div class="pname">${u.login||u.email}</div><div class="pcls">${u.cls||'10-сынып'}${u.isAdmin?' · Администратор':''}</div></div><div class="pstats"><div class="pstat"><div class="pstat-n">${pts}</div><div class="pstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div><div class="pstat"><div class="pstat-n">${done.length}</div><div class="pstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div><div class="pstat"><div class="pstat-n">${T.length*12}</div><div class="pstat-l">Макс.</div></div></div><div class="slabel">${lang==='kk'?'ОРЫНДАЛҒАН ТАПСЫРМАЛАР':'ВЫПОЛНЕННЫЕ ЗАДАНИЯ'}</div><div style="padding:0 14px 8px">${dH}</div><button class="logout-btn" onclick="logout()">🚪 ${lang==='kk'?'Шығу':'Выйти'}</button>`;
-  document.getElementById('hTitle').textContent='Профиль';showOnly('tabProfile');
+  const T = await getTopics();
+  const u = ST.currentUser;
+  const {lang} = ST;
+  const prog = await getProg();
+  const pts = calcPts(u.uid, T, prog);
+  const done = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]);
+  const initials = (u.login||u.email||'?').slice(0,2).toUpperCase();
+
+  let doneH='';
+  done.forEach(t=>{
+    const tp=prog[pk(u.uid,t.id,'test')]||0;
+    const op=prog[pk(u.uid,t.id,'open')]||0;
+    const mp=prog[pk(u.uid,t.id,'map')]||0;
+    doneH+=`<div class="done-item">
+      <div style="width:34px;height:34px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div style="flex:1"><div class="done-title">${t[lang]}</div>
+      <div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div>
+      <strong style="color:var(--accent);font-family:'Space Grotesk',sans-serif">${tp+op+mp}</strong></div>`;
+  });
+  if(!done.length) doneH=`<p style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${lang==='kk'?'Тапсырылған тапсырма жоқ':'Нет выполненных заданий'}</p>`;
+
+  document.getElementById('tabProfile').innerHTML=`
+    <div class="phero">
+      <div class="avatar" style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800">${initials}</div>
+      <div class="pname">${u.login||u.email}</div>
+      <div class="pcls">${u.cls||''}${u.isAdmin?' · Администратор':''}</div>
+    </div>
+    <div class="pstats">
+      <div class="pstat"><div class="pstat-n">${pts}</div><div class="pstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
+      <div class="pstat"><div class="pstat-n">${done.length}</div><div class="pstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
+      <div class="pstat"><div class="pstat-n">${T.length*12}</div><div class="pstat-l">Макс.</div></div>
+    </div>
+    <div class="slabel">${lang==='kk'?'ОРЫНДАЛҒАН ТАПСЫРМАЛАР':'ВЫПОЛНЕННЫЕ ЗАДАНИЯ'}</div>
+    <div style="padding:0 14px 8px">${doneH}</div>
+    <button class="logout-btn" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      ${lang==='kk'?'Шығу':'Выйти'}
+    </button>`;
+  document.getElementById('hTitle').textContent = lang==='kk'?'Профиль':'Профиль';
+  showOnly('tabProfile');
 }
 
+// ═══ ADMIN ═══
 let editIdx=null;
+
 async function renderAdminAsync(){
-  const T=await getTopics();const{lang}=ST;
-  let rows='';T.forEach((t,i)=>{rows+=`<div class="adm-row"><div class="adm-nm">${i+1}. ${t[lang]}</div><button class="abtn aedit" onclick="openEdit(${i})">✏️</button><button class="abtn adel" onclick="delTopicAsync(${i})">🗑</button></div>`;});
-  const allUsers=await fbGetAllUsers();const students=allUsers.filter(u=>!u.isAdmin);
-  const allProg=await fbGetAllProgress();const maxPts=T.length*12;
-  let sH='';
-  students.forEach(u=>{const up=allProg[u.uid]||{};const pts=calcPts(u.uid,T,up);const done=T.filter(t=>up[pk(u.uid,t.id,'test')]||up[pk(u.uid,t.id,'open')]||up[pk(u.uid,t.id,'map')]).length;const pct=maxPts>0?Math.round(pts/maxPts*100):0;sH+=`<div class="stud-card"><div class="stud-name">👤 ${u.login||u.email} <span style="font-weight:400;color:var(--muted);font-size:11px">${u.cls||''}</span></div><div class="stud-bar-wrap"><div class="stud-bar" style="width:${pct}%"></div></div><div class="stud-info"><span>${done}/${T.length} тақырып</span><span style="color:var(--acc);font-weight:700">${pts}/${maxPts} балл</span></div></div>`;});
-  if(!students.length)sH=`<p style="font-size:12px;color:var(--muted);padding:6px">Оқушылар тіркелмеген</p>`;
-  document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap"><div class="adm-sec"><div class="adm-title">📚 ТАҚЫРЫПТАР</div>${rows}<button class="adm-add" onclick="openEdit(-1)">+ Жаңа тақырып қосу</button></div><div class="adm-sec"><div class="adm-title">👥 ОҚУШЫЛАР — Firebase</div>${sH}</div></div>`;
-  document.getElementById('hTitle').textContent='Админ панелі';showOnly('tabAdmin');
+  const T = await getTopics();
+  const {lang} = ST;
+
+  let rows='';
+  T.forEach((t,i)=>{
+    rows+=`<div class="adm-row">
+      <div class="adm-num">${i+1}</div>
+      <div class="adm-nm">${t[lang]}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
+      <button class="abtn aedit" onclick="openEdit(${i})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Өңдеу
+      </button>
+      <button class="abtn adel" onclick="delTopicAsync(${i})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Жою
+      </button>
+    </div>`;
+  });
+
+  const allUsers = await fbGetAllUsers();
+  const students = allUsers.filter(u=>!u.isAdmin);
+  const allProg = await fbGetAllProgress();
+  const totalPossible = T.length;
+
+  let studH='';
+  students.sort((a,b)=>{
+    const ap = calcPts(a.uid, T, allProg[a.uid]||{});
+    const bp = calcPts(b.uid, T, allProg[b.uid]||{});
+    return bp - ap;
+  }).forEach(u=>{
+    const uprog = allProg[u.uid]||{};
+    const pts = calcPts(u.uid, T, uprog);
+    const done = T.filter(t=>uprog[pk(u.uid,t.id,'test')]||uprog[pk(u.uid,t.id,'open')]||uprog[pk(u.uid,t.id,'map')]).length;
+    const pct = totalPossible > 0 ? Math.round((done/totalPossible)*100) : 0;
+    const ini = (u.login||u.email||'?').slice(0,2).toUpperCase();
+    studH+=`<div class="student-card">
+      <div class="student-avatar">${ini}</div>
+      <div class="student-info">
+        <div class="student-name">${u.login||u.email}</div>
+        <div class="student-cls">${u.cls||'—'} · ${done}/${totalPossible} тақырып</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="student-score">
+        <div class="student-pts">${pts}</div>
+        <div class="student-done">балл</div>
+      </div>
+    </div>`;
+  });
+  if(!students.length) studH=`<p style="font-size:12px;color:var(--muted);padding:10px 0;text-align:center">${lang==='kk'?'Оқушылар тіркелмеген':'Ученики не зарегистрированы'}</p>`;
+
+  const totalPts = students.reduce((s,u)=>{
+    const uprog=allProg[u.uid]||{};
+    return s + calcPts(u.uid, T, uprog);
+  },0);
+
+  document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap">
+    <div class="adm-header">
+      <div class="adm-header-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Админ панелі</div>
+      <div class="adm-header-sub">${T.length} тақырып · ${students.length} оқушы</div>
+    </div>
+
+    <div class="adm-stats">
+      <div class="adm-stat"><div class="adm-stat-n">${T.length}</div><div class="adm-stat-l">Тақырып</div></div>
+      <div class="adm-stat"><div class="adm-stat-n">${students.length}</div><div class="adm-stat-l">Оқушы</div></div>
+      <div class="adm-stat"><div class="adm-stat-n">${totalPts}</div><div class="adm-stat-l">Жалпы балл</div></div>
+    </div>
+
+    <div class="adm-sec">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 8H15a2 2 0 0 1-2-2V3.5z"/></svg>
+        Тақырыптар
+      </div>
+      ${rows}
+      <button class="adm-add" onclick="openEdit(-1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        ${lang==='kk'?'Жаңа тақырып қосу':'Добавить тему'}
+      </button>
+    </div>
+
+    <div class="adm-sec">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm12 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Оқушылар рейтингі
+      </div>
+      ${studH}
+    </div>
+  </div>`;
+  document.getElementById('hTitle').textContent = lang==='kk'?'Админ панелі':'Панель Админа';
+  showOnly('tabAdmin');
 }
-async function delTopicAsync(i){if(!confirm('Өшіресіз бе?'))return;const T=await getTopics();T.splice(i,1);await saveTopics(T);renderAdminAsync();}
+
+async function delTopicAsync(i){
+  if(!confirm(ST.lang==='kk'?'Тақырыпты өшіресіз бе?':'Удалить тему?')) return;
+  const T = await getTopics();
+  T.splice(i,1);
+  await saveTopics(T);
+  renderAdminAsync();
+}
+
 async function openEdit(i){
-  editIdx=i;const T=await getTopics();
-  document.getElementById('modalTitle').textContent=i===-1?'Жаңа тақырып':'Тақырыпты өңдеу';
-  if(i>=0){const t=T[i];document.getElementById('mTKk').value=t.kk||'';document.getElementById('mTRu').value=t.ru||'';document.getElementById('mTxtKk').value=strip(t.tkk||'');document.getElementById('mTxtRu').value=strip(t.tru||'');document.getElementById('mQKk').value=t.qkk||'';document.getElementById('mQAns').value=t.ans||'A';document.getElementById('mA').value=t.opts?.[0]||'';document.getElementById('mB').value=t.opts?.[1]||'';document.getElementById('mC').value=t.opts?.[2]||'';document.getElementById('mD').value=t.opts?.[3]||'';document.getElementById('mOpenQ').value=t.openq||'';}
-  else{['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mQAns','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');}
+  editIdx=i;
+  const T = await getTopics();
+  document.getElementById('modalTitle').textContent = i===-1?(ST.lang==='kk'?'Жаңа тақырып қосу':'Добавить тему'):(ST.lang==='kk'?'Тақырыпты өңдеу':'Редактировать');
+  if(i>=0){
+    const t=T[i];
+    document.getElementById('mTKk').value=t.kk||'';
+    document.getElementById('mTRu').value=t.ru||'';
+    document.getElementById('mTxtKk').value=strip(t.tkk||'');
+    document.getElementById('mTxtRu').value=strip(t.tru||'');
+    document.getElementById('mQKk').value=t.qkk||'';
+    document.getElementById('mQAns').value=t.ans||'A';
+    document.getElementById('mA').value=t.opts?.[0]||'';
+    document.getElementById('mB').value=t.opts?.[1]||'';
+    document.getElementById('mC').value=t.opts?.[2]||'';
+    document.getElementById('mD').value=t.opts?.[3]||'';
+    document.getElementById('mOpenQ').value=t.openq||'';
+  } else {
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mQAns').value='A';
+  }
   document.getElementById('editModal').classList.add('show');
 }
-function closeModal(){document.getElementById('editModal').classList.remove('show');}
+
+function closeModal(){ document.getElementById('editModal').classList.remove('show'); }
+
 async function saveModal(){
-  const kk=document.getElementById('mTKk').value.trim();if(!kk){alert('Тақырып атауын жазыңыз!');return;}
-  const T=await getTopics();
-  const entry={id:editIdx>=0?T[editIdx].id:Date.now(),kk,ru:document.getElementById('mTRu').value.trim(),tkk:`<p>${document.getElementById('mTxtKk').value.trim()}</p>`,tru:`<p>${document.getElementById('mTxtRu').value.trim()}</p>`,qkk:document.getElementById('mQKk').value.trim(),ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],openq:document.getElementById('mOpenQ').value.trim(),mapq:'',mapDots:[],mapOpts:[]};
-  if(editIdx>=0){entry.mapq=T[editIdx].mapq||'';entry.mapDots=T[editIdx].mapDots||[];entry.mapOpts=T[editIdx].mapOpts||[];T[editIdx]=entry;}else T.push(entry);
-  await saveTopics(T);closeModal();renderAdminAsync();
+  const kk=document.getElementById('mTKk').value.trim();
+  if(!kk){alert('Тақырып атауын жазыңыз!');return;}
+  const T = await getTopics();
+  const entry={
+    id: editIdx>=0?T[editIdx].id:Date.now(),
+    kk, ru:document.getElementById('mTRu').value.trim(),
+    tkk:`<p>${document.getElementById('mTxtKk').value.trim()}</p>`,
+    tru:`<p>${document.getElementById('mTxtRu').value.trim()}</p>`,
+    qkk:document.getElementById('mQKk').value.trim(),
+    ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',
+    opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],
+    openq:document.getElementById('mOpenQ').value.trim(),
+    mapq:'', mapImg:'', mapDots:[], mapOpts:[]
+  };
+  if(editIdx>=0){
+    entry.mapq=T[editIdx].mapq||'';
+    entry.mapImg=T[editIdx].mapImg||'';
+    entry.mapDots=T[editIdx].mapDots||[];
+    entry.mapOpts=T[editIdx].mapOpts||[];
+    T[editIdx]=entry;
+  } else T.push(entry);
+  await saveTopics(T);
+  closeModal();
+  renderAdminAsync();
 }
-function strip(html){return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();}
-function toggleLang(){ST.lang=ST.lang==='kk'?'ru':'kk';document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';document.getElementById('nb0l').textContent=ST.lang==='kk'?'Тақырыптар':'Темы';document.getElementById('nb1l').textContent=ST.lang==='kk'?'Профиль':'Профиль';if(ST.view==='detail')openDetailAsync(ST.detIdx);else renderTab();}
+
+function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }
+
+function togglePlan(header){
+  const body = header.nextElementSibling;
+  const btn = header.querySelector('.plan-toggle');
+  body.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// ═══ SVG MAP ═══
+function buildMapSVG(t, topicIdx){
+  const dots = t.mapDots || [];
+  const W = 360, H = 200;
+  const bgs = {1:'#0d1b3e',2:'#1a2744',3:'#0f1d35',4:'#1e3a2f',5:'#1b2d3a',6:'#15233b',7:'#122034',8:'#1a2940',9:'#1b2e20',10:'#0e1e38'};
+  const bg = bgs[t.id] || '#1a2744';
+
+  const patterns = {
+    1:`<ellipse cx="40" cy="100" rx="28" ry="28" fill="#FDB813" opacity=".9"/>
+       <ellipse cx="108" cy="100" rx="5" ry="5" fill="#b5b5b5" opacity=".8"/>
+       <ellipse cx="150" cy="100" rx="8" ry="8" fill="#e8cda0" opacity=".8"/>
+       <ellipse cx="198" cy="100" rx="10" ry="10" fill="#4f8ce8" opacity=".9"/>
+       <ellipse cx="248" cy="100" rx="7" ry="7" fill="#c1440e" opacity=".8"/>
+       <ellipse cx="298" cy="100" rx="13" ry="13" fill="#e8ac5e" opacity=".8"/>
+       <line x1="40" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`,
+    4:`<path d="M20,65 Q60,45 100,58 Q130,48 162,62 Q192,52 232,62 Q262,48 302,58 Q332,52 345,66 L345,148 Q302,162 262,152 Q222,162 182,152 Q142,162 102,152 Q62,162 22,148 Z" fill="#2d8a4e" opacity=".65"/>
+       <rect x="20" y="148" width="325" height="38" fill="#1a6b9a" opacity=".5"/>`,
+    7:`<rect x="0" y="0" width="360" height="200" fill="#1a5c8a" opacity=".35"/>
+       <path d="M20,80 Q80,60 140,74 Q200,60 260,80 Q310,65 345,80 L345,130 Q310,120 260,130 Q200,120 140,130 Q80,120 20,130Z" fill="#2d8a4e" opacity=".55"/>`,
+    default:`<path d="M0,${H/2} Q${W/4},${H/4} ${W/2},${H/2} Q${3*W/4},${3*H/4} ${W},${H/2}" stroke="rgba(255,255,255,.12)" stroke-width="1.5" fill="none"/>
+             <circle cx="${W/2}" cy="${H/2}" r="${H/3}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+             <circle cx="${W/2}" cy="${H/2}" r="${H/6}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>`
+  };
+  const pattern = patterns[t.id] || patterns.default;
+
+  let dotsSVG = '';
+  dots.forEach((d,i)=>{
+    const cx = (d.x/100)*W;
+    const cy = (d.y/100)*H;
+    dotsSVG += `<g id="sdot${i}" onclick="tapDot(${topicIdx},${i})" style="cursor:pointer">
+      <circle cx="${cx}" cy="${cy}" r="13" fill="#4f46e5" stroke="white" stroke-width="2.5" opacity=".95"/>
+      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="white" font-size="11" font-weight="800" font-family="Manrope">${i+1}</text>
+    </g>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:12px">
+    <rect width="${W}" height="${H}" fill="${bg}"/>
+    ${pattern}
+    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+    <line x1="${W/2}" y1="0" x2="${W/2}" y2="${H}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+    ${dotsSVG}
+  </svg>`;
+}
+
+function updateSVGDot(dotIdx, state){
+  const g = document.getElementById('sdot'+dotIdx); if(!g) return;
+  const circle = g.querySelector('circle'); if(!circle) return;
+  if(state==='ok') circle.setAttribute('fill','#059669');
+  else if(state==='ko') circle.setAttribute('fill','#dc2626');
+  else circle.setAttribute('fill','#4f46e5');
+}
+
+// ═══ LANG ═══
+function toggleLang(){
+  ST.lang=ST.lang==='kk'?'ru':'kk';
+  document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';
+  document.getElementById('nb0l').textContent=ST.lang==='kk'?'Тақырыптар':'Темы';
+  document.getElementById('nb1l').textContent=ST.lang==='kk'?'Профиль':'Профиль';
+  if(ST.view==='detail') openDetailAsync(ST.detIdx);
+  else renderTab();
+}
 </script>
 </body>
 </html>
