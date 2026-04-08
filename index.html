@@ -4,17 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>География 8</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- ══════════════════════════════════════════════
-  🔥 FIREBASE SETUP — өз мәндеріңізді қойыңыз!
-  
-  1. https://console.firebase.google.com/ → Жаңа жоба
-  2. Authentication → Sign-in method → Email/Password → ҚОСУ
-  3. Realtime Database → Деректер базасы жасау → Test mode
-  4. Жоба параметрлері (⚙️) → Веб қолданба → Config-ті алыңыз
-  5. Төмендегі firebaseConfig-ті алмастырыңыз
-══════════════════════════════════════════════ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -35,24 +26,20 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  // Global-ға шығарамыз (ескі JS кодымен байланысу үшін)
   window._fbAuth = auth;
   window._fbDb = db;
   window._fbFns = { set, get, ref, update, onValue,
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged };
 
-  // Auth state listener
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Firebase user бар — профильді тек оқу
       const snap = await get(ref(db, 'users/' + user.uid));
       if (snap.exists()) {
         const data = snap.val();
         window._fbUser = { uid: user.uid, email: user.email, ...data };
         startSession(window._fbUser);
       } else {
-        // Профиль жоқ — жаңа дерек
         window._fbUser = { uid: user.uid, email: user.email, login: user.email.split('@')[0], cls: '', isAdmin: false };
         await set(ref(db, 'users/' + user.uid), { login: window._fbUser.login, cls: '', isAdmin: false, createdAt: Date.now() });
         startSession(window._fbUser);
@@ -65,203 +52,311 @@
 </script>
 
 <style>
-:root{
-  --g:#16a34a;--gd:#14532d;--gl:#4ade80;--gll:#dcfce7;
-  --acc:#f59e0b;--red:#ef4444;--blue:#3b82f6;
-  --bg:#f0fdf4;--card:#fff;--text:#14532d;--muted:#6b7280;
-  --shadow:0 4px 24px rgba(22,163,74,.12);--r:18px;
+:root {
+  --primary: #1a1a2e;
+  --accent: #4f46e5;
+  --accent2: #7c3aed;
+  --green: #059669;
+  --green-light: #d1fae5;
+  --amber: #d97706;
+  --red: #dc2626;
+  --bg: #f8f7ff;
+  --card: #ffffff;
+  --text: #0f0f1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 2px 16px rgba(79,70,229,.10);
+  --r: 20px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
-.screen{display:none;min-height:100vh;padding-bottom:80px;}
-.screen.active{display:block;}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+.screen { display: none; min-height: 100vh; padding-bottom: 80px; }
+.screen.active { display: block; }
 
-/* LOADING */
-#loadingScreen{
-  position:fixed;inset:0;background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:999;transition:opacity .4s ease;
+/* ── ICONS (solid monolithic SVG) ── */
+.icon { display: inline-flex; align-items: center; justify-content: center; }
+.icon svg { display: block; }
+
+/* ── LOADING ── */
+#loadingScreen {
+  position: fixed; inset: 0;
+  background: linear-gradient(145deg, #1a1a2e 0%, #4f46e5 60%, #7c3aed 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; transition: opacity .4s ease;
 }
-#loadingScreen.fade-out{opacity:0;pointer-events:none;}
-.spin{width:48px;height:48px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;margin-bottom:20px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-logo{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;}
-.load-txt{color:rgba(255,255,255,.8);font-family:'Nunito',sans-serif;font-size:14px;}
+#loadingScreen.fade-out { opacity: 0; pointer-events: none; }
+.load-globe { font-size: 52px; margin-bottom: 18px; animation: float 2s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.load-logo { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px; }
+.load-txt { color: rgba(255,255,255,.6); font-size: 13px; }
+.spin { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.2); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin-top: 20px; }
+@keyframes spin { to { transform: rotate(360deg) } }
 
-/* AUTH — фотодағыдай Login/Register tabs */
-#authScreen{
-  background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);
-  flex-direction:column;align-items:center;justify-content:flex-end;
-  min-height:100vh;padding-bottom:0;
+/* ── AUTH ── */
+#authScreen {
+  background: linear-gradient(145deg, #1a1a2e 0%, #312e81 55%, #4f46e5 100%);
+  flex-direction: column; align-items: center; justify-content: flex-end;
+  min-height: 100vh; padding-bottom: 0;
 }
-#authScreen.active{display:flex;}
-.auth-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 0;}
-.auth-logo{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;}
-.auth-sub{color:rgba(255,255,255,.75);font-size:13px;text-align:center;}
+#authScreen.active { display: flex; }
+.auth-top { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px 0; }
+.auth-emblem { width: 72px; height: 72px; background: rgba(255,255,255,.12); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+.auth-logo { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -1px; }
+.auth-sub { color: rgba(255,255,255,.6); font-size: 13px; }
 
-/* Bottom sheet style card */
-.auth-sheet{
-  background:#fff;border-radius:28px 28px 0 0;padding:0 24px 40px;
-  width:100%;max-width:480px;box-shadow:0 -8px 40px rgba(0,0,0,.2);
+.auth-sheet {
+  background: var(--card); border-radius: 28px 28px 0 0; padding: 0 22px 44px;
+  width: 100%; max-width: 480px; box-shadow: 0 -12px 50px rgba(0,0,0,.3);
 }
-/* Login / Register tab bar */
-.auth-tabs{display:flex;border-bottom:1px solid #f3f4f6;margin-bottom:24px;}
-.auth-tab{flex:1;padding:18px 0 14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;margin-bottom:-1px;}
-.auth-tab.act{color:var(--g);border-bottom-color:var(--g);}
+.auth-tabs { display: flex; gap: 4px; padding: 16px 0 12px; }
+.auth-tab {
+  flex: 1; padding: 11px 0; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
+  text-align: center; cursor: pointer; color: var(--muted); border: none; background: #f3f4f6;
+  border-radius: 12px; transition: all .2s;
+}
+.auth-tab.act { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,.35); }
 
-.inp-wrap{margin-bottom:14px;}
-.inp-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
-.inp{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border .2s;background:#fff;}
-.inp:focus{border-color:var(--g);}
-.btn{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;}
-.btn:active{transform:scale(.97);}
-.btn-g{background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;margin-top:2px;}
-.auth-err{color:var(--red);font-size:12px;text-align:center;margin-top:6px;min-height:16px;font-weight:700;}
-.auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:12px;}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#e5e7eb;}
-.firebase-badge{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;color:var(--muted);font-size:11px;}
+.inp-wrap { margin-bottom: 12px; }
+.inp-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block; }
+.inp { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 14px; font-family: 'Manrope', sans-serif; font-size: 15px; color: var(--text); outline: none; transition: border .2s; background: #fafafa; }
+.inp:focus { border-color: var(--accent); background: #fff; }
+.btn { width: 100%; padding: 15px; border: none; border-radius: 14px; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 6px 20px rgba(79,70,229,.4); margin-top: 4px; }
+.auth-err { color: var(--red); font-size: 12px; text-align: center; margin-top: 6px; min-height: 16px; font-weight: 700; }
+.firebase-badge { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 11px; }
 
-/* HEADER */
-.header{background:linear-gradient(135deg,var(--gd),var(--g));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(0,0,0,.2);}
-.hrow{display:flex;align-items:center;gap:10px;}
-.hback{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
-.hback.show{display:flex;}
-.htitle{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;flex:1;text-align:center;line-height:1.2;}
-.hlang{background:var(--acc);border:none;color:#1a1a1a;font-family:'Unbounded',sans-serif;font-weight:700;font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;flex-shrink:0;}
+/* ── HEADER ── */
+.header {
+  background: var(--card); color: var(--text); padding: 14px 16px 12px;
+  position: sticky; top: 0; z-index: 50;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.hrow { display: flex; align-items: center; gap: 10px; }
+.hback {
+  background: var(--bg); border: none; color: var(--text);
+  width: 38px; height: 38px; border-radius: 12px; font-size: 18px; cursor: pointer;
+  display: none; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.hback.show { display: flex; }
+.htitle { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; flex: 1; text-align: center; line-height: 1.2; }
+.hlang {
+  background: var(--bg); border: 2px solid var(--border); color: var(--text);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px;
+  padding: 5px 12px; border-radius: 10px; cursor: pointer; flex-shrink: 0;
+}
 
-/* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #e5e7eb;display:flex;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 0 11px;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted);border:none;background:none;font-family:'Nunito',sans-serif;letter-spacing:.3px;transition:color .2s;}
-.nb.act{color:var(--g);}
-.nb-icon{font-size:22px;margin-bottom:2px;}
+/* ── BOTTOM NAV ── */
+.bnav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px; background: var(--card);
+  border-top: 1px solid var(--border); display: flex; z-index: 50;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.nb {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 10px 0 12px; cursor: pointer;
+  font-size: 10px; font-weight: 700; color: var(--muted); border: none;
+  background: none; font-family: 'Manrope', sans-serif; letter-spacing: .3px; transition: color .2s;
+  gap: 4px;
+}
+.nb.act { color: var(--accent); }
+.nb-icon { width: 24px; height: 24px; }
 
-/* BANNER */
-.banner{background:linear-gradient(150deg,var(--gd) 0%,var(--g) 60%,#ca8a04 100%);color:#fff;padding:24px 18px 30px;position:relative;overflow:hidden;}
-.banner::before{content:'🌍';font-size:90px;position:absolute;top:-10px;right:-10px;opacity:.09;}
-.banner h2{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;margin-bottom:5px;}
-.banner p{font-size:12px;opacity:.8;}
-.bstats{display:flex;gap:10px;margin-top:16px;}
-.bstat{background:rgba(255,255,255,.15);border-radius:12px;padding:9px 12px;flex:1;text-align:center;}
-.bstat-n{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;}
-.bstat-l{font-size:10px;opacity:.8;margin-top:1px;}
+/* ── BANNER ── */
+.banner {
+  background: linear-gradient(140deg, #1a1a2e 0%, #312e81 50%, #4f46e5 100%);
+  color: #fff; padding: 24px 18px 26px; position: relative; overflow: hidden;
+}
+.banner::after {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,.05); pointer-events: none;
+}
+.banner-badge { background: rgba(255,255,255,.15); border-radius: 8px; padding: 3px 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; display: inline-block; margin-bottom: 10px; backdrop-filter: blur(4px); }
+.banner h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.5px; }
+.banner p { font-size: 12px; opacity: .7; }
+.bstats { display: flex; gap: 8px; margin-top: 18px; }
+.bstat { background: rgba(255,255,255,.12); border-radius: 14px; padding: 10px 12px; flex: 1; text-align: center; backdrop-filter: blur(4px); }
+.bstat-n { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+.bstat-l { font-size: 10px; opacity: .7; margin-top: 1px; font-weight: 600; }
 
-/* SECTION LABEL */
-.slabel{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:16px 16px 7px;}
+/* ── SECTION LABEL ── */
+.slabel { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 18px 16px 8px; }
 
-/* TOPIC LIST */
-.tlist{padding:0 12px 8px;display:flex;flex-direction:column;gap:8px;}
-.tcard{background:var(--card);border-radius:var(--r);padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:var(--shadow);border-left:4px solid var(--gl);transition:transform .15s;}
-.tcard:active{transform:scale(.98);}
-.tcard.done{border-left-color:var(--acc);}
-.tnum{background:var(--g);color:#fff;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
-.tcard.done .tnum{background:var(--acc);}
-.tinfo{flex:1;}
-.ttitle{font-weight:700;font-size:13px;line-height:1.3;margin-bottom:3px;}
-.tmeta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.badge{background:var(--gll);color:var(--g);font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
-.badge.done{background:#fef3c7;color:#b45309;}
+/* ── TOPIC LIST ── */
+.tlist { padding: 0 12px 8px; display: flex; flex-direction: column; gap: 8px; }
+.tcard {
+  background: var(--card); border-radius: var(--r); padding: 14px 15px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: transform .15s, box-shadow .15s;
+}
+.tcard:active { transform: scale(.98); box-shadow: none; }
+.tcard.done { border-color: #c7d2fe; background: #fafbff; }
+.tnum {
+  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+}
+.tcard.done .tnum { background: linear-gradient(135deg, var(--green), #047857); }
+.tinfo { flex: 1; }
+.ttitle { font-weight: 700; font-size: 13px; line-height: 1.3; margin-bottom: 4px; }
+.tmeta { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.badge { background: #ede9fe; color: var(--accent); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.badge.done { background: var(--green-light); color: var(--green); }
+.tcard-arrow { color: var(--border); font-size: 18px; font-weight: 600; }
 
-/* DETAIL */
-.dwrap{padding:18px 15px 24px;}
-.det-badge{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;padding:3px 11px;border-radius:20px;margin-bottom:9px;}
-.det-title{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;color:var(--gd);margin-bottom:12px;line-height:1.3;}
-.det-body{font-size:14px;line-height:1.85;color:#374151;}
-.det-body p{margin-bottom:12px;}
-.det-body strong{color:var(--gd);}
-.fact-box{background:var(--gll);border-left:4px solid var(--gl);border-radius:10px;padding:11px 13px;margin:12px 0;font-size:13px;}
-.fact-title{font-weight:800;color:var(--gd);margin-bottom:4px;font-size:12px;}
+/* ── DETAIL ── */
+.dwrap { padding: 18px 15px 24px; }
+.det-badge { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: var(--accent); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 8px; margin-bottom: 10px; }
+.det-title { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 14px; line-height: 1.3; letter-spacing: -0.3px; }
+.det-body { font-size: 14px; line-height: 1.9; color: #374151; }
+.det-body p { margin-bottom: 12px; }
+.det-body strong { color: var(--primary); }
+.fact-box { background: #fafbff; border: 1px solid #c7d2fe; border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: 13px; }
+.fact-title { font-weight: 800; color: var(--accent); margin-bottom: 5px; font-size: 12px; letter-spacing: .5px; text-transform: uppercase; }
 
-/* TASK */
-.tsec{margin-top:16px;background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);}
-.thead{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--gd);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.tq{font-size:14px;font-weight:700;color:var(--text);margin-bottom:11px;line-height:1.4;}
-.opt{width:100%;text-align:left;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;margin-bottom:7px;transition:all .2s;color:var(--text);}
-.opt.correct{border-color:var(--g)!important;background:var(--gll)!important;color:var(--gd)!important;font-weight:700;}
-.opt.wrong{border-color:var(--red)!important;background:#fef2f2!important;color:var(--red)!important;}
-.opt:disabled{cursor:default;}
-.open-inp{width:100%;min-height:88px;padding:11px 13px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;resize:none;outline:none;color:var(--text);}
-.open-inp:focus{border-color:var(--g);}
-.tsub{margin-top:9px;padding:12px;border:none;border-radius:12px;background:var(--g);color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:100%;cursor:pointer;}
-.tres{margin-top:9px;padding:11px;border-radius:12px;text-align:center;font-weight:700;font-size:13px;}
-.tres.ok{background:var(--gll);color:var(--gd);}
-.tres.ko{background:#fef2f2;color:var(--red);}
-.schip{display:inline-flex;align-items:center;gap:3px;background:var(--acc);color:#fff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;}
+/* ── TASK ── */
+.tsec { margin-top: 14px; background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.thead { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; text-transform: uppercase; letter-spacing: .5px; }
+.tq { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.5; }
+.opt {
+  width: 100%; text-align: left; padding: 12px 14px; border: 2px solid var(--border);
+  border-radius: 12px; background: #fafafa; font-family: 'Manrope', sans-serif;
+  font-size: 13px; cursor: pointer; margin-bottom: 7px; transition: all .2s; color: var(--text); font-weight: 600;
+}
+.opt:hover { border-color: #a5b4fc; background: #fff; }
+.opt.correct { border-color: var(--green) !important; background: var(--green-light) !important; color: var(--green) !important; font-weight: 700; }
+.opt.wrong { border-color: var(--red) !important; background: #fef2f2 !important; color: var(--red) !important; }
+.opt:disabled { cursor: default; }
+.open-inp { width: 100%; min-height: 88px; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; resize: none; outline: none; color: var(--text); background: #fafafa; }
+.open-inp:focus { border-color: var(--accent); background: #fff; }
+.tsub { margin-top: 10px; padding: 13px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; width: 100%; cursor: pointer; letter-spacing: .5px; }
+.tres { margin-top: 10px; padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 13px; }
+.tres.ok { background: var(--green-light); color: var(--green); }
+.tres.ko { background: #fef2f2; color: var(--red); }
+.schip { display: inline-flex; align-items: center; gap: 3px; background: var(--accent); color: #fff; border-radius: 8px; padding: 2px 9px; font-size: 11px; font-weight: 700; }
 
-/* MAP TASK */
-.map-wrap{position:relative;border-radius:12px;overflow:hidden;border:2px solid #e5e7eb;margin-bottom:10px;background:#e8f4f8;}
-.map-wrap img{width:100%;display:block;user-select:none;}
-.map-dot{position:absolute;width:28px;height:28px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;cursor:pointer;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .2s;}
-.map-dot:hover{transform:translate(-50%,-50%) scale(1.2);}
-.map-dot.unanswered{background:var(--acc);}
-.map-dot.answered-ok{background:var(--g);}
-.map-dot.answered-ko{background:var(--red);}
-.map-opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
-.map-opt{padding:8px 13px;border:2px solid #e5e7eb;border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.map-opt.selected{border-color:var(--g);background:var(--gll);color:var(--gd);}
-.map-inst{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+/* ── MAP ── */
+.map-wrap { position: relative; border-radius: 14px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 10px; background: #e0e7ff; }
+.map-wrap img { width: 100%; display: block; user-select: none; }
+.map-dot { position: absolute; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; cursor: pointer; transform: translate(-50%,-50%); box-shadow: 0 2px 8px rgba(0,0,0,.25); transition: transform .2s; }
+.map-dot:hover { transform: translate(-50%,-50%) scale(1.2); }
+.map-dot.unanswered { background: var(--amber); }
+.map-dot.answered-ok { background: var(--green); }
+.map-dot.answered-ko { background: var(--red); }
+.map-opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.map-opt { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; background: #fff; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .2s; }
+.map-opt.selected { border-color: var(--accent); background: #ede9fe; color: var(--accent); }
+.map-inst { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; font-weight: 600; }
 
-/* PROFILE */
-.phero{background:linear-gradient(135deg,var(--gd),var(--g));color:#fff;padding:28px 20px 22px;text-align:center;}
-.avatar{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 10px;}
-.pname{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin-bottom:3px;}
-.pcls{font-size:12px;opacity:.8;}
-.pstats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:14px;}
-.pstat{background:var(--card);border-radius:13px;padding:12px 8px;text-align:center;box-shadow:var(--shadow);}
-.pstat-n{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:900;color:var(--g);}
-.pstat-l{font-size:10px;color:var(--muted);margin-top:2px;font-weight:700;}
-.done-item{background:var(--card);border-radius:11px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
-.done-title{font-size:12px;font-weight:700;}
-.done-pts{font-size:11px;color:var(--muted);}
-.logout-btn{margin:4px 16px 16px;padding:13px;border:2px solid var(--red);border-radius:13px;background:transparent;color:var(--red);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;width:calc(100% - 32px);cursor:pointer;}
+/* ── PROFILE ── */
+.phero { background: linear-gradient(140deg, #1a1a2e, #4f46e5); color: #fff; padding: 30px 20px 24px; text-align: center; }
+.avatar { width: 72px; height: 72px; border-radius: 22px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; backdrop-filter: blur(8px); }
+.pname { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+.pcls { font-size: 12px; opacity: .7; }
+.pstats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 16px; }
+.pstat { background: var(--card); border-radius: 16px; padding: 14px 8px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.pstat-n { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
+.pstat-l { font-size: 10px; color: var(--muted); margin-top: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.done-item { background: var(--card); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.05); border: 1px solid var(--border); }
+.done-title { font-size: 13px; font-weight: 700; }
+.done-pts { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.logout-btn { margin: 4px 16px 16px; padding: 13px; border: 2px solid #fecaca; border-radius: 14px; background: #fff5f5; color: var(--red); font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; width: calc(100% - 32px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-/* ADMIN */
-.adm-wrap{padding:14px;}
-.adm-sec{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
-.adm-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--gd);margin-bottom:12px;}
-.adm-row{display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #f3f4f6;}
-.adm-row:last-child{border-bottom:none;}
-.adm-nm{flex:1;font-size:13px;font-weight:600;}
-.abtn{padding:6px 11px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
-.aedit{background:var(--gll);color:var(--gd);}
-.adel{background:#fef2f2;color:var(--red);}
-.adm-add{width:100%;padding:11px;border:2px dashed var(--gl);border-radius:11px;background:transparent;color:var(--g);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:7px;}
-.adm-inp{width:100%;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:14px;outline:none;margin-bottom:9px;color:var(--text);background:#fff;}
-.adm-inp:focus{border-color:var(--g);}
-.adm-ta{width:100%;min-height:75px;padding:10px 13px;border:2px solid #e5e7eb;border-radius:11px;font-family:'Nunito',sans-serif;font-size:13px;outline:none;resize:none;margin-bottom:9px;color:var(--text);background:#fff;}
-.adm-ta:focus{border-color:var(--g);}
+/* ── ADMIN PANEL ── */
+.adm-wrap { padding: 14px; }
+.adm-header { background: linear-gradient(135deg, #1a1a2e, #4f46e5); border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; color: #fff; }
+.adm-header-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.adm-header-sub { font-size: 12px; opacity: .7; }
+.adm-sec { background: var(--card); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; border: 1px solid var(--border); }
+.adm-sec-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .8px; display: flex; align-items: center; gap: 8px; }
+.adm-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f9fafb; }
+.adm-row:last-child { border-bottom: none; }
+.adm-num { width: 28px; height: 28px; border-radius: 8px; background: #ede9fe; color: var(--accent); font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.adm-nm { flex: 1; font-size: 13px; font-weight: 600; }
+.adm-nm small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+.abtn { padding: 7px 13px; border: none; border-radius: 9px; font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .1s; display: flex; align-items: center; gap: 5px; }
+.abtn:active { transform: scale(.95); }
+.aedit { background: #ede9fe; color: var(--accent); }
+.adel { background: #fef2f2; color: var(--red); }
+.adm-add {
+  width: 100%; padding: 12px; border: 2px dashed #c7d2fe;
+  border-radius: 14px; background: #fafbff; color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s;
+}
+.adm-add:hover { background: #ede9fe; }
+.student-card { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f9fafb; }
+.student-card:last-child { border-bottom: none; }
+.student-avatar { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.student-info { flex: 1; }
+.student-name { font-size: 13px; font-weight: 700; }
+.student-cls { font-size: 11px; color: var(--muted); }
+.student-score { text-align: right; }
+.student-pts { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: var(--accent); }
+.student-done { font-size: 10px; color: var(--muted); }
+.progress-bar-wrap { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 4px; }
+.progress-bar { height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .3s; }
+.adm-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.adm-stat { background: var(--bg); border-radius: 12px; padding: 12px 8px; text-align: center; border: 1px solid var(--border); }
+.adm-stat-n { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent); }
+.adm-stat-l { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 1px; }
 
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;}
-.overlay.show{display:flex;}
-.modal{background:#fff;border-radius:24px 24px 0 0;padding:22px 18px 30px;width:100%;max-height:85vh;overflow-y:auto;}
-.modal-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--gd);margin-bottom:16px;}
-.modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin-top:-4px;}
-.hidden{display:none!important;}
+/* ── MODAL ── */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; display: none; align-items: flex-end; backdrop-filter: blur(3px); }
+.overlay.show { display: flex; }
+.modal { background: #fff; border-radius: 28px 28px 0 0; padding: 22px 18px 36px; width: 100%; max-height: 88vh; overflow-y: auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 10px; font-size: 16px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.adm-inp { width: 100%; padding: 11px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 14px; outline: none; margin-bottom: 10px; color: var(--text); background: #fafafa; }
+.adm-inp:focus { border-color: var(--accent); background: #fff; }
+.adm-ta { width: 100%; min-height: 80px; padding: 11px 14px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 13px; outline: none; resize: none; margin-bottom: 10px; color: var(--text); background: #fafafa; }
+.adm-ta:focus { border-color: var(--accent); background: #fff; }
+.modal-section { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.modal-section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+.ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.ans-item label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .5px; display: block; margin-bottom: 4px; }
+.inp-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block; }
 
-/* SYNC INDICATOR */
-.sync-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-left:6px;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.offline-banner{background:#fef3c7;border-bottom:1px solid #fde68a;padding:7px 14px;font-size:11px;font-weight:700;color:#92400e;text-align:center;display:none;}
-.offline-banner.show{display:block;}
+/* ── OFFLINE ── */
+.offline-banner { background: #fef3c7; border-bottom: 1px solid #fde68a; padding: 7px 14px; font-size: 11px; font-weight: 700; color: #92400e; text-align: center; display: none; }
+.offline-banner.show { display: block; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; display: inline-block; margin-left: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hidden { display: none !important; }
+
+/* ── ANSWER SELECT BADGE ── */
+.answer-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.answer-letter { width: 26px; height: 26px; border-radius: 8px; background: var(--bg); border: 2px solid var(--border); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; }
+.answer-select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; background: #fafafa; color: var(--text); outline: none; cursor: pointer; }
+.answer-select:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- ═══ LOADING (fixed position overlay) ═══ -->
+<!-- LOADING -->
 <div id="loadingScreen">
-  <div class="load-logo">🌍 ГЕО 8</div>
+  <div class="load-globe">🌍</div>
+  <div class="load-logo">ГЕО 8</div>
+  <div class="load-txt">Жүктелуде...</div>
   <div class="spin"></div>
-  <div class="load-txt">Firebase жүктелуде...</div>
 </div>
 
-<!-- ═══ AUTH ═══ -->
+<!-- AUTH -->
 <div id="authScreen" class="screen">
   <div class="auth-top">
-    <div class="auth-logo">🌍 ГЕО 8</div>
+    <div class="auth-emblem">🌍</div>
+    <div class="auth-logo">ГЕО 8</div>
     <div class="auth-sub">8-сынып Geography қолданбасы</div>
   </div>
   <div class="auth-sheet">
-    <!-- Login / Register tabs -->
     <div class="auth-tabs">
       <button class="auth-tab act" id="tabLogin" onclick="setAuthMode(false)">Кіру</button>
       <button class="auth-tab" id="tabReg" onclick="setAuthMode(true)">Тіркелу</button>
@@ -279,18 +374,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
       <input class="inp" id="inClass" placeholder="8А">
     </div>
     <div class="auth-err" id="authErr"></div>
-    <button class="btn btn-g" id="authBtn" onclick="doAuth()">Кіру</button>
+    <button class="btn btn-primary" id="authBtn" onclick="doAuth()">Кіру</button>
     <div class="firebase-badge">🔒 Firebase арқылы қорғалған</div>
   </div>
 </div>
 
-<!-- ═══ MAIN ═══ -->
+<!-- MAIN -->
 <div id="mainScreen" class="screen">
   <div class="offline-banner" id="offlineBanner">📡 Интернет жоқ — офлайн режим</div>
   <div class="header">
     <div class="hrow">
-      <button class="hback" id="backBtn" onclick="goBack()">←</button>
-      <div class="htitle" id="hTitle">8-сынып Географиясы<span class="sync-dot" id="syncDot" title="Firebase қосылған"></span></div>
+      <button class="hback" id="backBtn" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="htitle" id="hTitle">8-сынып Географиясы<span class="sync-dot" id="syncDot"></span></div>
       <button class="hlang" id="langBtn" onclick="toggleLang()">РУС</button>
     </div>
   </div>
@@ -301,54 +398,78 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 
   <div class="bnav">
     <button class="nb act" id="nb0" onclick="switchTab(0)">
-      <span class="nb-icon">📚</span><span id="nb0l">Тақырыптар</span>
+      <!-- Book icon -->
+      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 8H15a2 2 0 0 1-2-2V3.5zM8 12h8v1.5H8V12zm0 3h8v1.5H8V15zm0-6h4v1.5H8V9z"/></svg>
+      <span id="nb0l">Тақырыптар</span>
     </button>
     <button class="nb" id="nb1" onclick="switchTab(1)">
-      <span class="nb-icon">👤</span><span id="nb1l">Профиль</span>
+      <!-- User icon -->
+      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      <span id="nb1l">Профиль</span>
     </button>
     <button class="nb hidden" id="nb2" onclick="switchTab(2)">
-      <span class="nb-icon">⚙️</span><span>Админ</span>
+      <!-- Settings/gear icon -->
+      <svg class="nb-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm7.6-1.4-1.1-.9c.1-.5.1-.9 0-1.4l1.1-.9a.5.5 0 0 0 .1-.6l-1-1.7a.5.5 0 0 0-.6-.2l-1.3.5c-.4-.3-.8-.5-1.3-.7L15.2 6a.5.5 0 0 0-.5-.4h-2a.5.5 0 0 0-.5.4l-.2 1.4c-.5.2-.9.4-1.3.7l-1.3-.5a.5.5 0 0 0-.6.2l-1 1.7a.5.5 0 0 0 .1.6l1.1.9c-.1.5-.1.9 0 1.4l-1.1.9a.5.5 0 0 0-.1.6l1 1.7a.5.5 0 0 0 .6.2l1.3-.5c.4.3.8.5 1.3.7l.2 1.4a.5.5 0 0 0 .5.4h2a.5.5 0 0 0 .5-.4l.2-1.4c.5-.2.9-.4 1.3-.7l1.3.5a.5.5 0 0 0 .6-.2l1-1.7a.5.5 0 0 0-.1-.6z"/></svg>
+      <span>Админ</span>
     </button>
   </div>
 </div>
 
-<!-- ═══ EDIT MODAL ═══ -->
+<!-- EDIT MODAL -->
 <div class="overlay" id="editModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
-    <label class="inp-label">Тақырып атауы (ҚАЗ)</label>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-section">Тақырып атаулары</div>
+    <label class="inp-label">Тақырып (ҚАЗ)</label>
     <input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
-    <label class="inp-label">Тема названия (РУС)</label>
+    <label class="inp-label">Тема (РУС)</label>
     <input class="adm-inp" id="mTRu" placeholder="Название темы">
+
+    <div class="modal-section">Мәтін / Текст</div>
     <label class="inp-label">Мәтін (ҚАЗ)</label>
     <textarea class="adm-ta" id="mTxtKk" rows="3" placeholder="Параграф мәтіні..."></textarea>
     <label class="inp-label">Текст (РУС)</label>
     <textarea class="adm-ta" id="mTxtRu" rows="3" placeholder="Текст параграфа..."></textarea>
-    <label class="inp-label">Тест сұрағы (ҚАЗ)</label>
+
+    <div class="modal-section">Тест сұрағы</div>
+    <label class="inp-label">Сұрақ (ҚАЗ)</label>
     <input class="adm-inp" id="mQKk" placeholder="Сұрақ мәтіні">
-    <label class="inp-label">Дұрыс жауап әрпі (A/B/C/D)</label>
-    <input class="adm-inp" id="mQAns" placeholder="A">
-    <label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ...">
-    <label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ...">
-    <label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ...">
-    <label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ...">
+    <div class="ans-grid">
+      <div><label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ..."></div>
+      <div><label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ..."></div>
+      <div><label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ..."></div>
+      <div><label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ..."></div>
+    </div>
+    <label class="inp-label">Дұрыс жауап</label>
+    <div class="answer-label-row">
+      <select class="answer-select adm-inp" id="mQAns" style="margin-bottom:0;flex:1">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+    </div>
+
+    <div class="modal-section">Ашық сұрақ</div>
     <label class="inp-label">Ашық сұрақ (ҚАЗ)</label>
-    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні">
-    <button class="btn btn-g" onclick="saveModal()">💾 Сақтау</button>
+    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні" style="margin-bottom:16px">
+
+    <button class="btn btn-primary" onclick="saveModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+      Сақтау
+    </button>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════
-// OFFLINE DETECT
-// ════════════════════════════════════
 window.addEventListener('online',  () => document.getElementById('offlineBanner').classList.remove('show'));
 window.addEventListener('offline', () => document.getElementById('offlineBanner').classList.add('show'));
 
-// ════════════════════════════════════
-// FIREBASE HELPERS
-// ════════════════════════════════════
+// ═══ FIREBASE HELPERS ═══
 async function fbGetProg(uid) {
   try {
     if (!window._fbDb) return {};
@@ -357,7 +478,6 @@ async function fbGetProg(uid) {
     return snap.exists() ? snap.val() : {};
   } catch { return {}; }
 }
-
 async function fbSaveProg(uid, prog) {
   try {
     if (!window._fbDb) return;
@@ -365,7 +485,6 @@ async function fbSaveProg(uid, prog) {
     await set(ref(window._fbDb, 'progress/' + uid), prog);
   } catch(e) { console.warn('Save error:', e); }
 }
-
 async function fbGetTopics() {
   try {
     if (!window._fbDb) return null;
@@ -374,7 +493,6 @@ async function fbGetTopics() {
     return snap.exists() ? Object.values(snap.val()) : null;
   } catch { return null; }
 }
-
 async function fbSaveTopics(topics) {
   try {
     if (!window._fbDb) return;
@@ -384,7 +502,6 @@ async function fbSaveTopics(topics) {
     await set(ref(window._fbDb, 'topics'), obj);
   } catch(e) { console.warn('Topics save error:', e); }
 }
-
 async function fbGetAllUsers() {
   try {
     if (!window._fbDb) return [];
@@ -394,7 +511,6 @@ async function fbGetAllUsers() {
     return Object.entries(snap.val()).map(([uid, d]) => ({uid, ...d}));
   } catch { return []; }
 }
-
 async function fbGetAllProgress() {
   try {
     if (!window._fbDb) return {};
@@ -404,17 +520,12 @@ async function fbGetAllProgress() {
   } catch { return {}; }
 }
 
-// ════════════════════════════════════
-// LOCAL FALLBACK STORAGE
-// ════════════════════════════════════
 const LS = {
   get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
   set(k,v){localStorage.setItem(k,JSON.stringify(v));}
 };
-
 function pk(uid, id, type){ return uid + '__' + id + '__' + type; }
 
-// In-memory progress cache
 let _prog = {};
 let _topics = null;
 
@@ -425,14 +536,12 @@ async function getProg() {
   }
   return _prog;
 }
-
 async function saveProg(p) {
   _prog = p;
   if (window._fbUser) {
     await fbSaveProg(window._fbUser.uid, p);
   }
 }
-
 async function getTopics() {
   if (_topics) return _topics;
   const fbT = await fbGetTopics();
@@ -440,17 +549,14 @@ async function getTopics() {
     _topics = fbT;
   } else {
     _topics = DEF_TOPICS;
-    // İlk kez Firebase'e kaydet
     await fbSaveTopics(_topics);
   }
   return _topics;
 }
-
 async function saveTopics(t) {
   _topics = t;
   await fbSaveTopics(t);
 }
-
 function calcPts(uid, T, prog) {
   return T.reduce((s,t) => {
     s += (prog[pk(uid,t.id,'test')]||0) + (prog[pk(uid,t.id,'open')]||0) + (prog[pk(uid,t.id,'map')]||0);
@@ -458,9 +564,7 @@ function calcPts(uid, T, prog) {
   }, 0);
 }
 
-// ════════════════════════════════════
-// DEFAULT TOPICS
-// ════════════════════════════════════
+// ═══ DEFAULT TOPICS ═══
 const DEF_TOPICS = [
   {id:1,kk:"Жер — Күн жүйесіндегі планета",ru:"Земля — планета Солнечной системы",
    tkk:`<p><strong>Жер</strong> — Күн жүйесіндегі үшінші планета. Күннен орташа <strong>150 млн км</strong> қашықтықта.</p><div class="fact-box"><div class="fact-title">📌 Деректер</div>Жас: 4,54 млрд жыл · Беті: 71% су, 29% құрлық · Серігі: Ай</div><p>Күн жүйесінде <strong>8 планета</strong>. Жер өз осін <strong>24 сағатта</strong> бір рет айналады.</p>`,
@@ -564,18 +668,7 @@ const DEF_TOPICS = [
   }
 ];
 
-// ════════════════════════════════════
-// STATE
-// ════════════════════════════════════
-let ST = {
-  lang:'kk', tab:0, view:'list', detIdx:0,
-  currentUser:null,
-  mapAnswers:{}, selectedMapOpt:null
-};
-
-// ════════════════════════════════════
-// AUTH UI
-// ════════════════════════════════════
+let ST = { lang:'kk', tab:0, view:'list', detIdx:0, currentUser:null, mapAnswers:{}, selectedMapOpt:null };
 let isRegMode = false;
 
 function hideLoading(){
@@ -583,18 +676,15 @@ function hideLoading(){
   ls.classList.add('fade-out');
   setTimeout(()=>{ ls.style.display='none'; }, 450);
 }
-
 function showAuthScreen(){
   hideLoading();
   document.getElementById('mainScreen').classList.remove('active');
   document.getElementById('authScreen').classList.add('active');
-  // Форманы тазалау
   document.getElementById('inLogin').value='';
   document.getElementById('inPass').value='';
   document.getElementById('authErr').textContent='';
   setAuthMode(false);
 }
-
 function setAuthMode(reg){
   isRegMode = reg;
   document.getElementById('tabLogin').classList.toggle('act', !reg);
@@ -603,9 +693,6 @@ function setAuthMode(reg){
   document.getElementById('authBtn').textContent = reg ? 'Тіркелу' : 'Кіру';
   document.getElementById('authErr').textContent = '';
 }
-
-function toggleReg(){ setAuthMode(!isRegMode); }
-
 async function doAuth(){
   const email = document.getElementById('inLogin').value.trim();
   const pass  = document.getElementById('inPass').value.trim();
@@ -615,17 +702,13 @@ async function doAuth(){
   err.textContent = '';
   if(!email){ err.textContent='Email енгізіңіз!'; return; }
   if(!pass) { err.textContent='Пароль енгізіңіз!'; return; }
-
   btn.textContent = '⏳ Жүктелуде...';
   btn.disabled = true;
-
   const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window._fbFns;
   const auth = window._fbAuth;
-
   try {
     if(isRegMode){
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged handles the rest
       const {set, ref} = window._fbFns;
       const login = email.split('@')[0];
       await set(ref(window._fbDb, 'users/' + cred.user.uid), {
@@ -648,10 +731,9 @@ async function doAuth(){
     btn.disabled = false;
   }
 }
-
 function startSession(u){
   ST.currentUser = u;
-  _prog = {}; // reset cache
+  _prog = {};
   hideLoading();
   document.getElementById('authScreen').classList.remove('active');
   document.getElementById('mainScreen').classList.add('active');
@@ -660,7 +742,6 @@ function startSession(u){
   document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
   document.getElementById('authBtn').disabled = false;
 }
-
 async function logout(){
   const {signOut} = window._fbFns;
   _prog = {}; _topics = null;
@@ -670,30 +751,24 @@ async function logout(){
   showAuthScreen();
 }
 
-// ════════════════════════════════════
-// TABS
-// ════════════════════════════════════
+// ═══ TABS ═══
 function switchTab(t){
   ST.tab=t; ST.view='list';
   document.getElementById('backBtn').classList.remove('show');
   ['nb0','nb1','nb2'].forEach((id,i)=>document.getElementById(id).classList.toggle('act',i===t));
   renderTab();
 }
-
 function renderTab(){
   if(ST.tab===0) renderTopicsAsync();
   else if(ST.tab===1) renderProfileAsync();
   else renderAdminAsync();
 }
-
 function showOnly(id){
   ['tabTopics','tabProfile','tabAdmin'].forEach(t=>
     document.getElementById(t).classList.toggle('hidden', t!==id));
 }
 
-// ════════════════════════════════════
-// TOPICS
-// ════════════════════════════════════
+// ═══ TOPICS ═══
 async function renderTopicsAsync(){
   const T = await getTopics();
   const u = ST.currentUser;
@@ -703,8 +778,9 @@ async function renderTopicsAsync(){
   const pts = calcPts(u.uid, T, prog);
 
   let h=`<div class="banner">
-    <h2>🌍 ${lang==='kk'?'География':'География'}</h2>
-    <p>${lang==='kk'?'8-сынып • '+T.length+' тақырып':'8 класс • '+T.length+' тем'}</p>
+    <div class="banner-badge">8-СЫНЫП • GEOGRAPHY</div>
+    <h2>🌍 География</h2>
+    <p>${T.length} тақырып · Барлық тесттер</p>
     <div class="bstats">
       <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
       <div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
@@ -726,7 +802,7 @@ async function renderTopicsAsync(){
     h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
       <div class="tnum">${i+1}</div>
       <div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${badges}</div></div>
-      <span style="color:#9ca3af;font-size:20px">›</span></div>`;
+      <span class="tcard-arrow">›</span></div>`;
   });
   h+=`</div>`;
   document.getElementById('tabTopics').innerHTML=h;
@@ -745,13 +821,14 @@ async function openDetailAsync(idx){
   const tp = prog[pk(u.uid,t.id,'test')]||0;
   const op = prog[pk(u.uid,t.id,'open')]||0;
   const mp = prog[pk(u.uid,t.id,'map')]||0;
-
   document.getElementById('hTitle').textContent = t[lang];
   document.getElementById('backBtn').classList.add('show');
 
-  // TEST
   let testH=`<div class="tsec">
-    <div class="thead">📝 ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}</div>
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
+      ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}
+    </div>
     <div class="tq">${t.qkk}</div>`;
   if(tp){
     testH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
@@ -762,9 +839,11 @@ async function openDetailAsync(idx){
   }
   testH+=`</div>`;
 
-  // OPEN
   let openH=`<div class="tsec">
-    <div class="thead">✏️ ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}</div>
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}
+    </div>
     <div class="tq">${t.openq||'Тақырып бойынша 2-3 сөйлем жазыңыз.'}</div>`;
   if(op){
     openH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
@@ -774,25 +853,22 @@ async function openDetailAsync(idx){
   }
   openH+=`</div>`;
 
-  // MAP
   let mapH=`<div class="tsec">
-    <div class="thead">🗺️ ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}</div>
+    <div class="thead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+      ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}
+    </div>
     <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
   if(mp){
     mapH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
   } else if(t.mapDots && t.mapDots.length){
     mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
-    // Use inline SVG world map instead of external img
-    mapH+=`<div class="map-wrap" id="mapWrap" style="background:#d0e8f5;min-height:180px;">
-      ${buildMapSVG(t, idx)}
-    </div>`;
+    mapH+=`<div class="map-wrap" id="mapWrap" style="background:#e0e7ff;min-height:180px;">${buildMapSVG(t, idx)}</div>`;
     mapH+=`<div class="map-opts" id="mapOpts">`;
     (t.mapOpts||[]).forEach((o,oi)=>{
       mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
     });
-    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="margin-top:10px;opacity:.4;pointer-events:none">${lang==='kk'?'✓ Картаны тексеру':'✓ Проверить карту'}</button>`;
-  } else {
-    mapH+=`<div class="tres ko" style="text-align:left">ℹ️ ${lang==='kk'?'Карта тапсырмасы жоқ.':'Задание с картой отсутствует.'}</div>`;
+    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
   }
   mapH+=`</div>`;
 
@@ -806,20 +882,14 @@ async function openDetailAsync(idx){
   showOnly('tabTopics');
 }
 
-// ════════════════════════════════════
-// ANSWER HANDLERS
-// ════════════════════════════════════
+// ═══ ANSWER HANDLERS ═══
 async function answerTest(idx, optIdx, correct){
   const letters=['A','B','C','D'];
   const chosen = letters[optIdx];
   const isOk = chosen === correct;
   for(let i=0;i<4;i++){
     const b=document.getElementById('opt'+i);
-    if(b){
-      b.disabled=true;
-      if(letters[i]===correct) b.classList.add('correct');
-      else if(i===optIdx&&!isOk) b.classList.add('wrong');
-    }
+    if(b){ b.disabled=true; if(letters[i]===correct) b.classList.add('correct'); else if(i===optIdx&&!isOk) b.classList.add('wrong'); }
   }
   if(isOk){
     const T = await getTopics();
@@ -838,7 +908,6 @@ async function answerTest(idx, optIdx, correct){
     },600);
   }
 }
-
 async function submitOpen(idx){
   const T = await getTopics();
   const t = T[idx];
@@ -849,25 +918,19 @@ async function submitOpen(idx){
   await saveProg(prog);
   const openSec = document.querySelectorAll('.tsec')[1];
   if(openSec){
-    const ta=openSec.querySelector('.open-inp');
-    const sb=openSec.querySelector('.tsub');
-    if(ta) ta.remove();
-    if(sb) sb.remove();
+    const ta=openSec.querySelector('.open-inp'); const sb=openSec.querySelector('.tsub');
+    if(ta) ta.remove(); if(sb) sb.remove();
     openSec.insertAdjacentHTML('beforeend','<div class="tres ok">✅ '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
   }
 }
-
 function selectMapOpt(opt, oi){
   ST.selectedMapOpt=opt;
   document.querySelectorAll('.map-opt').forEach(b=>b.classList.remove('selected'));
-  const btn=document.getElementById('mopt'+oi);
-  if(btn) btn.classList.add('selected');
+  const btn=document.getElementById('mopt'+oi); if(btn) btn.classList.add('selected');
 }
-
 async function tapDot(topicIdx, dotIdx){
   if(!ST.selectedMapOpt){ alert(ST.lang==='kk'?'Алдымен жауапты таңдаңыз!':'Сначала выберите ответ!'); return; }
   ST.mapAnswers[dotIdx]=ST.selectedMapOpt;
-  // Update SVG dot color to green (selected)
   updateSVGDot(dotIdx, 'ok');
   const T = await getTopics();
   const t = T[topicIdx];
@@ -875,15 +938,13 @@ async function tapDot(topicIdx, dotIdx){
   const sbtn=document.getElementById('mapSubmitBtn');
   if(sbtn&&allAnswered){ sbtn.style.opacity='1'; sbtn.style.pointerEvents='auto'; }
 }
-
 async function submitMap(topicIdx){
   const T = await getTopics();
   const t = T[topicIdx];
   let correct=0;
   (t.mapDots||[]).forEach((d,i)=>{
     const answered=ST.mapAnswers[i];
-    if(answered===d.correct){ correct++; updateSVGDot(i,'ok'); }
-    else { updateSVGDot(i,'ko'); }
+    if(answered===d.correct){ correct++; updateSVGDot(i,'ok'); } else { updateSVGDot(i,'ko'); }
   });
   const total=(t.mapDots||[]).length;
   const pts=correct>=total?4:correct>0?2:0;
@@ -894,21 +955,17 @@ async function submitMap(topicIdx){
   }
   const mapSec=document.querySelectorAll('.tsec')[2];
   if(mapSec){
-    const sbtn=document.getElementById('mapSubmitBtn');
-    if(sbtn) sbtn.remove();
+    const sbtn=document.getElementById('mapSubmitBtn'); if(sbtn) sbtn.remove();
     mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'✅':'❌'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
   }
 }
-
 function goBack(){
   ST.view='list';
   document.getElementById('backBtn').classList.remove('show');
   renderTopicsAsync();
 }
 
-// ════════════════════════════════════
-// PROFILE
-// ════════════════════════════════════
+// ═══ PROFILE ═══
 async function renderProfileAsync(){
   const T = await getTopics();
   const u = ST.currentUser;
@@ -916,24 +973,26 @@ async function renderProfileAsync(){
   const prog = await getProg();
   const pts = calcPts(u.uid, T, prog);
   const done = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]);
+  const initials = (u.login||u.email||'?').slice(0,2).toUpperCase();
 
   let doneH='';
   done.forEach(t=>{
     const tp=prog[pk(u.uid,t.id,'test')]||0;
     const op=prog[pk(u.uid,t.id,'open')]||0;
     const mp=prog[pk(u.uid,t.id,'map')]||0;
-    doneH+=`<div class="done-item"><span style="font-size:20px">✅</span>
+    doneH+=`<div class="done-item">
+      <div style="width:34px;height:34px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">✅</div>
       <div style="flex:1"><div class="done-title">${t[lang]}</div>
       <div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div>
-      <strong style="color:var(--acc)">${tp+op+mp}</strong></div>`;
+      <strong style="color:var(--accent);font-family:'Space Grotesk',sans-serif">${tp+op+mp}</strong></div>`;
   });
   if(!done.length) doneH=`<p style="text-align:center;color:var(--muted);padding:20px;font-size:13px">${lang==='kk'?'Тапсырылған тапсырма жоқ':'Нет выполненных заданий'}</p>`;
 
   document.getElementById('tabProfile').innerHTML=`
     <div class="phero">
-      <div class="avatar">👤</div>
+      <div class="avatar" style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800">${initials}</div>
       <div class="pname">${u.login||u.email}</div>
-      <div class="pcls">${u.cls||''}${u.isAdmin?' · Администратор':''} · 🔥 Firebase</div>
+      <div class="pcls">${u.cls||''}${u.isAdmin?' · Администратор':''}</div>
     </div>
     <div class="pstats">
       <div class="pstat"><div class="pstat-n">${pts}</div><div class="pstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
@@ -942,54 +1001,111 @@ async function renderProfileAsync(){
     </div>
     <div class="slabel">${lang==='kk'?'ОРЫНДАЛҒАН ТАПСЫРМАЛАР':'ВЫПОЛНЕННЫЕ ЗАДАНИЯ'}</div>
     <div style="padding:0 14px 8px">${doneH}</div>
-    <button class="logout-btn" onclick="logout()">🚪 ${lang==='kk'?'Шығу':'Выйти'}</button>`;
+    <button class="logout-btn" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      ${lang==='kk'?'Шығу':'Выйти'}
+    </button>`;
   document.getElementById('hTitle').textContent = lang==='kk'?'Профиль':'Профиль';
   showOnly('tabProfile');
 }
 
-// ════════════════════════════════════
-// ADMIN
-// ════════════════════════════════════
+// ═══ ADMIN ═══
 let editIdx=null;
 
 async function renderAdminAsync(){
   const T = await getTopics();
   const {lang} = ST;
+
   let rows='';
   T.forEach((t,i)=>{
     rows+=`<div class="adm-row">
-      <div class="adm-nm">${i+1}. ${t[lang]}</div>
-      <button class="abtn aedit" onclick="openEdit(${i})">✏️</button>
-      <button class="abtn adel" onclick="delTopicAsync(${i})">🗑</button>
+      <div class="adm-num">${i+1}</div>
+      <div class="adm-nm">${t[lang]}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
+      <button class="abtn aedit" onclick="openEdit(${i})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Өңдеу
+      </button>
+      <button class="abtn adel" onclick="delTopicAsync(${i})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Жою
+      </button>
     </div>`;
   });
 
   const allUsers = await fbGetAllUsers();
   const students = allUsers.filter(u=>!u.isAdmin);
   const allProg = await fbGetAllProgress();
+  const totalPossible = T.length;
+
   let studH='';
-  students.forEach(u=>{
+  students.sort((a,b)=>{
+    const ap = calcPts(a.uid, T, allProg[a.uid]||{});
+    const bp = calcPts(b.uid, T, allProg[b.uid]||{});
+    return bp - ap;
+  }).forEach(u=>{
     const uprog = allProg[u.uid]||{};
     const pts = calcPts(u.uid, T, uprog);
     const done = T.filter(t=>uprog[pk(u.uid,t.id,'test')]||uprog[pk(u.uid,t.id,'open')]||uprog[pk(u.uid,t.id,'map')]).length;
-    studH+=`<div class="adm-row">
-      <div class="adm-nm">👤 ${u.login||u.email} (${u.cls||''})</div>
-      <span style="font-size:12px;color:var(--muted)">${done}/${T.length} · <b style="color:var(--acc)">${pts} балл</b></span>
+    const pct = totalPossible > 0 ? Math.round((done/totalPossible)*100) : 0;
+    const ini = (u.login||u.email||'?').slice(0,2).toUpperCase();
+    studH+=`<div class="student-card">
+      <div class="student-avatar">${ini}</div>
+      <div class="student-info">
+        <div class="student-name">${u.login||u.email}</div>
+        <div class="student-cls">${u.cls||'—'} · ${done}/${totalPossible} тақырып</div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="student-score">
+        <div class="student-pts">${pts}</div>
+        <div class="student-done">балл</div>
+      </div>
     </div>`;
   });
-  if(!students.length) studH=`<p style="font-size:12px;color:var(--muted);padding:6px">${lang==='kk'?'Оқушылар тіркелмеген':'Ученики не зарегистрированы'}</p>`;
+  if(!students.length) studH=`<p style="font-size:12px;color:var(--muted);padding:10px 0;text-align:center">${lang==='kk'?'Оқушылар тіркелмеген':'Ученики не зарегистрированы'}</p>`;
+
+  const totalPts = students.reduce((s,u)=>{
+    const uprog=allProg[u.uid]||{};
+    return s + calcPts(u.uid, T, uprog);
+  },0);
 
   document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap">
-    <div class="adm-sec"><div class="adm-title">📚 ${lang==='kk'?'ТАҚЫРЫПТАР':'ТЕМЫ'}</div>${rows}
-    <button class="adm-add" onclick="openEdit(-1)">+ ${lang==='kk'?'Жаңа тақырып':'Добавить тему'}</button></div>
-    <div class="adm-sec"><div class="adm-title">👥 ${lang==='kk'?'ОҚУШЫЛАР (Firebase)':'УЧЕНИКИ (Firebase)'}</div>${studH}</div>
+    <div class="adm-header">
+      <div class="adm-header-title">⚙️ Админ панелі</div>
+      <div class="adm-header-sub">${T.length} тақырып · ${students.length} оқушы</div>
+    </div>
+
+    <div class="adm-stats">
+      <div class="adm-stat"><div class="adm-stat-n">${T.length}</div><div class="adm-stat-l">Тақырып</div></div>
+      <div class="adm-stat"><div class="adm-stat-n">${students.length}</div><div class="adm-stat-l">Оқушы</div></div>
+      <div class="adm-stat"><div class="adm-stat-n">${totalPts}</div><div class="adm-stat-l">Жалпы балл</div></div>
+    </div>
+
+    <div class="adm-sec">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 8H15a2 2 0 0 1-2-2V3.5z"/></svg>
+        Тақырыптар
+      </div>
+      ${rows}
+      <button class="adm-add" onclick="openEdit(-1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        ${lang==='kk'?'Жаңа тақырып қосу':'Добавить тему'}
+      </button>
+    </div>
+
+    <div class="adm-sec">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm12 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Оқушылар рейтингі
+      </div>
+      ${studH}
+    </div>
   </div>`;
   document.getElementById('hTitle').textContent = lang==='kk'?'Админ панелі':'Панель Админа';
   showOnly('tabAdmin');
 }
 
 async function delTopicAsync(i){
-  if(!confirm(ST.lang==='kk'?'Өшіресіз бе?':'Удалить?')) return;
+  if(!confirm(ST.lang==='kk'?'Тақырыпты өшіресіз бе?':'Удалить тему?')) return;
   const T = await getTopics();
   T.splice(i,1);
   await saveTopics(T);
@@ -999,7 +1115,7 @@ async function delTopicAsync(i){
 async function openEdit(i){
   editIdx=i;
   const T = await getTopics();
-  document.getElementById('modalTitle').textContent = i===-1?(ST.lang==='kk'?'Жаңа тақырып':'Добавить тему'):(ST.lang==='kk'?'Өңдеу':'Редактировать');
+  document.getElementById('modalTitle').textContent = i===-1?(ST.lang==='kk'?'Жаңа тақырып қосу':'Добавить тему'):(ST.lang==='kk'?'Тақырыпты өңдеу':'Редактировать');
   if(i>=0){
     const t=T[i];
     document.getElementById('mTKk').value=t.kk||'';
@@ -1014,7 +1130,8 @@ async function openEdit(i){
     document.getElementById('mD').value=t.opts?.[3]||'';
     document.getElementById('mOpenQ').value=t.openq||'';
   } else {
-    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mQAns','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mQAns').value='A';
   }
   document.getElementById('editModal').classList.add('show');
 }
@@ -1050,86 +1167,59 @@ async function saveModal(){
 
 function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }
 
-// ════════════════════════════════════
-// SVG MAP BUILDER
-// ════════════════════════════════════
+// ═══ SVG MAP ═══
 function buildMapSVG(t, topicIdx){
   const dots = t.mapDots || [];
   const W = 360, H = 200;
-  // Background gradient based on topic
-  const bgs = {
-    1:'#0a1628', 2:'#1a3a5c', 3:'#0d2137',
-    4:'#2d6a4f', 5:'#1b4332', 6:'#0c2340',
-    7:'#164e63', 8:'#14532d', 9:'#1e3a2f', 10:'#1a365d'
-  };
-  const bg = bgs[t.id] || '#1a3a5c';
+  const bgs = {1:'#0d1b3e',2:'#1a2744',3:'#0f1d35',4:'#1e3a2f',5:'#1b2d3a',6:'#15233b',7:'#122034',8:'#1a2940',9:'#1b2e20',10:'#0e1e38'};
+  const bg = bgs[t.id] || '#1a2744';
 
-  // Simple visual patterns per topic type
   const patterns = {
-    1: `<!-- Solar system -->
-      <ellipse cx="40" cy="100" rx="30" ry="30" fill="#FDB813" opacity=".9"/>
-      <ellipse cx="110" cy="100" rx="6" ry="6" fill="#b5b5b5" opacity=".8"/>
-      <ellipse cx="155" cy="100" rx="9" ry="9" fill="#e8cda0" opacity=".8"/>
-      <ellipse cx="205" cy="100" rx="11" ry="11" fill="#4fa8e8" opacity=".9"/>
-      <ellipse cx="258" cy="100" rx="8" ry="8" fill="#c1440e" opacity=".8"/>
-      <ellipse cx="310" cy="100" rx="14" ry="14" fill="#e8ac5e" opacity=".8"/>
-      <line x1="40" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,.1)" stroke-width="1"/>`,
-    4: `<!-- World map simplified -->
-      <path d="M20,60 Q60,40 100,55 Q130,45 160,60 Q190,50 230,60 Q260,45 300,55 Q330,50 345,65 L345,150 Q300,165 260,155 Q220,165 180,155 Q140,165 100,155 Q60,165 20,150 Z" fill="#2d8a4e" opacity=".7"/>
-      <path d="M100,55 Q120,70 140,65 Q160,75 180,65 Q200,70 220,60" stroke="none" fill="#3aa862" opacity=".5"/>
-      <rect x="20" y="150" width="325" height="40" fill="#1a6b9a" opacity=".6"/>`,
-    7: `<!-- Oceans -->
-      <rect x="0" y="0" width="360" height="200" fill="#1a6b9a" opacity=".4"/>
-      <path d="M20,80 Q80,60 140,75 Q200,60 260,80 Q310,65 345,80 L345,130 Q310,120 260,130 Q200,120 140,130 Q80,120 20,130Z" fill="#2d8a4e" opacity=".6"/>
-      <path d="M60,100 Q100,90 140,100 Q180,90 220,100" stroke="#4ade80" stroke-width="1" fill="none" opacity=".5"/>`,
-    default: `<!-- Generic geographic pattern -->
-      <path d="M0,${H/2} Q${W/4},${H/4} ${W/2},${H/2} Q${3*W/4},${3*H/4} ${W},${H/2}" stroke="rgba(255,255,255,.15)" stroke-width="2" fill="none"/>
-      <circle cx="${W/2}" cy="${H/2}" r="${H/3}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-      <circle cx="${W/2}" cy="${H/2}" r="${H/5}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`
+    1:`<ellipse cx="40" cy="100" rx="28" ry="28" fill="#FDB813" opacity=".9"/>
+       <ellipse cx="108" cy="100" rx="5" ry="5" fill="#b5b5b5" opacity=".8"/>
+       <ellipse cx="150" cy="100" rx="8" ry="8" fill="#e8cda0" opacity=".8"/>
+       <ellipse cx="198" cy="100" rx="10" ry="10" fill="#4f8ce8" opacity=".9"/>
+       <ellipse cx="248" cy="100" rx="7" ry="7" fill="#c1440e" opacity=".8"/>
+       <ellipse cx="298" cy="100" rx="13" ry="13" fill="#e8ac5e" opacity=".8"/>
+       <line x1="40" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`,
+    4:`<path d="M20,65 Q60,45 100,58 Q130,48 162,62 Q192,52 232,62 Q262,48 302,58 Q332,52 345,66 L345,148 Q302,162 262,152 Q222,162 182,152 Q142,162 102,152 Q62,162 22,148 Z" fill="#2d8a4e" opacity=".65"/>
+       <rect x="20" y="148" width="325" height="38" fill="#1a6b9a" opacity=".5"/>`,
+    7:`<rect x="0" y="0" width="360" height="200" fill="#1a5c8a" opacity=".35"/>
+       <path d="M20,80 Q80,60 140,74 Q200,60 260,80 Q310,65 345,80 L345,130 Q310,120 260,130 Q200,120 140,130 Q80,120 20,130Z" fill="#2d8a4e" opacity=".55"/>`,
+    default:`<path d="M0,${H/2} Q${W/4},${H/4} ${W/2},${H/2} Q${3*W/4},${3*H/4} ${W},${H/2}" stroke="rgba(255,255,255,.12)" stroke-width="1.5" fill="none"/>
+             <circle cx="${W/2}" cy="${H/2}" r="${H/3}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+             <circle cx="${W/2}" cy="${H/2}" r="${H/6}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>`
   };
-
   const pattern = patterns[t.id] || patterns.default;
 
   let dotsSVG = '';
   dots.forEach((d,i)=>{
     const cx = (d.x/100)*W;
     const cy = (d.y/100)*H;
-    dotsSVG += `
-      <g id="sdot${i}" onclick="tapDot(${topicIdx},${i})" style="cursor:pointer">
-        <circle cx="${cx}" cy="${cy}" r="14" fill="#f59e0b" stroke="white" stroke-width="2.5" opacity=".95" class="sdot-circle"/>
-        <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="white" font-size="11" font-weight="800" font-family="Nunito">${i+1}</text>
-      </g>`;
+    dotsSVG += `<g id="sdot${i}" onclick="tapDot(${topicIdx},${i})" style="cursor:pointer">
+      <circle cx="${cx}" cy="${cy}" r="13" fill="#4f46e5" stroke="white" stroke-width="2.5" opacity=".95"/>
+      <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="white" font-size="11" font-weight="800" font-family="Manrope">${i+1}</text>
+    </g>`;
   });
 
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:10px">
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:12px">
     <rect width="${W}" height="${H}" fill="${bg}"/>
     ${pattern}
-    <!-- Grid lines -->
-    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-    <line x1="${W/2}" y1="0" x2="${W/2}" y2="${H}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+    <line x1="${W/2}" y1="0" x2="${W/2}" y2="${H}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
     ${dotsSVG}
   </svg>`;
 }
 
-// Update tapDot to work with SVG dots
-const _origTapDot = window.tapDot;
-window.tapDotSVG = function(topicIdx, dotIdx){
-  tapDot(topicIdx, dotIdx);
-};
-
 function updateSVGDot(dotIdx, state){
-  const g = document.getElementById('sdot'+dotIdx);
-  if(!g) return;
-  const circle = g.querySelector('circle');
-  if(!circle) return;
-  if(state==='ok') { circle.setAttribute('fill','#16a34a'); }
-  else if(state==='ko') { circle.setAttribute('fill','#ef4444'); }
-  else { circle.setAttribute('fill','#f59e0b'); }
+  const g = document.getElementById('sdot'+dotIdx); if(!g) return;
+  const circle = g.querySelector('circle'); if(!circle) return;
+  if(state==='ok') circle.setAttribute('fill','#059669');
+  else if(state==='ko') circle.setAttribute('fill','#dc2626');
+  else circle.setAttribute('fill','#4f46e5');
 }
 
-// ════════════════════════════════════
-// LANG
-// ════════════════════════════════════
+// ═══ LANG ═══
 function toggleLang(){
   ST.lang=ST.lang==='kk'?'ru':'kk';
   document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';
