@@ -91,9 +91,10 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 /* AUTH — фотодағыдай Login/Register tabs */
 #authScreen{
   background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  flex-direction:column;align-items:center;justify-content:flex-end;
   min-height:100vh;padding-bottom:0;
 }
+#authScreen.active{display:flex;}
 .auth-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 0;}
 .auth-logo{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;}
 .auth-sub{color:rgba(255,255,255,.75);font-size:13px;text-align:center;}
@@ -587,6 +588,11 @@ function showAuthScreen(){
   hideLoading();
   document.getElementById('mainScreen').classList.remove('active');
   document.getElementById('authScreen').classList.add('active');
+  // Форманы тазалау
+  document.getElementById('inLogin').value='';
+  document.getElementById('inPass').value='';
+  document.getElementById('authErr').textContent='';
+  setAuthMode(false);
 }
 
 function setAuthMode(reg){
@@ -662,10 +668,6 @@ async function logout(){
   ST.currentUser = null;
   document.getElementById('mainScreen').classList.remove('active');
   showAuthScreen();
-  document.getElementById('inLogin').value='';
-  document.getElementById('inPass').value='';
-  document.getElementById('authErr').textContent='';
-  setAuthMode(false);
 }
 
 // ════════════════════════════════════
