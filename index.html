@@ -32,24 +32,18 @@
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged };
 
-  // Firebase auth state — бір рет шақырылады
+  // Firebase auth state
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const snap = await get(ref(db, 'users/' + user.uid));
       if (snap.exists()) {
-        const data = snap.val();
-        window._fbUser = { uid: user.uid, email: user.email, ...data };
+        window._fbUser = { uid: user.uid, email: user.email, ...snap.val() };
       } else {
         window._fbUser = { uid: user.uid, email: user.email, login: user.email.split('@')[0], cls: '', isAdmin: false };
         await set(ref(db, 'users/' + user.uid), { login: window._fbUser.login, cls: '', isAdmin: false, createdAt: Date.now() });
       }
       window._authReady = true;
-      // Welcome экраны ашық болса — startSession шақырмаймыз, enterCourse күтеміз
-      const welcomeActive = document.getElementById('welcomeScreen').classList.contains('active');
-      if (!welcomeActive) {
-        startSession(window._fbUser);
-      }
-      // Бірақ Welcome ашық болса — enterCourse() батырмасы басылғанда proceed() өзі шақырады
+      startSession(window._fbUser);
     } else {
       window._fbUser = null;
       window._authReady = true;
@@ -1084,46 +1078,34 @@ function startSession(u){
   ST.currentUser = u;
   _prog = {};
   hideLoading();
-  document.getElementById('welcomeScreen').classList.remove('active');
   document.getElementById('authScreen').classList.remove('active');
-  // Тіркелген адам — тікелей курсқа, welcome жоқ
-  document.getElementById('mainScreen').classList.add('active');
-  document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
-  switchTab(0);
+
+  if(!localStorage.getItem('seen_welcome')) {
+    // 1-рет welcome көрсет
+    document.getElementById('welcomeScreen').classList.add('active');
+  } else {
+    // Тікелей курсқа
+    document.getElementById('welcomeScreen').classList.remove('active');
+    document.getElementById('mainScreen').classList.add('active');
+    document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
+    switchTab(0);
+  }
+
   document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
   document.getElementById('authBtn').disabled = false;
 }
+
 function enterCourse(){
   localStorage.setItem('seen_welcome', '1');
   document.getElementById('welcomeScreen').classList.remove('active');
-  document.getElementById('mainScreen').classList.remove('active');
-  document.getElementById('authScreen').classList.remove('active');
 
-  function proceed(){
-    if(window._fbUser) {
-      // Тіркелген → тікелей курсқа
-      document.getElementById('mainScreen').classList.add('active');
-      document.getElementById('nb2').classList.toggle('hidden', !window._fbUser.isAdmin);
-      if(!ST.currentUser) {
-        ST.currentUser = window._fbUser;
-        _prog = {};
-      }
-      switchTab(0);
-    } else {
-      // Тіркелмеген → авторизацияға
-      document.getElementById('authScreen').classList.add('active');
-    }
-  }
-
-  if(window._authReady) {
-    proceed();
+  // ST.currentUser startSession ішінде орнатылған — сенімді
+  if(ST.currentUser) {
+    document.getElementById('mainScreen').classList.add('active');
+    document.getElementById('nb2').classList.toggle('hidden', !ST.currentUser.isAdmin);
+    switchTab(0);
   } else {
-    // Auth әлі тексерілуде — 100ms сайын тексер
-    const check = setInterval(()=>{
-      if(window._authReady){ clearInterval(check); proceed(); }
-    }, 100);
-    // 5 секундтан артық күтпе
-    setTimeout(()=>{ clearInterval(check); document.getElementById('authScreen').classList.add('active'); }, 5000);
+    document.getElementById('authScreen').classList.add('active');
   }
 }
 async function logout(){
