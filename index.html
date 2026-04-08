@@ -47,6 +47,9 @@
     } else {
       window._fbUser = null;
       window._authReady = true;
+      // Барлық экрандарды жап, тек auth-ты ашат
+      document.getElementById('welcomeScreen').classList.remove('active');
+      document.getElementById('mainScreen').classList.remove('active');
       showAuthScreen();
     }
   });
@@ -76,12 +79,15 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 .screen { display: none; }
 .screen.active { display: block; }
 
-/* Full-screen overlay pages (welcome, auth) — fixed so they don't stack */
+/* Full-screen overlay pages — hidden by default, shown only when .active */
 #welcomeScreen, #authScreen {
+  display: none;
   position: fixed; inset: 0; z-index: 100;
   max-width: 480px; left: 50%; transform: translateX(-50%);
   overflow-y: auto;
 }
+#welcomeScreen.active { display: flex !important; }
+#authScreen.active    { display: flex !important; }
 
 /* Main screen is normal flow */
 #mainScreen { display: none; min-height: 100vh; padding-bottom: 80px; }
@@ -1078,14 +1084,16 @@ function startSession(u){
   ST.currentUser = u;
   _prog = {};
   hideLoading();
+
+  // Барлық overlay экрандарды алдымен жабамыз
   document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('welcomeScreen').classList.remove('active');
 
   if(!localStorage.getItem('seen_welcome')) {
     // 1-рет welcome көрсет
     document.getElementById('welcomeScreen').classList.add('active');
   } else {
     // Тікелей курсқа
-    document.getElementById('welcomeScreen').classList.remove('active');
     document.getElementById('mainScreen').classList.add('active');
     document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
     switchTab(0);
