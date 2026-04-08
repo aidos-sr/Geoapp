@@ -77,28 +77,48 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .screen.active{display:block;}
 
 /* LOADING */
-#loadingScreen{background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
-.spin{width:44px;height:44px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+#loadingScreen{
+  position:fixed;inset:0;background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;transition:opacity .4s ease;
+}
+#loadingScreen.fade-out{opacity:0;pointer-events:none;}
+.spin{width:48px;height:48px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;margin-bottom:20px;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.load-txt{color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;opacity:.8;}
+.load-logo{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;}
+.load-txt{color:rgba(255,255,255,.8);font-family:'Nunito',sans-serif;font-size:14px;}
 
-/* AUTH */
-#authScreen{background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;min-height:100vh;padding-bottom:32px;}
-.auth-logo{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;}
-.auth-sub{color:rgba(255,255,255,.75);font-size:13px;margin-bottom:28px;text-align:center;}
-.auth-card{background:#fff;border-radius:24px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
-.auth-title{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--gd);margin-bottom:20px;text-align:center;}
+/* AUTH — фотодағыдай Login/Register tabs */
+#authScreen{
+  background:linear-gradient(160deg,#14532d 0%,#16a34a 55%,#f59e0b 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  min-height:100vh;padding-bottom:0;
+}
+.auth-top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 0;}
+.auth-logo{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;}
+.auth-sub{color:rgba(255,255,255,.75);font-size:13px;text-align:center;}
+
+/* Bottom sheet style card */
+.auth-sheet{
+  background:#fff;border-radius:28px 28px 0 0;padding:0 24px 40px;
+  width:100%;max-width:480px;box-shadow:0 -8px 40px rgba(0,0,0,.2);
+}
+/* Login / Register tab bar */
+.auth-tabs{display:flex;border-bottom:1px solid #f3f4f6;margin-bottom:24px;}
+.auth-tab{flex:1;padding:18px 0 14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;text-align:center;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;margin-bottom:-1px;}
+.auth-tab.act{color:var(--g);border-bottom-color:var(--g);}
+
 .inp-wrap{margin-bottom:14px;}
 .inp-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
 .inp{width:100%;padding:13px 16px;border:2px solid #e5e7eb;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border .2s;background:#fff;}
 .inp:focus{border-color:var(--g);}
 .btn{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;}
 .btn:active{transform:scale(.97);}
-.btn-g{background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;margin-top:6px;}
-.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--muted);}
-.auth-switch b{color:var(--g);cursor:pointer;font-weight:800;}
+.btn-g{background:linear-gradient(135deg,var(--g),var(--gd));color:#fff;margin-top:2px;}
 .auth-err{color:var(--red);font-size:12px;text-align:center;margin-top:6px;min-height:16px;font-weight:700;}
-.firebase-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;color:rgba(255,255,255,.6);font-size:11px;}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:12px;}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#e5e7eb;}
+.firebase-badge{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;color:var(--muted);font-size:11px;}
 
 /* HEADER */
 .header{background:linear-gradient(135deg,var(--gd),var(--g));color:#fff;padding:16px 16px 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(0,0,0,.2);}
@@ -226,25 +246,32 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 </head>
 <body>
 
-<!-- ═══ LOADING ═══ -->
-<div id="loadingScreen" class="screen active">
+<!-- ═══ LOADING (fixed position overlay) ═══ -->
+<div id="loadingScreen">
+  <div class="load-logo">🌍 ГЕО 8</div>
   <div class="spin"></div>
-  <div class="load-txt">🔥 Firebase жүктелуде...</div>
+  <div class="load-txt">Firebase жүктелуде...</div>
 </div>
 
 <!-- ═══ AUTH ═══ -->
 <div id="authScreen" class="screen">
-  <div class="auth-logo">🌍 ГЕО 8</div>
-  <div class="auth-sub">8-сынып Geography қолданбасы</div>
-  <div class="auth-card">
-    <div class="auth-title" id="authTitle">Жүйеге кіру</div>
+  <div class="auth-top">
+    <div class="auth-logo">🌍 ГЕО 8</div>
+    <div class="auth-sub">8-сынып Geography қолданбасы</div>
+  </div>
+  <div class="auth-sheet">
+    <!-- Login / Register tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab act" id="tabLogin" onclick="setAuthMode(false)">Кіру</button>
+      <button class="auth-tab" id="tabReg" onclick="setAuthMode(true)">Тіркелу</button>
+    </div>
     <div class="inp-wrap">
-      <label class="inp-label">Email немесе логин</label>
-      <input class="inp" id="inLogin" placeholder="email@gmail.com" autocomplete="username" type="email">
+      <label class="inp-label">Email</label>
+      <input class="inp" id="inLogin" placeholder="email@gmail.com" type="email" autocomplete="username">
     </div>
     <div class="inp-wrap">
       <label class="inp-label">Пароль</label>
-      <input class="inp" id="inPass" type="password" placeholder="пароль енгізіңіз" autocomplete="current-password">
+      <input class="inp" id="inPass" type="password" placeholder="••••••••" autocomplete="current-password">
     </div>
     <div class="inp-wrap hidden" id="regExtra">
       <label class="inp-label">Сынып (мысалы: 8А)</label>
@@ -252,7 +279,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
     <div class="auth-err" id="authErr"></div>
     <button class="btn btn-g" id="authBtn" onclick="doAuth()">Кіру</button>
-    <div class="auth-switch">Аккаунт жоқ па? <b onclick="toggleReg()">Тіркелу</b></div>
     <div class="firebase-badge">🔒 Firebase арқылы қорғалған</div>
   </div>
 </div>
@@ -551,21 +577,28 @@ let ST = {
 // ════════════════════════════════════
 let isRegMode = false;
 
+function hideLoading(){
+  const ls = document.getElementById('loadingScreen');
+  ls.classList.add('fade-out');
+  setTimeout(()=>{ ls.style.display='none'; }, 450);
+}
+
 function showAuthScreen(){
-  document.getElementById('loadingScreen').classList.remove('active');
+  hideLoading();
   document.getElementById('mainScreen').classList.remove('active');
   document.getElementById('authScreen').classList.add('active');
 }
 
-function toggleReg(){
-  isRegMode = !isRegMode;
-  const L = ST.lang;
-  document.getElementById('authTitle').textContent = isRegMode ? (L==='kk'?'Тіркелу':'Регистрация') : (L==='kk'?'Жүйеге кіру':'Войти');
-  document.getElementById('authBtn').textContent   = isRegMode ? (L==='kk'?'Тіркелу':'Зарег.') : (L==='kk'?'Кіру':'Войти');
-  document.getElementById('regExtra').classList.toggle('hidden', !isRegMode);
-  document.getElementById('inLogin').type = isRegMode ? 'email' : 'email';
+function setAuthMode(reg){
+  isRegMode = reg;
+  document.getElementById('tabLogin').classList.toggle('act', !reg);
+  document.getElementById('tabReg').classList.toggle('act', reg);
+  document.getElementById('regExtra').classList.toggle('hidden', !reg);
+  document.getElementById('authBtn').textContent = reg ? 'Тіркелу' : 'Кіру';
   document.getElementById('authErr').textContent = '';
 }
+
+function toggleReg(){ setAuthMode(!isRegMode); }
 
 async function doAuth(){
   const email = document.getElementById('inLogin').value.trim();
@@ -613,7 +646,7 @@ async function doAuth(){
 function startSession(u){
   ST.currentUser = u;
   _prog = {}; // reset cache
-  document.getElementById('loadingScreen').classList.remove('active');
+  hideLoading();
   document.getElementById('authScreen').classList.remove('active');
   document.getElementById('mainScreen').classList.add('active');
   document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
@@ -632,10 +665,7 @@ async function logout(){
   document.getElementById('inLogin').value='';
   document.getElementById('inPass').value='';
   document.getElementById('authErr').textContent='';
-  isRegMode = false;
-  document.getElementById('authTitle').textContent='Жүйеге кіру';
-  document.getElementById('authBtn').textContent='Кіру';
-  document.getElementById('regExtra').classList.add('hidden');
+  setAuthMode(false);
 }
 
 // ════════════════════════════════════
@@ -748,13 +778,13 @@ async function openDetailAsync(idx){
     <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
   if(mp){
     mapH+=`<div class="tres ok">✅ ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
-  } else if(t.mapImg){
+  } else if(t.mapDots && t.mapDots.length){
     mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
-    mapH+=`<div class="map-wrap" id="mapWrap"><img src="${t.mapImg}" alt="map" onerror="this.src='https://placehold.co/800x400/dcfce7/16a34a?text=Карта'">`;
-    (t.mapDots||[]).forEach((d,di)=>{
-      mapH+=`<div class="map-dot unanswered" id="mdot${di}" style="left:${d.x}%;top:${d.y}%" onclick="tapDot(${idx},${di})" title="${d.label}">${di+1}</div>`;
-    });
-    mapH+=`</div><div class="map-opts" id="mapOpts">`;
+    // Use inline SVG world map instead of external img
+    mapH+=`<div class="map-wrap" id="mapWrap" style="background:#d0e8f5;min-height:180px;">
+      ${buildMapSVG(t, idx)}
+    </div>`;
+    mapH+=`<div class="map-opts" id="mapOpts">`;
     (t.mapOpts||[]).forEach((o,oi)=>{
       mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
     });
@@ -835,8 +865,8 @@ function selectMapOpt(opt, oi){
 async function tapDot(topicIdx, dotIdx){
   if(!ST.selectedMapOpt){ alert(ST.lang==='kk'?'Алдымен жауапты таңдаңыз!':'Сначала выберите ответ!'); return; }
   ST.mapAnswers[dotIdx]=ST.selectedMapOpt;
-  const dot=document.getElementById('mdot'+dotIdx);
-  if(dot){ dot.classList.remove('unanswered','answered-ok','answered-ko'); dot.classList.add('answered-ok'); dot.title=ST.selectedMapOpt; }
+  // Update SVG dot color to green (selected)
+  updateSVGDot(dotIdx, 'ok');
   const T = await getTopics();
   const t = T[topicIdx];
   const allAnswered = (t.mapDots||[]).every((_,i)=>ST.mapAnswers[i]!==undefined);
@@ -849,10 +879,9 @@ async function submitMap(topicIdx){
   const t = T[topicIdx];
   let correct=0;
   (t.mapDots||[]).forEach((d,i)=>{
-    const dot=document.getElementById('mdot'+i);
     const answered=ST.mapAnswers[i];
-    if(answered===d.correct){ correct++; if(dot){dot.classList.remove('answered-ok','answered-ko');dot.classList.add('answered-ok');} }
-    else { if(dot){dot.classList.remove('answered-ok','unanswered');dot.classList.add('answered-ko');} }
+    if(answered===d.correct){ correct++; updateSVGDot(i,'ok'); }
+    else { updateSVGDot(i,'ko'); }
   });
   const total=(t.mapDots||[]).length;
   const pts=correct>=total?4:correct>0?2:0;
@@ -1018,6 +1047,83 @@ async function saveModal(){
 }
 
 function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }
+
+// ════════════════════════════════════
+// SVG MAP BUILDER
+// ════════════════════════════════════
+function buildMapSVG(t, topicIdx){
+  const dots = t.mapDots || [];
+  const W = 360, H = 200;
+  // Background gradient based on topic
+  const bgs = {
+    1:'#0a1628', 2:'#1a3a5c', 3:'#0d2137',
+    4:'#2d6a4f', 5:'#1b4332', 6:'#0c2340',
+    7:'#164e63', 8:'#14532d', 9:'#1e3a2f', 10:'#1a365d'
+  };
+  const bg = bgs[t.id] || '#1a3a5c';
+
+  // Simple visual patterns per topic type
+  const patterns = {
+    1: `<!-- Solar system -->
+      <ellipse cx="40" cy="100" rx="30" ry="30" fill="#FDB813" opacity=".9"/>
+      <ellipse cx="110" cy="100" rx="6" ry="6" fill="#b5b5b5" opacity=".8"/>
+      <ellipse cx="155" cy="100" rx="9" ry="9" fill="#e8cda0" opacity=".8"/>
+      <ellipse cx="205" cy="100" rx="11" ry="11" fill="#4fa8e8" opacity=".9"/>
+      <ellipse cx="258" cy="100" rx="8" ry="8" fill="#c1440e" opacity=".8"/>
+      <ellipse cx="310" cy="100" rx="14" ry="14" fill="#e8ac5e" opacity=".8"/>
+      <line x1="40" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,.1)" stroke-width="1"/>`,
+    4: `<!-- World map simplified -->
+      <path d="M20,60 Q60,40 100,55 Q130,45 160,60 Q190,50 230,60 Q260,45 300,55 Q330,50 345,65 L345,150 Q300,165 260,155 Q220,165 180,155 Q140,165 100,155 Q60,165 20,150 Z" fill="#2d8a4e" opacity=".7"/>
+      <path d="M100,55 Q120,70 140,65 Q160,75 180,65 Q200,70 220,60" stroke="none" fill="#3aa862" opacity=".5"/>
+      <rect x="20" y="150" width="325" height="40" fill="#1a6b9a" opacity=".6"/>`,
+    7: `<!-- Oceans -->
+      <rect x="0" y="0" width="360" height="200" fill="#1a6b9a" opacity=".4"/>
+      <path d="M20,80 Q80,60 140,75 Q200,60 260,80 Q310,65 345,80 L345,130 Q310,120 260,130 Q200,120 140,130 Q80,120 20,130Z" fill="#2d8a4e" opacity=".6"/>
+      <path d="M60,100 Q100,90 140,100 Q180,90 220,100" stroke="#4ade80" stroke-width="1" fill="none" opacity=".5"/>`,
+    default: `<!-- Generic geographic pattern -->
+      <path d="M0,${H/2} Q${W/4},${H/4} ${W/2},${H/2} Q${3*W/4},${3*H/4} ${W},${H/2}" stroke="rgba(255,255,255,.15)" stroke-width="2" fill="none"/>
+      <circle cx="${W/2}" cy="${H/2}" r="${H/3}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+      <circle cx="${W/2}" cy="${H/2}" r="${H/5}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`
+  };
+
+  const pattern = patterns[t.id] || patterns.default;
+
+  let dotsSVG = '';
+  dots.forEach((d,i)=>{
+    const cx = (d.x/100)*W;
+    const cy = (d.y/100)*H;
+    dotsSVG += `
+      <g id="sdot${i}" onclick="tapDot(${topicIdx},${i})" style="cursor:pointer">
+        <circle cx="${cx}" cy="${cy}" r="14" fill="#f59e0b" stroke="white" stroke-width="2.5" opacity=".95" class="sdot-circle"/>
+        <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="white" font-size="11" font-weight="800" font-family="Nunito">${i+1}</text>
+      </g>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;border-radius:10px">
+    <rect width="${W}" height="${H}" fill="${bg}"/>
+    ${pattern}
+    <!-- Grid lines -->
+    <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    <line x1="${W/2}" y1="0" x2="${W/2}" y2="${H}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+    ${dotsSVG}
+  </svg>`;
+}
+
+// Update tapDot to work with SVG dots
+const _origTapDot = window.tapDot;
+window.tapDotSVG = function(topicIdx, dotIdx){
+  tapDot(topicIdx, dotIdx);
+};
+
+function updateSVGDot(dotIdx, state){
+  const g = document.getElementById('sdot'+dotIdx);
+  if(!g) return;
+  const circle = g.querySelector('circle');
+  if(!circle) return;
+  if(state==='ok') { circle.setAttribute('fill','#16a34a'); }
+  else if(state==='ko') { circle.setAttribute('fill','#ef4444'); }
+  else { circle.setAttribute('fill','#f59e0b'); }
+}
 
 // ════════════════════════════════════
 // LANG
