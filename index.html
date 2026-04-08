@@ -337,6 +337,17 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 .answer-letter { width: 26px; height: 26px; border-radius: 8px; background: var(--bg); border: 2px solid var(--border); font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; }
 .answer-select { padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700; background: #fafafa; color: var(--text); outline: none; cursor: pointer; }
 .answer-select:focus { border-color: var(--accent); }
+
+/* ── MAP DOTS EDITOR ── */
+.map-dots-editor { background: #f8f7ff; border: 2px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.adm-dot-add { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 700; font-family: 'Manrope',sans-serif; cursor: pointer; }
+.dot-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 6px; align-items: center; margin-bottom: 8px; background: #fff; border-radius: 10px; padding: 8px 10px; border: 1px solid var(--border); }
+.dot-row input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Manrope',sans-serif; font-size: 12px; outline: none; color: var(--text); background: #fafafa; width: 100%; }
+.dot-row input:focus { border-color: var(--accent); }
+.dot-row-label { font-size: 9px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 2px; }
+.dot-del { background: #fee2e2; border: none; border-radius: 7px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--red); font-size: 14px; }
+.map-preview-wrap { background: #1a2744; border-radius: 12px; overflow: hidden; margin-top: 10px; position: relative; }
+.map-preview-wrap svg { width: 100%; display: block; }
 </style>
 </head>
 <body>
@@ -456,9 +467,26 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
     <div class="modal-section">Ашық сұрақ</div>
     <label class="inp-label">Ашық сұрақ (ҚАЗ)</label>
-    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні" style="margin-bottom:16px">
+    <input class="adm-inp" id="mOpenQ" placeholder="Ашық сұрақ мәтіні">
 
-    <button class="btn btn-primary" onclick="saveModal()">
+    <div class="modal-section">🗺️ Карта тапсырмасы</div>
+    <label class="inp-label">Карта сұрағы</label>
+    <input class="adm-inp" id="mMapQ" placeholder="Мысалы: Материктерді картада табыңыз">
+    <label class="inp-label">Жауап нұсқалары (үтір арқылы)</label>
+    <input class="adm-inp" id="mMapOpts" placeholder="Мысалы: Азия,Еуропа,Африка,Австралия">
+
+    <div class="map-dots-editor" id="mapDotsEditor">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;">Нүктелер тізімі</span>
+        <button class="adm-dot-add" onclick="addMapDotRow()">+ Нүкте қосу</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">
+        X, Y — пайыздық орын (0–100). Мысалы: X:50, Y:50 = ортасы
+      </div>
+      <div id="dotRowsWrap"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveModal()" style="margin-top:16px">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
       Сақтау
     </button>
@@ -1129,19 +1157,72 @@ async function openEdit(i){
     document.getElementById('mC').value=t.opts?.[2]||'';
     document.getElementById('mD').value=t.opts?.[3]||'';
     document.getElementById('mOpenQ').value=t.openq||'';
+    // Map fields
+    document.getElementById('mMapQ').value=t.mapq||'';
+    document.getElementById('mMapOpts').value=(t.mapOpts||[]).join(', ');
+    // Load dot rows
+    const dots = t.mapDots||[];
+    document.getElementById('dotRowsWrap').innerHTML='';
+    dots.forEach(d=>addMapDotRow(d));
   } else {
-    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ'].forEach(id=>document.getElementById(id).value='');
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ','mMapQ','mMapOpts'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('mQAns').value='A';
+    document.getElementById('dotRowsWrap').innerHTML='';
   }
   document.getElementById('editModal').classList.add('show');
 }
 
 function closeModal(){ document.getElementById('editModal').classList.remove('show'); }
 
+// ── MAP DOT ROW EDITOR ──
+let _dotRowId = 0;
+function addMapDotRow(d){
+  const id = _dotRowId++;
+  const label = d?.label||'';
+  const correct = d?.correct||'';
+  const x = d?.x!==undefined ? d.x : '';
+  const y = d?.y!==undefined ? d.y : '';
+  const wrap = document.getElementById('dotRowsWrap');
+  const row = document.createElement('div');
+  row.className='dot-row';
+  row.id='drow'+id;
+  row.innerHTML=`
+    <div>
+      <span class="dot-row-label">Нүкте атауы</span>
+      <input placeholder="Мысалы: Азия" value="${label}" class="drow-label">
+    </div>
+    <div>
+      <span class="dot-row-label">Дұрыс жауап</span>
+      <input placeholder="Азия" value="${correct}" class="drow-correct">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+      <div><span class="dot-row-label">X %</span><input type="number" min="0" max="100" placeholder="50" value="${x}" class="drow-x"></div>
+      <div><span class="dot-row-label">Y %</span><input type="number" min="0" max="100" placeholder="50" value="${y}" class="drow-y"></div>
+    </div>
+    <button class="dot-del" onclick="document.getElementById('drow${id}').remove()" title="Өшіру">✕</button>`;
+  wrap.appendChild(row);
+}
+
+function getMapDots(){
+  const rows = document.querySelectorAll('#dotRowsWrap .dot-row');
+  const dots = [];
+  rows.forEach(row=>{
+    const label   = row.querySelector('.drow-label').value.trim();
+    const correct = row.querySelector('.drow-correct').value.trim();
+    const x       = parseFloat(row.querySelector('.drow-x').value)||50;
+    const y       = parseFloat(row.querySelector('.drow-y').value)||50;
+    if(label) dots.push({label, correct: correct||label, x, y});
+  });
+  return dots;
+}
+
 async function saveModal(){
   const kk=document.getElementById('mTKk').value.trim();
   if(!kk){alert('Тақырып атауын жазыңыз!');return;}
   const T = await getTopics();
+  const mapOptsRaw = document.getElementById('mMapOpts').value.trim();
+  const mapOpts = mapOptsRaw ? mapOptsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const mapDots = getMapDots();
   const entry={
     id: editIdx>=0?T[editIdx].id:Date.now(),
     kk, ru:document.getElementById('mTRu').value.trim(),
@@ -1151,15 +1232,13 @@ async function saveModal(){
     ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',
     opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],
     openq:document.getElementById('mOpenQ').value.trim(),
-    mapq:'', mapImg:'', mapDots:[], mapOpts:[]
+    mapq: document.getElementById('mMapQ').value.trim(),
+    mapImg: '',
+    mapDots,
+    mapOpts
   };
-  if(editIdx>=0){
-    entry.mapq=T[editIdx].mapq||'';
-    entry.mapImg=T[editIdx].mapImg||'';
-    entry.mapDots=T[editIdx].mapDots||[];
-    entry.mapOpts=T[editIdx].mapOpts||[];
-    T[editIdx]=entry;
-  } else T.push(entry);
+  if(editIdx>=0) T[editIdx]=entry;
+  else T.push(entry);
   await saveTopics(T);
   closeModal();
   renderAdminAsync();
