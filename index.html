@@ -1013,16 +1013,10 @@ function hideLoading(){
 // Welcome screen → Auth screen transition
 function showAuthScreen(){
   hideLoading();
-  // Барлық экрандарды жабамыз
   document.getElementById('mainScreen').classList.remove('active');
-  document.getElementById('authScreen').classList.remove('active');
   document.getElementById('welcomeScreen').classList.remove('active');
-  // Welcome тек бір рет көрсетіледі
-  if(localStorage.getItem('seen_welcome')) {
-    document.getElementById('authScreen').classList.add('active');
-  } else {
-    document.getElementById('welcomeScreen').classList.add('active');
-  }
+  // Тіркелмеген / шыққан адам — тікелей авторизацияға
+  document.getElementById('authScreen').classList.add('active');
   document.getElementById('inLogin').value='';
   document.getElementById('inPass').value='';
   document.getElementById('authErr').textContent='';
@@ -1080,12 +1074,12 @@ function startSession(u){
   hideLoading();
   document.getElementById('authScreen').classList.remove('active');
 
-  if(!localStorage.getItem('seen_welcome')) {
-    // Тіркелген болса да 1-рет welcome көрсет
+  // Әр пайдаланушыға UID негізінде 1 рет welcome
+  const welcomeKey = 'seen_welcome_' + u.uid;
+  if(!localStorage.getItem(welcomeKey)) {
     document.getElementById('mainScreen').classList.remove('active');
     document.getElementById('welcomeScreen').classList.add('active');
   } else {
-    // Тікелей курсқа
     document.getElementById('welcomeScreen').classList.remove('active');
     document.getElementById('mainScreen').classList.add('active');
     document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
@@ -1096,9 +1090,11 @@ function startSession(u){
 }
 
 function enterCourse(){
-  localStorage.setItem('seen_welcome', '1');
+  // UID-ке байланысты welcome-ды бір рет ғана белгіле
+  if(ST.currentUser) {
+    localStorage.setItem('seen_welcome_' + ST.currentUser.uid, '1');
+  }
   document.getElementById('welcomeScreen').classList.remove('active');
-  // ST.currentUser startSession-да орнатылған — 100% дайын
   if(ST.currentUser) {
     document.getElementById('mainScreen').classList.add('active');
     document.getElementById('nb2').classList.toggle('hidden', !ST.currentUser.isAdmin);
