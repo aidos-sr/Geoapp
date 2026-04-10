@@ -669,6 +669,38 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .msec-panel { display: none; margin-top: 2px; }
 .msec-panel.open { display: block; }
 
+/* ── MULTI-TASK BLOCKS ── */
+.mtask-block {
+  background: #fafbff; border: 1px solid #c7d2fe; border-radius: 14px;
+  padding: 14px; margin-top: 10px; position: relative;
+}
+.mtask-block.open-block { background: #f0fdf4; border-color: #6ee7b7; }
+.mtask-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mtask-block-label {
+  font-size: 11px; font-weight: 800; color: var(--accent);
+  letter-spacing: .5px; text-transform: uppercase;
+}
+.mtask-block.open-block .mtask-block-label { color: var(--green); }
+.mtask-remove {
+  width: 26px; height: 26px; border-radius: 8px; border: none;
+  background: #fef2f2; color: var(--red); font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; flex-shrink: 0;
+}
+.mtask-add {
+  width: 100%; padding: 10px; border: 2px dashed #c7d2fe;
+  border-radius: 12px; background: #fafbff; color: var(--accent);
+  font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 6px; margin-top: 8px; transition: background .2s;
+}
+.mtask-add:hover { background: #ede9fe; }
+.mtask-add.green { border-color: #6ee7b7; color: var(--green); background: #f0fdf4; }
+.mtask-add.green:hover { background: #d1fae5; }
+
 /* Map editor inside modal */
 .map-editor-wrap {
   border: 2px dashed var(--border); border-radius: 14px;
@@ -1040,31 +1072,20 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
     <!-- ТЕСТ ПАНЕЛІ -->
     <div class="msec-panel" id="panelTest">
-      <div style="background:#fafbff;border:1px solid #c7d2fe;border-radius:14px;padding:14px;margin-top:10px">
-        <label class="inp-label">Сұрақ (ҚАЗ)</label>
-        <input class="adm-inp" id="mQKk" placeholder="Сұрақ мәтіні">
-        <div class="ans-grid">
-          <div><label class="inp-label">A жауабы</label><input class="adm-inp" id="mA" placeholder="A. ..."></div>
-          <div><label class="inp-label">B жауабы</label><input class="adm-inp" id="mB" placeholder="B. ..."></div>
-          <div><label class="inp-label">C жауабы</label><input class="adm-inp" id="mC" placeholder="C. ..."></div>
-          <div><label class="inp-label">D жауабы</label><input class="adm-inp" id="mD" placeholder="D. ..."></div>
-        </div>
-        <label class="inp-label">Дұрыс жауап</label>
-        <select class="answer-select adm-inp" id="mQAns" style="margin-bottom:0;width:100%">
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="D">D</option>
-        </select>
-      </div>
+      <div id="testBlocksContainer"></div>
+      <button class="mtask-add" onclick="addTestBlock()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Тест қосу
+      </button>
     </div>
 
     <!-- АШЫҚ СҰРАҚ ПАНЕЛІ -->
     <div class="msec-panel" id="panelOpen">
-      <div style="background:#f0fdf4;border:1px solid #6ee7b7;border-radius:14px;padding:14px;margin-top:10px">
-        <label class="inp-label" style="color:var(--green)">Ашық сұрақ (ҚАЗ)</label>
-        <textarea class="adm-ta" id="mOpenQ" rows="3" placeholder="Оқушы өз сөзімен жауап беретін сұрақ..." style="margin-bottom:0"></textarea>
-      </div>
+      <div id="openBlocksContainer"></div>
+      <button class="mtask-add green" onclick="addOpenBlock()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Ашық сұрақ қосу
+      </button>
     </div>
 
     <!-- КАРТАЛЫҚ ТЕСТ ПАНЕЛІ -->
@@ -1207,7 +1228,12 @@ async function saveTopics(t) {
 }
 function calcPts(uid, T, prog) {
   return T.reduce((s,t) => {
+    // Legacy fields
     s += (prog[pk(uid,t.id,'test')]||0) + (prog[pk(uid,t.id,'open')]||0) + (prog[pk(uid,t.id,'map')]||0);
+    // Extra tests
+    (t.tests||[]).forEach((_,i)=>{ s += (prog[pk(uid,t.id,'test_'+(i+1))]||0); });
+    // Extra opens
+    (t.opens||[]).forEach((_,i)=>{ s += (prog[pk(uid,t.id,'open_'+(i+1))]||0); });
     return s;
   }, 0);
 }
@@ -1667,39 +1693,65 @@ async function openDetailAsync(idx){
     </div>`;
   }
 
-  let testH=`<div class="tsec">
-    <div class="thead">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
-      ${lang==='kk'?'Тапсырма 1 — Тест':'Задание 1 — Тест'}${tp?` <span class="schip">+${tp} балл</span>`:''}
-    </div>
-    <div class="tq">${t.qkk}</div>`;
-  if(tp){
-    testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp+' балл':'Выполнено! '+tp+' баллов'}</div>`;
-  } else {
-    t.opts.forEach((o,i)=>{
-      testH+=`<button class="opt" id="opt${i}" onclick="answerTest(${idx},${i},'${t.ans}')">${o}</button>`;
+  let testH='';
+  // Collect all test tasks: legacy + extras
+  const allTests = [];
+  if(t.qkk) allTests.push({q:t.qkk, opts:t.opts||[], ans:t.ans||'A'});
+  (t.tests||[]).forEach(tb=>{ if(tb.q) allTests.push({q:tb.q, opts:[tb.a,tb.b,tb.c,tb.d], ans:tb.ans||'A'}); });
+
+  if(allTests.length>0){
+    allTests.forEach((task, ti)=>{
+      const progKey = ti===0 ? 'test' : 'test_'+ti;
+      const tp_ti = prog[pk(u.uid,t.id,progKey)]||0;
+      testH+=`<div class="tsec">
+        <div class="thead">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
+          ${lang==='kk'?'Тест':'Тест'} ${allTests.length>1?ti+1:''}${tp_ti?` <span class="schip">+${tp_ti} балл</span>`:''}
+        </div>
+        <div class="tq">${task.q}</div>`;
+      if(tp_ti){
+        testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp_ti+' балл':'Выполнено! '+tp_ti+' баллов'}</div>`;
+      } else {
+        task.opts.forEach((o,oi)=>{
+          testH+=`<button class="opt" id="opt_${ti}_${oi}" onclick="answerTestMulti(${idx},${ti},'${task.ans}',${oi})">${o}</button>`;
+        });
+      }
+      testH+=`</div>`;
     });
   }
-  testH+=`</div>`;
 
-  let openH=`<div class="tsec">
-    <div class="thead">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      ${lang==='kk'?'Тапсырма 2 — Ашық сұрақ':'Задание 2 — Открытый вопрос'}${op?` <span class="schip">+${op} балл</span>`:''}
-    </div>
-    <div class="tq">${t.openq||'Тақырып бойынша 2-3 сөйлем жазыңыз.'}</div>`;
-  if(op){
-    openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op+' балл':'Выполнено! '+op+' баллов'}</div>`;
-  } else {
-    openH+=`<textarea class="open-inp" id="openAns" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
-    <button class="tsub" onclick="submitOpen(${idx})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+  let openH='';
+  // Collect all open tasks: legacy + extras
+  const allOpens = [];
+  if(t.openq) allOpens.push({q:t.openq});
+  (t.opens||[]).forEach(ob=>{ if(ob.q) allOpens.push({q:ob.q}); });
+
+  if(allOpens.length>0){
+    allOpens.forEach((task, oi)=>{
+      const progKey = oi===0 ? 'open' : 'open_'+oi;
+      const op_oi = prog[pk(u.uid,t.id,progKey)]||0;
+      openH+=`<div class="tsec">
+        <div class="thead">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          ${lang==='kk'?'Ашық сұрақ':'Открытый вопрос'} ${allOpens.length>1?oi+1:''}${op_oi?` <span class="schip">+${op_oi} балл</span>`:''}
+        </div>
+        <div class="tq">${task.q}</div>`;
+      if(op_oi){
+        openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op_oi+' балл':'Выполнено! '+op_oi+' баллов'}</div>`;
+      } else {
+        openH+=`<textarea class="open-inp" id="openAns_${oi}" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
+        <button class="tsub" onclick="submitOpenMulti(${idx},${oi})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+      }
+      openH+=`</div>`;
+    });
   }
-  openH+=`</div>`;
 
-  let mapH=`<div class="tsec">
+  let mapH='';
+  if(t.mapq || (t.mapDots&&t.mapDots.length)){
+  mapH=`<div class="tsec" id="mapTaskSec">
     <div class="thead">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-      ${lang==='kk'?'Тапсырма 3 — Картамен жұмыс':'Задание 3 — Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}
+      ${lang==='kk'?'Картамен жұмыс':'Работа с картой'}${mp?` <span class="schip">+${mp} балл</span>`:''}
     </div>
     <div class="tq">${t.mapq||'Картадан керекті жерлерді белгілеңіз.'}</div>`;
   if(mp){
@@ -1714,6 +1766,7 @@ async function openDetailAsync(idx){
     mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
   }
   mapH+=`</div>`;
+  } // end if mapq
 
   document.getElementById('tabTopics').innerHTML=`
     <div class="dwrap">
@@ -1727,46 +1780,64 @@ async function openDetailAsync(idx){
 }
 
 // ═══ ANSWER HANDLERS ═══
-async function answerTest(idx, optIdx, correct){
+async function answerTestMulti(idx, taskIdx, correct, optIdx){
   const letters=['A','B','C','D'];
   const chosen = letters[optIdx];
   const isOk = chosen === correct;
+  // Disable all opts for this task
   for(let i=0;i<4;i++){
-    const b=document.getElementById('opt'+i);
+    const b=document.getElementById(`opt_${taskIdx}_${i}`);
     if(b){ b.disabled=true; if(letters[i]===correct) b.classList.add('correct'); else if(i===optIdx&&!isOk) b.classList.add('wrong'); }
   }
+  const T = await getTopics();
+  const t = T[idx];
+  const progKey = taskIdx===0 ? 'test' : 'test_'+taskIdx;
   if(isOk){
-    const T = await getTopics();
-    const t = T[idx];
     const prog = await getProg();
-    prog[pk(ST.currentUser.uid, t.id, 'test')] = 5;
+    prog[pk(ST.currentUser.uid, t.id, progKey)] = 5;
     await saveProg(prog);
     setTimeout(()=>{
-      const sec=document.querySelector('.tsec');
-      if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Дұрыс! +5 балл</div>');
+      const btn=document.getElementById(`opt_${taskIdx}_0`);
+      if(btn){
+        const sec=btn.closest('.tsec');
+        if(sec) sec.querySelector('.tq').insertAdjacentHTML('afterend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Дұрыс! +5 балл</div>');
+      }
     },600);
   } else {
     setTimeout(()=>{
-      const firstSec=document.querySelector('.tsec');
-      if(firstSec) firstSec.insertAdjacentHTML('beforeend','<div class="tres ko"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
+      const btn=document.getElementById(`opt_${taskIdx}_0`);
+      if(btn){
+        const sec=btn.closest('.tsec');
+        if(sec) sec.insertAdjacentHTML('beforeend','<div class="tres ko"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> '+(ST.lang==='kk'?'Қате! Қайта оқыңыз':'Неверно! Перечитайте')+'</div>');
+      }
     },600);
   }
 }
-async function submitOpen(idx){
+
+// Legacy wrapper (still used by DEF_TOPICS rendered via old path)
+async function answerTest(idx, optIdx, correct){
+  await answerTestMulti(idx, 0, correct, optIdx);
+}
+
+async function submitOpenMulti(idx, taskIdx){
   const T = await getTopics();
   const t = T[idx];
-  const ans = document.getElementById('openAns').value.trim();
+  const ta = document.getElementById('openAns_'+taskIdx);
+  const ans = ta ? ta.value.trim() : '';
   if(ans.length<10){ alert(ST.lang==='kk'?'Кем дегенде 10 символ жазыңыз!':'Напишите хотя бы 10 символов!'); return; }
+  const progKey = taskIdx===0 ? 'open' : 'open_'+taskIdx;
   const prog = await getProg();
-  prog[pk(ST.currentUser.uid, t.id, 'open')] = 3;
+  prog[pk(ST.currentUser.uid, t.id, progKey)] = 3;
   await saveProg(prog);
-  const openSec = document.querySelectorAll('.tsec')[1];
-  if(openSec){
-    const ta=openSec.querySelector('.open-inp'); const sb=openSec.querySelector('.tsub');
-    if(ta) ta.remove(); if(sb) sb.remove();
-    openSec.insertAdjacentHTML('beforeend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
+  if(ta){
+    const sec = ta.closest('.tsec');
+    const sb = sec?.querySelector('.tsub');
+    ta.remove(); if(sb) sb.remove();
+    sec?.insertAdjacentHTML('beforeend','<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> '+(ST.lang==='kk'?'Қабылданды! +3 балл':'Принято! +3 баллов')+'</div>');
   }
 }
+
+async function submitOpen(idx){ await submitOpenMulti(idx, 0); }
 function selectMapOpt(opt, oi){
   ST.selectedMapOpt=opt;
   document.querySelectorAll('.map-opt').forEach(b=>b.classList.remove('selected'));
@@ -1797,7 +1868,7 @@ async function submitMap(topicIdx){
     prog[pk(ST.currentUser.uid, t.id, 'map')] = pts;
     await saveProg(prog);
   }
-  const mapSec=document.querySelectorAll('.tsec')[2];
+  const mapSec=document.getElementById('mapTaskSec');
   if(mapSec){
     const sbtn=document.getElementById('mapSubmitBtn'); if(sbtn) sbtn.remove();
     mapSec.insertAdjacentHTML('beforeend',`<div class="tres ${pts>0?'ok':'ko'}">${pts>0?'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>':'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'} ${correct}/${total} дұрыс · +${pts} балл</div>`);
@@ -1963,6 +2034,11 @@ async function openEdit(i){
 
   // Reset all panels
   ['test','open','map'].forEach(s=>closeSectionPanel(s));
+  // Reset multi-blocks
+  window._testBlocks = [];
+  window._openBlocks = [];
+  renderTestBlocks();
+  renderOpenBlocks();
   // Reset map editor
   window._mapDots = [];
   window._mapImgData = '';
@@ -1976,17 +2052,22 @@ async function openEdit(i){
     document.getElementById('mTRu').value=t.ru||'';
     document.getElementById('mTxtKk').value=strip(t.tkk||'');
     document.getElementById('mTxtRu').value=strip(t.tru||'');
-    document.getElementById('mQKk').value=t.qkk||'';
-    document.getElementById('mQAns').value=t.ans||'A';
-    document.getElementById('mA').value=t.opts?.[0]||'';
-    document.getElementById('mB').value=t.opts?.[1]||'';
-    document.getElementById('mC').value=t.opts?.[2]||'';
-    document.getElementById('mD').value=t.opts?.[3]||'';
-    document.getElementById('mOpenQ').value=t.openq||'';
+
+    // Load test blocks: first from legacy field, then from tests[]
+    const legacyTest = t.qkk ? [{q:t.qkk, a:t.opts?.[0]||'', b:t.opts?.[1]||'', c:t.opts?.[2]||'', d:t.opts?.[3]||'', ans:t.ans||'A'}] : [];
+    const extraTests = t.tests || [];
+    window._testBlocks = [...legacyTest, ...extraTests];
+    renderTestBlocks();
+    if(window._testBlocks.length>0) openSectionPanel('test');
+
+    // Load open blocks: first from legacy, then from opens[]
+    const legacyOpen = t.openq ? [{q:t.openq}] : [];
+    const extraOpens = t.opens || [];
+    window._openBlocks = [...legacyOpen, ...extraOpens];
+    renderOpenBlocks();
+    if(window._openBlocks.length>0) openSectionPanel('open');
+
     document.getElementById('mMapQ').value=t.mapq||'';
-    // Open panels that have data
-    if(t.qkk) openSectionPanel('test');
-    if(t.openq) openSectionPanel('open');
     if(t.mapq || t.mapImg || (t.mapDots&&t.mapDots.length)){
       openSectionPanel('map');
       window._mapDots = (t.mapDots||[]).map(d=>({...d}));
@@ -2000,8 +2081,7 @@ async function openEdit(i){
       renderMapDots();
     }
   } else {
-    ['mTKk','mTRu','mTxtKk','mTxtRu','mQKk','mA','mB','mC','mD','mOpenQ','mMapQ'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('mQAns').value='A';
+    ['mTKk','mTRu','mTxtKk','mTxtRu','mMapQ'].forEach(id=>document.getElementById(id).value='');
     window._mapOpts=[];
   }
   document.getElementById('editModal').classList.add('show');
@@ -2026,6 +2106,71 @@ function closeSectionPanel(sec){
   panel.classList.remove('open');
   btn.className='msec-btn';
 }
+
+// ═══ MULTI-TASK BLOCK FUNCTIONS ═══
+window._testBlocks = []; // [{q, a, b, c, d, ans}]
+window._openBlocks = []; // [{q}]
+
+function renderTestBlocks(){
+  const container = document.getElementById('testBlocksContainer');
+  if(!container) return;
+  container.innerHTML = window._testBlocks.map((tb, idx) => `
+    <div class="mtask-block" id="testBlock${idx}">
+      <div class="mtask-block-header">
+        <span class="mtask-block-label">Тест ${idx+1}</span>
+        <button class="mtask-remove" onclick="removeTestBlock(${idx})" title="Жою">✕</button>
+      </div>
+      <label class="inp-label">Сұрақ (ҚАЗ)</label>
+      <input class="adm-inp" placeholder="Сұрақ мәтіні" value="${escH(tb.q)}" oninput="window._testBlocks[${idx}].q=this.value">
+      <div class="ans-grid">
+        <div><label class="inp-label">A жауабы</label><input class="adm-inp" placeholder="A. ..." value="${escH(tb.a)}" oninput="window._testBlocks[${idx}].a=this.value"></div>
+        <div><label class="inp-label">B жауабы</label><input class="adm-inp" placeholder="B. ..." value="${escH(tb.b)}" oninput="window._testBlocks[${idx}].b=this.value"></div>
+        <div><label class="inp-label">C жауабы</label><input class="adm-inp" placeholder="C. ..." value="${escH(tb.c)}" oninput="window._testBlocks[${idx}].c=this.value"></div>
+        <div><label class="inp-label">D жауабы</label><input class="adm-inp" placeholder="D. ..." value="${escH(tb.d)}" oninput="window._testBlocks[${idx}].d=this.value"></div>
+      </div>
+      <label class="inp-label">Дұрыс жауап</label>
+      <select class="answer-select adm-inp" style="width:100%;margin-bottom:0" onchange="window._testBlocks[${idx}].ans=this.value">
+        ${['A','B','C','D'].map(l=>`<option value="${l}"${tb.ans===l?' selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+
+function renderOpenBlocks(){
+  const container = document.getElementById('openBlocksContainer');
+  if(!container) return;
+  container.innerHTML = window._openBlocks.map((ob, idx) => `
+    <div class="mtask-block open-block" id="openBlock${idx}">
+      <div class="mtask-block-header">
+        <span class="mtask-block-label">Ашық сұрақ ${idx+1}</span>
+        <button class="mtask-remove" onclick="removeOpenBlock(${idx})" title="Жою">✕</button>
+      </div>
+      <textarea class="adm-ta" placeholder="Оқушы өз сөзімен жауап беретін сұрақ..." style="margin-bottom:0" oninput="window._openBlocks[${idx}].q=this.value">${escH(ob.q)}</textarea>
+    </div>`).join('');
+}
+
+function addTestBlock(){
+  window._testBlocks.push({q:'',a:'',b:'',c:'',d:'',ans:'A'});
+  renderTestBlocks();
+  // Auto open panel
+  openSectionPanel('test');
+}
+function removeTestBlock(idx){
+  window._testBlocks.splice(idx,1);
+  renderTestBlocks();
+  if(window._testBlocks.length===0) closeSectionPanel('test');
+}
+function addOpenBlock(){
+  window._openBlocks.push({q:''});
+  renderOpenBlocks();
+  openSectionPanel('open');
+}
+function removeOpenBlock(idx){
+  window._openBlocks.splice(idx,1);
+  renderOpenBlocks();
+  if(window._openBlocks.length===0) closeSectionPanel('open');
+}
+
+function escH(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // Map editor
 window._mapDots=[];
@@ -2104,15 +2249,54 @@ async function saveModal(){
     if(el) window._mapOpts[i]=el.value.trim();
   });
 
+  // Collect test blocks from DOM (inputs may not have fired oninput yet)
+  const testBlocks = window._testBlocks.map((tb,idx)=>{
+    // Try to read from DOM directly in case oninput didn't fire
+    const block = document.getElementById('testBlock'+idx);
+    if(block){
+      const inputs = block.querySelectorAll('input.adm-inp');
+      const sel = block.querySelector('select');
+      return {
+        q: inputs[0]?.value.trim()||tb.q,
+        a: inputs[1]?.value.trim()||tb.a,
+        b: inputs[2]?.value.trim()||tb.b,
+        c: inputs[3]?.value.trim()||tb.c,
+        d: inputs[4]?.value.trim()||tb.d,
+        ans: sel?.value||tb.ans
+      };
+    }
+    return tb;
+  }).filter(tb=>tb.q.trim());
+
+  const openBlocks = window._openBlocks.map((ob,idx)=>{
+    const block = document.getElementById('openBlock'+idx);
+    if(block){
+      const ta = block.querySelector('textarea');
+      return {q: ta?.value.trim()||ob.q};
+    }
+    return ob;
+  }).filter(ob=>ob.q.trim());
+
+  // First test/open become legacy fields (backward compat), rest go to arrays
+  const firstTest = testBlocks[0] || null;
+  const extraTests = testBlocks.slice(1);
+  const firstOpen = openBlocks[0] || null;
+  const extraOpens = openBlocks.slice(1);
+
   const entry={
     id: editIdx>=0?T[editIdx].id:Date.now(),
     kk, ru:document.getElementById('mTRu').value.trim(),
     tkk:`<p>${document.getElementById('mTxtKk').value.trim()}</p>`,
     tru:`<p>${document.getElementById('mTxtRu').value.trim()}</p>`,
-    qkk:document.getElementById('mQKk').value.trim(),
-    ans:document.getElementById('mQAns').value.trim().toUpperCase()||'A',
-    opts:[document.getElementById('mA').value.trim(),document.getElementById('mB').value.trim(),document.getElementById('mC').value.trim(),document.getElementById('mD').value.trim()],
-    openq:document.getElementById('mOpenQ').value.trim(),
+    // Legacy single fields (first task)
+    qkk: firstTest?.q||'',
+    ans: firstTest?.ans||'A',
+    opts: firstTest?[firstTest.a,firstTest.b,firstTest.c,firstTest.d]:[],
+    openq: firstOpen?.q||'',
+    // Extra tasks
+    tests: extraTests,
+    opens: extraOpens,
+    // Map
     mapq:document.getElementById('mMapQ').value.trim(),
     mapImg:window._mapImgData||'',
     mapDots:window._mapDots.slice(),
