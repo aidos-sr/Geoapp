@@ -670,15 +670,15 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .msec-panel.open { display: block; }
 
 /* ── RICH TEXT TOOLBAR ── */
-.rte-wrap { border: 2px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; background: #fafafa; }
-.rte-wrap:focus-within { border-color: var(--accent); background: #fff; }
+.rte-wrap { border: 2px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; background: #fff; }
+.rte-wrap:focus-within { border-color: var(--accent); }
 .rte-toolbar {
   display: flex; align-items: center; gap: 4px;
   padding: 6px 8px; background: #f3f4f6;
   border-bottom: 1px solid var(--border); flex-wrap: wrap;
 }
 .rte-btn {
-  padding: 4px 8px; border: 1px solid transparent; border-radius: 7px;
+  padding: 5px 9px; border: 1px solid transparent; border-radius: 7px;
   background: transparent; cursor: pointer; font-size: 11px; font-weight: 700;
   color: var(--muted); display: flex; align-items: center; gap: 4px;
   transition: all .15s; white-space: nowrap;
@@ -687,12 +687,29 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .rte-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
 .rte-btn.img-btn:hover { background: #ede9fe; color: var(--accent); }
 .rte-btn.tbl-btn:hover { background: #d1fae5; color: var(--green); }
+.rte-btn.bold-btn { font-weight: 900; font-size: 13px; }
 .rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
-.rte-ta {
-  width: 100%; min-height: 90px; padding: 10px 12px;
-  border: none; outline: none; font-family: 'Manrope', sans-serif;
-  font-size: 13px; resize: vertical; color: var(--text); background: transparent;
+
+/* Visual (contenteditable) editor */
+.rte-editor {
+  width: 100%; min-height: 100px; max-height: 320px;
+  padding: 10px 12px; border: none; outline: none;
+  font-family: 'Manrope', sans-serif; font-size: 13px;
+  line-height: 1.7; color: var(--text); background: #fff;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  word-break: break-word;
 }
+.rte-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af; pointer-events: none;
+}
+.rte-editor p { margin: 0 0 8px; }
+.rte-editor strong { color: var(--primary); }
+.rte-editor img { max-width: 100%; border-radius: 8px; margin: 6px 0; display: block; }
+.rte-editor table { width: 100%; border-collapse: collapse; margin: 8px 0; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb; }
+.rte-editor th { background: var(--accent); color: #fff; padding: 7px 10px; font-size: 11px; font-weight: 700; text-align: left; }
+.rte-editor td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
+.rte-editor td:focus { outline: 1px solid var(--accent); background: #fafbff; }
 
 /* Table picker popup */
 .tbl-picker-overlay {
@@ -1089,32 +1106,38 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <label class="inp-label">Мәтін (ҚАЗ)</label>
     <div class="rte-wrap">
       <div class="rte-toolbar">
-        <button class="rte-btn img-btn" onclick="rteInsertImage('mTxtKk')" title="Сурет қосу">
+        <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('mKk','bold')" title="Қою">B</button>
+        <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('mKk','italic')" title="Курсив"><em>I</em></button>
+        <div class="rte-sep"></div>
+        <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="rteInsertImage('mKk')" title="Сурет қосу">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           Сурет
         </button>
-        <div class="rte-sep"></div>
-        <button class="rte-btn tbl-btn" onclick="rteOpenTablePicker('mTxtKk')" title="Кесте қосу">
+        <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('mKk')" title="Кесте қосу">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
           Кесте
         </button>
       </div>
-      <textarea class="rte-ta" id="mTxtKk" rows="4" placeholder="Параграф мәтіні... Сурет немесе кесте қосу үшін жоғарыдағы батырмаларды басыңыз."></textarea>
+      <div class="rte-editor" id="mKk" contenteditable="true"
+        data-placeholder="Параграф мәтіні... Сурет немесе кесте қосу үшін жоғарыдағы батырмаларды басыңыз."></div>
     </div>
     <label class="inp-label">Текст (РУС)</label>
     <div class="rte-wrap">
       <div class="rte-toolbar">
-        <button class="rte-btn img-btn" onclick="rteInsertImage('mTxtRu')" title="Добавить изображение">
+        <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('mRu','bold')" title="Жирный">B</button>
+        <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('mRu','italic')" title="Курсив"><em>I</em></button>
+        <div class="rte-sep"></div>
+        <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="rteInsertImage('mRu')" title="Добавить изображение">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           Сурет
         </button>
-        <div class="rte-sep"></div>
-        <button class="rte-btn tbl-btn" onclick="rteOpenTablePicker('mTxtRu')" title="Добавить таблицу">
+        <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('mRu')" title="Добавить таблицу">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
           Кесте
         </button>
       </div>
-      <textarea class="rte-ta" id="mTxtRu" rows="4" placeholder="Текст параграфа... Для вставки изображения или таблицы используйте кнопки выше."></textarea>
+      <div class="rte-editor" id="mRu" contenteditable="true"
+        data-placeholder="Текст параграфа... Для вставки изображения или таблицы используйте кнопки выше."></div>
     </div>
 
     <!-- 3. ТАПСЫРМА ТҮРЛЕРІ — БАТЫРМАЛАР -->
@@ -1223,6 +1246,21 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <script>
 window.addEventListener('online',  () => document.getElementById('offlineBanner').classList.remove('show'));
 window.addEventListener('offline', () => document.getElementById('offlineBanner').classList.add('show'));
+
+// RTE editors-та cursor позициясын автоматты сақтаймыз
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0) return;
+  const r = sel.getRangeAt(0);
+  const edIds = ['mKk','mRu'];
+  for(const id of edIds){
+    const ed = document.getElementById(id);
+    if(ed && ed.contains(r.commonAncestorContainer)){
+      _rteSavedRange = r.cloneRange();
+      break;
+    }
+  }
+});
 
 // ═══ FIREBASE HELPERS ═══
 async function fbGetProg(uid) {
@@ -2140,8 +2178,8 @@ async function openEdit(i){
     const t=T[i];
     document.getElementById('mTKk').value=t.kk||'';
     document.getElementById('mTRu').value=t.ru||'';
-    document.getElementById('mTxtKk').value=t.tkk||'';
-    document.getElementById('mTxtRu').value=t.tru||'';
+    rteSetHtml('mKk', t.tkk||'');
+    rteSetHtml('mRu', t.tru||'');
 
     // Load test blocks: first from legacy field, then from tests[]
     const legacyTest = t.qkk ? [{q:t.qkk, a:t.opts?.[0]||'', b:t.opts?.[1]||'', c:t.opts?.[2]||'', d:t.opts?.[3]||'', ans:t.ans||'A'}] : [];
@@ -2171,7 +2209,8 @@ async function openEdit(i){
       renderMapDots();
     }
   } else {
-    ['mTKk','mTRu','mTxtKk','mTxtRu','mMapQ'].forEach(id=>document.getElementById(id).value='');
+    ['mTKk','mTRu','mMapQ'].forEach(id=>document.getElementById(id).value='');
+    rteSetHtml('mKk',''); rteSetHtml('mRu','');
     window._mapOpts=[];
   }
   document.getElementById('editModal').classList.add('show');
@@ -2376,8 +2415,8 @@ async function saveModal(){
   const entry={
     id: editIdx>=0?T[editIdx].id:Date.now(),
     kk, ru:document.getElementById('mTRu').value.trim(),
-    tkk: document.getElementById('mTxtKk').value.trim() || '',
-    tru: document.getElementById('mTxtRu').value.trim() || '',
+    tkk: rteGetHtml('mKk') || '',
+    tru: rteGetHtml('mRu') || '',
     // Legacy single fields (first task)
     qkk: firstTest?.q||'',
     ans: firstTest?.ans||'A',
@@ -2404,10 +2443,45 @@ function strip(html){ return html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').tr
 // ═══ RICH TEXT EDITOR HELPERS ═══
 let _rteTargetId = null;
 let _tblRows = 0, _tblCols = 0;
+let _rteSavedRange = null; // мобильде selection сақтау үшін
 
-// Суретті курсор орнына кірістіру
-function rteInsertImage(taId){
-  _rteTargetId = taId;
+// Cursor позициясын сақтау (мобильде батырма басқанда selection жоғалмасын деп onmousedown preventDefault)
+function rteSaveRange(edId){
+  const ed = document.getElementById(edId);
+  if(!ed) return;
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount > 0){
+    const r = sel.getRangeAt(0);
+    if(ed.contains(r.commonAncestorContainer)){
+      _rteSavedRange = r.cloneRange();
+    }
+  }
+}
+
+function rteRestoreRange(edId){
+  const ed = document.getElementById(edId);
+  if(!ed) return false;
+  ed.focus();
+  if(_rteSavedRange){
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(_rteSavedRange);
+    return true;
+  }
+  return false;
+}
+
+// Қою / курсив
+function rteCmd(edId, cmd){
+  rteRestoreRange(edId);
+  document.execCommand(cmd, false, null);
+  document.getElementById(edId)?.focus();
+}
+
+// Суретті редактор ішіне кірістіру
+function rteInsertImage(edId){
+  _rteTargetId = edId;
+  rteSaveRange(edId);
   document.getElementById('rteImgInput').value = '';
   document.getElementById('rteImgInput').click();
 }
@@ -2417,31 +2491,44 @@ function rteLoadImage(evt){
   if(!file || !_rteTargetId) return;
   const reader = new FileReader();
   reader.onload = function(e){
-    const ta = document.getElementById(_rteTargetId);
-    if(!ta) return;
-    const imgTag = `\n<img src="${e.target.result}" style="max-width:100%;border-radius:10px;margin:8px 0;display:block" alt="сурет">\n`;
-    // Insert at cursor position
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const before = ta.value.substring(0, start);
-    const after = ta.value.substring(end);
-    ta.value = before + imgTag + after;
-    // Move cursor after inserted tag
-    const newPos = start + imgTag.length;
-    ta.setSelectionRange(newPos, newPos);
-    ta.focus();
-    // Auto-grow
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
+    const ed = document.getElementById(_rteTargetId);
+    if(!ed) return;
+    rteRestoreRange(_rteTargetId);
+    // Img элементі жасаймыз
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.cssText = 'max-width:100%;border-radius:8px;margin:6px 0;display:block';
+    img.alt = 'сурет';
+    // Selection орнына кірістіреміз
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount > 0){
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      // Суреттен кейін жаңа параграф
+      const p = document.createElement('p');
+      p.innerHTML = '<br>';
+      const frag = document.createDocumentFragment();
+      frag.appendChild(img);
+      frag.appendChild(p);
+      range.insertNode(frag);
+      // Курсорды жаңа параграфқа жылжытамыз
+      range.setStartAfter(p);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      ed.appendChild(img);
+    }
+    ed.focus();
   };
   reader.readAsDataURL(file);
 }
 
-// Кестені курсор орнына кірістіру
-function rteOpenTablePicker(taId){
-  _rteTargetId = taId;
+// Кесте picker
+function rteOpenTablePicker(edId){
+  _rteTargetId = edId;
+  rteSaveRange(edId);
   _tblRows = 0; _tblCols = 0;
-  // Build 5x5 grid
   const grid = document.getElementById('tblGrid');
   grid.innerHTML = '';
   for(let r=1; r<=5; r++){
@@ -2450,7 +2537,7 @@ function rteOpenTablePicker(taId){
       cell.className = 'tbl-cell';
       cell.dataset.r = r; cell.dataset.c = c;
       cell.onmouseenter = () => hoverTblCell(r,c);
-      cell.onclick = () => { _tblRows=r; _tblCols=c; confirmTblSelect(r,c); };
+      cell.onclick = () => confirmTblSelect(r,c);
       grid.appendChild(cell);
     }
   }
@@ -2479,28 +2566,75 @@ function closeTblPicker(){
 
 function rteInsertTable(){
   if(!_rteTargetId || !_tblRows || !_tblCols){ closeTblPicker(); return; }
-  const ta = document.getElementById(_rteTargetId);
-  if(!ta){ closeTblPicker(); return; }
+  const ed = document.getElementById(_rteTargetId);
+  if(!ed){ closeTblPicker(); return; }
 
-  // Build HTML table
-  const thCells = Array.from({length:_tblCols}, (_,i)=>`<th style="background:#4f46e5;color:#fff;padding:8px 10px;text-align:left;font-size:12px;font-weight:700">Баған ${i+1}</th>`).join('');
-  const rows = Array.from({length:_tblRows-1}, (_,ri)=>{
-    const cells = Array.from({length:_tblCols}, (_,ci)=>`<td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:13px"> </td>`).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
-  const tableTag = `\n<table style="width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;margin:10px 0;border:1px solid #e5e7eb"><thead><tr>${thCells}</tr></thead><tbody>${rows}</tbody></table>\n`;
-
-  const start = ta.selectionStart;
-  const end = ta.selectionEnd;
-  const before = ta.value.substring(0, start);
-  const after = ta.value.substring(end);
-  ta.value = before + tableTag + after;
-  const newPos = start + tableTag.length;
-  ta.setSelectionRange(newPos, newPos);
-  ta.focus();
-  ta.style.height = 'auto';
-  ta.style.height = ta.scrollHeight + 'px';
   closeTblPicker();
+  rteRestoreRange(_rteTargetId);
+
+  // Кесте DOM элементін жасаймыз
+  const table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;margin:10px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden';
+  // Header жол
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  for(let c=0; c<_tblCols; c++){
+    const th = document.createElement('th');
+    th.style.cssText = 'background:#4f46e5;color:#fff;padding:7px 10px;font-size:11px;font-weight:700;text-align:left';
+    th.contentEditable = 'true';
+    th.textContent = `Баған ${c+1}`;
+    hrow.appendChild(th);
+  }
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+  // Деректер жолдар
+  const tbody = document.createElement('tbody');
+  for(let r=0; r<_tblRows-1; r++){
+    const row = document.createElement('tr');
+    for(let c=0; c<_tblCols; c++){
+      const td = document.createElement('td');
+      td.style.cssText = 'padding:6px 10px;border-bottom:1px solid #e5e7eb;font-size:12px';
+      td.contentEditable = 'true';
+      td.innerHTML = '<br>';
+      row.appendChild(td);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+
+  // Кестеден кейін бос параграф
+  const p = document.createElement('p');
+  p.innerHTML = '<br>';
+
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount > 0){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const frag = document.createDocumentFragment();
+    frag.appendChild(table);
+    frag.appendChild(p);
+    range.insertNode(frag);
+    range.setStartAfter(p);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } else {
+    ed.appendChild(table);
+    ed.appendChild(p);
+  }
+  ed.focus();
+}
+
+// innerHTML-ді алу (сақтауға)
+function rteGetHtml(edId){
+  const ed = document.getElementById(edId);
+  return ed ? ed.innerHTML : '';
+}
+
+// HTML-ді editor-ға жүктеу
+function rteSetHtml(edId, html){
+  const ed = document.getElementById(edId);
+  if(ed) ed.innerHTML = html || '';
 }
 
 function togglePlan(header){
