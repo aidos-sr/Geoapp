@@ -1806,7 +1806,7 @@ async function renderTopicsAsync(){
     if(mp) badges+=`<span class="badge done">✓ Карта</span>`;
     if(!done) badges=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
     h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
-      <div class="tnum">${i+1}</div>
+      <div class="tnum">${t.id}</div>
       <div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${badges}</div></div>
       <span class="tcard-arrow">›</span></div>`;
   });
@@ -1942,7 +1942,7 @@ async function openDetailAsync(idx){
 
   document.getElementById('tabTopics').innerHTML=`
     <div class="dwrap">
-      <div class="det-badge">§${idx+1}</div>
+      <div class="det-badge">§${t.id}</div>
       <div class="det-title">${t[lang]}</div>
       ${planH}
       <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
@@ -2106,7 +2106,7 @@ async function renderAdminAsync(){
   let rows='';
   T.forEach((t,i)=>{
     rows+=`<div class="adm-row">
-      <div class="adm-num">${i+1}</div>
+      <div class="adm-num">${t.id}</div>
       <div class="adm-nm">${t[lang]}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
       <button class="abtn aedit" onclick="openEdit(${i})">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
