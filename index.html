@@ -193,11 +193,13 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 /* ── TASK SCREEN ── */
 #taskScreen {
   display: none;
-  position: fixed; inset: 0; z-index: 200;
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 100%; z-index: 200;
   background: var(--bg);
-  max-width: 480px; left: 50%; transform: translateX(-50%);
+  max-width: 480px;
   flex-direction: column;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 #taskScreen.active { display: flex; flex-direction: column; }
 .task-header {
@@ -2094,7 +2096,9 @@ async function openTaskScreen(idx){
   document.getElementById('taskContent').innerHTML=`
     <div class="task-topic-badge">§${t.id} — ${t[lang]}</div>
     ${testH}${openH}${mapH}`;
-  document.getElementById('taskScreen').classList.add('active');
+  const ts = document.getElementById('taskScreen');
+  ts.classList.add('active');
+  ts.scrollTop = 0;
 }
 
 function closeTaskScreen(){
