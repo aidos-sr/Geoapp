@@ -2077,16 +2077,23 @@ async function openDetailAsync(idx){
   } // end if mapq
 
   const hasTask = allTests.length>0 || allOpens.length>0 || (t.mapq || (t.mapDots&&t.mapDots.length));
+  const taskDone = !!(tp || op);
   document.getElementById('tabTopics').innerHTML=`
     <div class="dwrap">
       <div class="det-badge">§${t.id}</div>
       <div class="det-title">${t[lang]}</div>
       ${planH}
       <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
-      ${hasTask ? `<button class="btn-task" onclick="openTaskScreen(${idx})">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
-        ${lang==='kk'?'Тапсырма орындау':'Выполнить задание'}
-      </button>` : ''}
+      ${hasTask ? (taskDone
+        ? `<button class="btn-task" style="background:linear-gradient(135deg,#059669,#047857)" onclick="showQuizResult(${idx})">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${lang==='kk'?'Нәтижені көру':'Посмотреть результат'}
+          </button>`
+        : `<button class="btn-task" onclick="openTaskScreen(${idx})">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
+            ${lang==='kk'?'Тапсырма орындау':'Выполнить задание'}
+          </button>`)
+      : ''}
     </div>`;
   showOnly('tabTopics');
 }
@@ -2292,7 +2299,8 @@ function drawQuizPieChart(correct, wrong, skip, total){
 
 function closeQuizResult(){
   document.getElementById('quizResultOverlay').classList.remove('show');
-  closeTaskScreen();
+  const ts = document.getElementById('taskScreen');
+  if(ts.classList.contains('active')) closeTaskScreen();
   goBack();
 }
 
