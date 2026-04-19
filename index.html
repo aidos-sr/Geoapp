@@ -1240,6 +1240,18 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <label class="inp-label">Тема (РУС)</label>
     <input class="adm-inp" id="mTRu" placeholder="Название темы">
 
+    <!-- CLOUDINARY СУРЕТ -->
+    <div class="modal-section">Тақырып суреті (Cloudinary)</div>
+    <label class="inp-label">Cloudinary URL</label>
+    <input class="adm-inp" id="mImgUrl" placeholder="https://res.cloudinary.com/..." oninput="previewTopicImg()">
+    <div id="imgPreviewWrap" style="display:none;margin-bottom:10px;border-radius:12px;overflow:hidden;border:2px solid var(--border)">
+      <img id="imgPreview" style="width:100%;display:block;max-height:180px;object-fit:cover">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8f7ff">
+        <span style="font-size:11px;color:var(--muted);font-weight:600">Сурет алдын ала көру</span>
+        <button onclick="clearTopicImg()" style="background:#fef2f2;border:none;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--red);cursor:pointer">✕ Өшіру</button>
+      </div>
+    </div>
+
     <!-- 2. МӘТІН -->
     <div class="modal-section">Мәтін / Текст</div>
     <label class="inp-label">Мәтін (ҚАЗ)</label>
@@ -1520,7 +1532,7 @@ async function saveProg(p) {
     await fbSaveProg(window._fbUser.uid, p);
   }
 }
-const TOPICS_VERSION = 'v6-geosayasat-18'; // Change this to force-reset Firebase topics
+const TOPICS_VERSION = 'v7-geosayasat-25'; // Change this to force-reset Firebase topics
 
 async function getTopics() {
   if (_topics) return _topics;
@@ -2158,6 +2170,7 @@ async function openDetailAsync(idx){
       <div class="det-title">${t[lang]}</div>
       ${planH}
       <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
+      ${t.imgUrl ? `<img src="${t.imgUrl}" style="width:100%;border-radius:14px;margin:12px 0;display:block;object-fit:cover;max-height:220px" loading="lazy" alt="Тақырып суреті">` : ''}
       ${hasTask ? (taskDone
         ? `<button class="btn-task" style="background:linear-gradient(135deg,#059669,#047857)" onclick="showQuizResult(${idx})">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2650,6 +2663,8 @@ async function openEdit(i){
     document.getElementById('mTId').value=t.id||'';
     document.getElementById('mTKk').value=t.kk||'';
     document.getElementById('mTRu').value=t.ru||'';
+    document.getElementById('mImgUrl').value=t.imgUrl||'';
+    previewTopicImg();
     rteSetHtml('mKk', t.tkk||'');
     rteSetHtml('mRu', t.tru||'');
 
@@ -2681,8 +2696,9 @@ async function openEdit(i){
       renderMapDots();
     }
   } else {
-    ['mTId','mTKk','mTRu','mMapQ'].forEach(id=>document.getElementById(id).value='');
+    ['mTId','mTKk','mTRu','mMapQ','mImgUrl'].forEach(id=>document.getElementById(id).value='');
     rteSetHtml('mKk',''); rteSetHtml('mRu','');
+    document.getElementById('imgPreviewWrap').style.display='none';
     window._mapOpts=[];
   }
   document.getElementById('editModal').classList.add('show');
@@ -2891,6 +2907,7 @@ async function saveModal(){
       return editIdx>=0 ? T[editIdx].id : Date.now();
     })(),
     kk, ru:document.getElementById('mTRu').value.trim(),
+    imgUrl: document.getElementById('mImgUrl').value.trim(),
     tkk: rteGetHtml('mKk') || '',
     tru: rteGetHtml('mRu') || '',
     // Legacy single fields (first task)
@@ -3173,6 +3190,19 @@ function updateSVGDot(dotIdx, state){
 }
 
 // ═══ LANG ═══
+function previewTopicImg(){
+  const url = document.getElementById('mImgUrl').value.trim();
+  const wrap = document.getElementById('imgPreviewWrap');
+  const img = document.getElementById('imgPreview');
+  if(url){ wrap.style.display='block'; img.src=url; }
+  else { wrap.style.display='none'; img.src=''; }
+}
+function clearTopicImg(){
+  document.getElementById('mImgUrl').value='';
+  document.getElementById('imgPreviewWrap').style.display='none';
+  document.getElementById('imgPreview').src='';
+}
+
 function toggleLang(){
   ST.lang=ST.lang==='kk'?'ru':'kk';
   document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';
