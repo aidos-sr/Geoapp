@@ -845,6 +845,61 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .pg-sec-final { background: #f0fdf4; border-color: var(--green); }
 .pg-sec-final .pg-sec-num { background: var(--green); }
 
+/* ── ТЕСТ НӘТИЖЕСІ МОДАЛЫ ── */
+.quiz-result-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.quiz-result-overlay.show { display: flex; }
+.quiz-result-modal {
+  background: #fff; border-radius: 28px; padding: 28px 22px 24px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  text-align: center; animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+.qr-title {
+  font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+}
+.qr-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+.qr-chart-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 18px; }
+.qr-chart-wrap canvas { display: block; }
+.qr-chart-center {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; pointer-events: none;
+}
+.qr-pct { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+.qr-pct-lbl { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+.qr-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; }
+.qr-leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--text); }
+.qr-leg-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.qr-leg-dot.correct { background: var(--green); }
+.qr-leg-dot.wrong { background: var(--red); }
+.qr-leg-dot.skip { background: #e5e7eb; }
+.qr-score-row { background: #f8f7ff; border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.qr-score-lbl { font-size: 13px; color: var(--muted); font-weight: 600; }
+.qr-score-val { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent); }
+.qr-btn-row { display: flex; gap: 10px; }
+.qr-btn-close {
+  flex: 1; padding: 13px; border: 2px solid var(--border); border-radius: 14px;
+  background: #fff; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; color: var(--text); transition: background .15s;
+}
+.qr-btn-close:active { background: #f3f4f6; }
+.btn-finish-quiz {
+  width: 100%; padding: 14px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(79,70,229,.35);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 16px; transition: transform .15s;
+}
+.btn-finish-quiz:active { transform: scale(.97); }
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -1142,6 +1197,33 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <div class="task-header-title">Тапсырмалар</div>
   </div>
   <div class="task-body" id="taskContent"></div>
+</div>
+
+<!-- QUIZ RESULT MODAL -->
+<div class="quiz-result-overlay" id="quizResultOverlay">
+  <div class="quiz-result-modal">
+    <div class="qr-title">Тест нәтижесі</div>
+    <div class="qr-sub" id="qrSub">Барлық сұрақтар бойынша қорытынды</div>
+    <div class="qr-chart-wrap">
+      <canvas id="qrCanvas" width="140" height="140"></canvas>
+      <div class="qr-chart-center">
+        <div class="qr-pct" id="qrPct">0%</div>
+        <div class="qr-pct-lbl">дұрыс</div>
+      </div>
+    </div>
+    <div class="qr-legend">
+      <div class="qr-leg-item"><div class="qr-leg-dot correct"></div><span id="qrCorrectLbl">0 дұрыс</span></div>
+      <div class="qr-leg-item"><div class="qr-leg-dot wrong"></div><span id="qrWrongLbl">0 қате</span></div>
+      <div class="qr-leg-item"><div class="qr-leg-dot skip"></div><span id="qrSkipLbl">0 өткізілді</span></div>
+    </div>
+    <div class="qr-score-row">
+      <div class="qr-score-lbl">Жиналған балл</div>
+      <div class="qr-score-val" id="qrScoreVal">0 балл</div>
+    </div>
+    <div class="qr-btn-row">
+      <button class="qr-btn-close" onclick="closeQuizResult()">Жабу</button>
+    </div>
+  </div>
 </div>
 
 <!-- EDIT MODAL -->
@@ -2095,7 +2177,11 @@ async function openTaskScreen(idx){
 
   document.getElementById('taskContent').innerHTML=`
     <div class="task-topic-badge">§${t.id} — ${t[lang]}</div>
-    ${testH}${openH}${mapH}`;
+    ${testH}${openH}${mapH}
+    ${(allTests.length > 0 || allOpens.length > 0) ? `<button class="btn-finish-quiz" onclick="showQuizResult(${idx})">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      ${lang==='kk'?'Тестті аяқтау':'Завершить тест'}
+    </button>` : ''}`;
   const ts = document.getElementById('taskScreen');
   ts.classList.add('active');
   ts.scrollTop = 0;
@@ -2103,6 +2189,111 @@ async function openTaskScreen(idx){
 
 function closeTaskScreen(){
   document.getElementById('taskScreen').classList.remove('active');
+}
+
+async function showQuizResult(idx){
+  const T = await getTopics();
+  const t = T[idx];
+  const u = ST.currentUser;
+  const prog = await getProg();
+  const {lang} = ST;
+
+  // Тест сұрақтарын жинақтау
+  const allTests = [];
+  if(t.qkk) allTests.push({progKey:'test'});
+  (t.tests||[]).forEach((tb,i)=>{ if(tb.q) allTests.push({progKey:'test_'+(i+1)}); });
+
+  let correct = 0, wrong = 0, skip = 0, totalPts = 0;
+  allTests.forEach(({progKey}) => {
+    const pts = prog[pk(u.uid, t.id, progKey)] || 0;
+    if(pts > 0) { correct++; totalPts += pts; }
+    else {
+      // Жауап берілді ме жоқ па — DOM-нан тексереміз
+      const answered = document.querySelector(`.opt.correct, .opt.wrong`);
+      if(answered) wrong++;
+      else skip++;
+    }
+  });
+
+  // DOM-дан жауап берілген/берілмеген тесттерді нақты тексеру
+  correct = 0; wrong = 0; skip = 0; totalPts = 0;
+  allTests.forEach(({progKey}, ti) => {
+    const pts = prog[pk(u.uid, t.id, progKey)] || 0;
+    if(pts > 0) {
+      correct++; totalPts += pts;
+    } else {
+      // DOM-нан тексеру: opt.wrong бар ма осы тест үшін
+      const wrongBtn = document.getElementById(`opt_${ti}_0`);
+      if(wrongBtn) {
+        const sec = wrongBtn.closest('.tsec');
+        if(sec && sec.querySelector('.opt.wrong')) wrong++;
+        else if(sec && sec.querySelector('.opt[disabled]')) wrong++;
+        else skip++;
+      } else skip++;
+    }
+  });
+
+  const total = allTests.length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  document.getElementById('qrPct').textContent = pct + '%';
+  document.getElementById('qrCorrectLbl').textContent = correct + (lang==='kk' ? ' дұрыс' : ' верно');
+  document.getElementById('qrWrongLbl').textContent = wrong + (lang==='kk' ? ' қате' : ' неверно');
+  document.getElementById('qrSkipLbl').textContent = skip + (lang==='kk' ? ' өткізілді' : ' пропущено');
+  document.getElementById('qrScoreVal').textContent = totalPts + (lang==='kk' ? ' балл' : ' баллов');
+  document.getElementById('qrSub').textContent = lang==='kk'
+    ? `§${t.id} — барлығы ${total} сұрақ`
+    : `§${t.id} — всего ${total} вопросов`;
+
+  // Дөңгелек диаграмма сызу
+  drawQuizPieChart(correct, wrong, skip, total);
+  document.getElementById('quizResultOverlay').classList.add('show');
+}
+
+function drawQuizPieChart(correct, wrong, skip, total){
+  const canvas = document.getElementById('qrCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 70, cy = 70, r = 58, innerR = 40;
+  ctx.clearRect(0, 0, 140, 140);
+
+  const segments = [];
+  if(correct > 0) segments.push({val: correct, color: '#059669'});
+  if(wrong > 0)   segments.push({val: wrong,   color: '#dc2626'});
+  if(skip > 0)    segments.push({val: skip,     color: '#e5e7eb'});
+  if(total === 0) segments.push({val: 1, color: '#e5e7eb'});
+
+  const sum = segments.reduce((a,s)=>a+s.val, 0);
+  let startAngle = -Math.PI / 2;
+
+  segments.forEach(seg => {
+    const sweep = (seg.val / sum) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + sweep);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    startAngle += sweep;
+  });
+
+  // Ішкі ақ дөңгелек (donut эффектісі)
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+
+  // Сыртқы жиек
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#f3f4f6';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function closeQuizResult(){
+  document.getElementById('quizResultOverlay').classList.remove('show');
+  closeTaskScreen();
+  goBack();
 }
 
 // ═══ ANSWER HANDLERS ═══
