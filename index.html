@@ -2,7 +2,7 @@
 <html lang="kk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>География 8</title>
 <style>
 :root {
@@ -22,7 +22,7 @@
   --r: 20px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
 /* All overlay screens are fixed and hidden by default */
 .screen { display: none; }
@@ -32,8 +32,15 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 #welcomeScreen, #authScreen {
   position: fixed; inset: 0; z-index: 100;
   width: 100%; height: 100%;
-  max-width: 480px; left: 50%; transform: translateX(-50%);
   overflow-y: auto;
+}
+@media (min-width: 768px) {
+  #welcomeScreen, #authScreen {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%);
+  }
+  #authScreen .auth-wrap { max-width: 440px; width: 100%; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.4); }
+  #welcomeScreen .wc-hero { max-width: 480px; width: 100%; }
 }
 
 /* Main screen is normal flow */
@@ -193,10 +200,9 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 /* ── TASK SCREEN ── */
 #taskScreen {
   display: none;
-  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  position: fixed; top: 0; left: 0; right: 0;
   width: 100%; height: 100%; z-index: 200;
   background: var(--bg);
-  max-width: 480px;
   flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -451,11 +457,16 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 /* ── BOTTOM NAV ── */
 .bnav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px; background: var(--card);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card);
   border-top: 1px solid var(--border); display: flex; z-index: 50;
   box-shadow: 0 -4px 20px rgba(0,0,0,.06);
   padding-bottom: env(safe-area-inset-bottom, 0);
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .bnav { justify-content: center; }
+  .bnav .nb { max-width: 120px; }
 }
 .nb {
   flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -900,6 +911,95 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 }
 .btn-finish-quiz:active { transform: scale(.97); }
 
+
+/* ══════════════════════════════════════════
+   DESKTOP RESPONSIVE (768px +)
+══════════════════════════════════════════ */
+@media (min-width: 768px) {
+  /* Loading screen center */
+  #loadingScreen { align-items: center; justify-content: center; }
+
+  /* Auth + welcome screens — card in center */
+  #authScreen .auth-card,
+  #authScreen > div { max-width: 440px; width: 100%; margin: 0 auto; }
+
+  /* Program screen — scrollable centered content */
+  #programScreen { align-items: center; }
+  #programScreen .pg-content { max-width: 680px; width: 100%; }
+  #programScreen .pg-sheet { border-radius: 24px; margin: 0 0 32px; }
+  #programScreen .pg-header { padding-top: 60px; }
+
+  /* Main layout — sidebar + content */
+  #mainScreen { display: none; }
+  #mainScreen.active { display: flex; flex-direction: row; min-height: 100vh; }
+
+  /* Left sidebar nav */
+  .bnav {
+    position: fixed; left: 0; top: 0; bottom: 0; right: auto;
+    width: 200px; flex-direction: column; border-top: none;
+    border-right: 1px solid var(--border); padding-bottom: 0;
+    box-shadow: 2px 0 20px rgba(0,0,0,.06); justify-content: flex-start;
+    padding-top: 80px; gap: 4px;
+  }
+  .nb { max-width: 100%; width: 100%; flex-direction: row; justify-content: flex-start;
+    padding: 12px 20px; border-radius: 12px; margin: 0 8px; width: calc(100% - 16px);
+    font-size: 13px; gap: 10px;
+  }
+  .nb-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* Content area — offset for sidebar */
+  #mainScreen.active > .main-content-wrap,
+  #mainScreen.active > div:not(.bnav):not(.hbar) { margin-left: 200px; }
+
+  /* Header */
+  .hbar {
+    position: fixed; top: 0; left: 200px; right: 0; z-index: 40;
+    border-bottom: 1px solid var(--border); background: var(--card);
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  }
+
+  /* Tab content — centered with max width, offset for fixed header */
+  #tabTopics, #tabProfile, #tabAdmin {
+    max-width: 720px; margin: 0 auto; padding-top: 72px;
+  }
+  #mainScreen { padding-bottom: 0 !important; }
+  #mainScreen .tab { margin-left: 200px; }
+
+  /* Cards get bigger on desktop */
+  .tcard { padding: 16px 18px; }
+  .det-title { font-size: 22px; }
+  .det-body { font-size: 15px; line-height: 1.9; }
+
+  /* Modals — centered dialog */
+  .overlay { align-items: center; justify-content: center; }
+  .modal { max-width: 600px; width: 90%; border-radius: 24px; max-height: 90vh; }
+
+  /* Task screen — centered */
+  #taskScreen { left: 200px; }
+  #taskScreen .task-body { max-width: 680px; margin: 0 auto; }
+
+  /* Banner */
+  .banner { border-radius: 20px; margin: 16px; }
+
+  /* Topic list grid on wide screens */
+  .tlist { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 16px; }
+
+  /* Admin wrap wider */
+  .adm-wrap { max-width: 720px; margin: 0 auto; }
+
+  /* Quiz result modal */
+  .quiz-result-overlay { padding: 20px; }
+}
+
+@media (min-width: 1200px) {
+  .bnav { width: 220px; }
+  .hbar { left: 220px; }
+  #taskScreen { left: 220px; }
+  #mainScreen .tab { margin-left: 220px; }
+  .bnav { width: 220px; }
+  #tabTopics, #tabProfile, #tabAdmin { max-width: 900px; }
+  .tlist { grid-template-columns: 1fr 1fr 1fr; }
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -1127,6 +1227,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 <!-- AUTH -->
 <div id="authScreen" class="screen">
+  <div class="auth-wrap">
   <div class="auth-top">
     <div class="auth-emblem"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
     <div class="auth-logo">ГЕО 10</div>
@@ -1153,12 +1254,13 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <button class="btn btn-primary" id="authBtn" onclick="doAuth()">Кіру</button>
     <div class="firebase-badge"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Firebase арқылы қорғалған</div>
   </div>
+  </div>
 </div>
 
 <!-- MAIN -->
 <div id="mainScreen" class="screen">
   <div class="offline-banner" id="offlineBanner">📡 Интернет жоқ — офлайн режим</div>
-  <div class="header">
+  <div class="header hbar">
     <div class="hrow">
       <button class="hback" id="backBtn" onclick="goBack()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
