@@ -1164,7 +1164,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div class="htitle" id="hTitle">Геосаясат: Жаһандық тұрақтылық<span class="sync-dot" id="syncDot"></span></div>
-      <button class="hlang" id="langBtn" onclick="toggleLang()">РУС</button>
+
     </div>
   </div>
 
@@ -1184,6 +1184,10 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <button class="nb hidden" id="nb2" onclick="switchTab(2)">
       <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
       <span>Админ</span>
+    </button>
+    <button class="nb" id="nbProg" onclick="showProgram()">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+      <span style="font-size:9px">Бағдарлама</span>
     </button>
   </div>
 </div>
@@ -1237,8 +1241,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <input class="adm-inp" id="mTId" type="number" min="1" placeholder="Мысалы: 1, 2, 3..." style="margin-bottom:10px">
     <label class="inp-label">Тақырып (ҚАЗ)</label>
     <input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
-    <label class="inp-label">Тема (РУС)</label>
-    <input class="adm-inp" id="mTRu" placeholder="Название темы">
+    <input type="hidden" id="mTRu" value="">
 
     <!-- CLOUDINARY СУРЕТ -->
     <div class="modal-section">Тақырып суреті (Cloudinary)</div>
@@ -1272,24 +1275,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
       <div class="rte-editor" id="mKk" contenteditable="true"
         data-placeholder="Параграф мәтіні... Сурет немесе кесте қосу үшін жоғарыдағы батырмаларды басыңыз."></div>
     </div>
-    <label class="inp-label">Текст (РУС)</label>
-    <div class="rte-wrap">
-      <div class="rte-toolbar">
-        <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('mRu','bold')" title="Жирный">B</button>
-        <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('mRu','italic')" title="Курсив"><em>I</em></button>
-        <div class="rte-sep"></div>
-        <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('mRu')" title="Добавить изображение">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          Сурет
-        </button>
-        <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('mRu')" title="Добавить таблицу">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-          Кесте
-        </button>
-      </div>
-      <div class="rte-editor" id="mRu" contenteditable="true"
-        data-placeholder="Текст параграфа... Для вставки изображения или таблицы используйте кнопки выше."></div>
-    </div>
+    <div id="mRu" style="display:none"></div>
 
     <!-- 3. ТАПСЫРМА ТҮРЛЕРІ — БАТЫРМАЛАР -->
     <div class="modal-section">Тапсырма түрлері</div>
@@ -1449,7 +1435,7 @@ document.addEventListener('selectionchange', () => {
   const sel = window.getSelection();
   if(!sel || sel.rangeCount === 0) return;
   const r = sel.getRangeAt(0);
-  const edIds = ['mKk','mRu'];
+  const edIds = ['mKk'];
   for(const id of edIds){
     const ed = document.getElementById(id);
     if(ed && ed.contains(r.commonAncestorContainer)){
@@ -1942,7 +1928,8 @@ function enterProgram(){
   if(ST.currentUser) {
     document.getElementById('mainScreen').classList.add('active');
     document.getElementById('nb2').classList.toggle('hidden', !ST.currentUser.isAdmin);
-    switchTab(0);
+    document.getElementById('nbProg').classList.remove('act');
+    switchTab(ST.tab||0);
   } else {
     document.getElementById('authScreen').classList.add('active');
   }
@@ -1954,22 +1941,22 @@ function startSession(u){
   hideLoading();
   document.getElementById('authScreen').classList.remove('active');
 
-  // Авторлық бағдарламаны әр кіргенде бір рет көрсет
-  const programKey = 'seen_program_' + u.uid;
-  if(!localStorage.getItem(programKey)) {
-    localStorage.setItem('seen_program_' + u.uid, '1');
-    document.getElementById('mainScreen').classList.remove('active');
-    document.getElementById('programScreen').classList.add('active');
-  } else {
-    document.getElementById('mainScreen').classList.add('active');
-    document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
-    switchTab(0);
-  }
+  // Авторлық бағдарлама — тікелей негізгі экранға өту
+  document.getElementById('mainScreen').classList.add('active');
+  document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
+  switchTab(0);
   document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
   document.getElementById('authBtn').disabled = false;
 }
 
 function enterCourse(){ enterProgram(); }
+function showProgram(){
+  // Барлық nb батырмаларынан active алу
+  ["nb0","nb1","nb2","nbProg"].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove("act"); });
+  document.getElementById("nbProg").classList.add("act");
+  document.getElementById("mainScreen").classList.remove("active");
+  document.getElementById("programScreen").classList.add("active");
+}
 async function logout(){
   const {signOut} = window._fbFns;
   _prog = {}; _topics = null;
@@ -2008,13 +1995,13 @@ async function renderTopicsAsync(){
   let h=`<div class="banner">
     <div class="banner-badge">10-СЫНЫП • ЭЛЕКТИВТІ КУРС</div>
     <h2><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Геосаясат</h2>
-    <p>${lang==='kk'?'Жаһандық тұрақтылық және Қазақстан':'Глобальная стабильность и Казахстан'}</p>
+    <p>Жаһандық тұрақтылық және Қазақстан</p>
     <div class="bstats">
       <div class="bstat"><div class="bstat-n">${T.length}</div><div class="bstat-l">${lang==='kk'?'Тақырып':'Тем'}</div></div>
       <div class="bstat"><div class="bstat-n">${doneCount}</div><div class="bstat-l">${lang==='kk'?'Аяқталды':'Готово'}</div></div>
       <div class="bstat"><div class="bstat-n">${pts}</div><div class="bstat-l">${lang==='kk'?'Балл':'Баллов'}</div></div>
     </div></div>
-  <div class="slabel">${lang==='kk'?'ТАҚЫРЫПТАР ТІЗІМІ':'СПИСОК ТЕМ'}</div>
+  <div class="slabel">ТАҚЫРЫПТАР ТІЗІМІ</div>
   <div class="tlist">`;
 
   T.forEach((t,i)=>{
@@ -2029,12 +2016,12 @@ async function renderTopicsAsync(){
     if(!done) badges=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
     h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
       <div class="tnum">${t.id}</div>
-      <div class="tinfo"><div class="ttitle">${t[lang]}</div><div class="tmeta">${badges}</div></div>
+      <div class="tinfo"><div class="ttitle">${t.kk||""}</div><div class="tmeta">${badges}</div></div>
       <span class="tcard-arrow">›</span></div>`;
   });
   h+=`</div>`;
   document.getElementById('tabTopics').innerHTML=h;
-  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`${lang==='kk'?'Геосаясат курсы':'Курс геополитики'}<span class="sync-dot" id="syncDot"></span>`;
+  if(ST.view==='list') document.getElementById('hTitle').innerHTML=`Геосаясат курсы<span class="sync-dot" id="syncDot"></span>`;
   showOnly('tabTopics');
 }
 
@@ -2049,7 +2036,7 @@ async function openDetailAsync(idx){
   const tp = prog[pk(u.uid,t.id,'test')]||0;
   const op = prog[pk(u.uid,t.id,'open')]||0;
   const mp = prog[pk(u.uid,t.id,'map')]||0;
-  document.getElementById('hTitle').textContent = t[lang];
+  document.getElementById('hTitle').textContent = t.kk||'';
   document.getElementById('backBtn').classList.add('show');
 
   // ── САБАҚ ЖОСПАРЫ ──
@@ -2167,9 +2154,9 @@ async function openDetailAsync(idx){
   document.getElementById('tabTopics').innerHTML=`
     <div class="dwrap">
       <div class="det-badge">§${t.id}</div>
-      <div class="det-title">${t[lang]}</div>
+      <div class="det-title">${t.kk||""}</div>
       ${planH}
-      <div class="det-body">${lang==='kk'?t.tkk:t.tru}</div>
+      <div class="det-body">${t.tkk||''}</div>
       ${t.imgUrl ? `<img src="${t.imgUrl}" style="width:100%;border-radius:14px;margin:12px 0;display:block;object-fit:cover;max-height:220px" loading="lazy" alt="Тақырып суреті">` : ''}
       ${hasTask ? (taskDone
         ? `<button class="btn-task" style="background:linear-gradient(135deg,#059669,#047857)" onclick="showQuizResult(${idx})">
@@ -2270,7 +2257,7 @@ async function openTaskScreen(idx){
   }
 
   document.getElementById('taskContent').innerHTML=`
-    <div class="task-topic-badge">§${t.id} — ${t[lang]}</div>
+    <div class="task-topic-badge">§${t.id} — ${t.kk||""}</div>
     ${testH}${openH}${mapH}
     ${(allTests.length > 0 || allOpens.length > 0) ? `<button class="btn-finish-quiz" onclick="showQuizResult(${idx})">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2509,7 +2496,7 @@ async function renderProfileAsync(){
     const mp=prog[pk(u.uid,t.id,'map')]||0;
     doneH+=`<div class="done-item">
       <div style="width:34px;height:34px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div style="flex:1"><div class="done-title">${t[lang]}</div>
+      <div style="flex:1"><div class="done-title">${t.kk||""}</div>
       <div class="done-pts">Тест: +${tp} · Ашық: +${op} · Карта: +${mp}</div></div>
       <strong style="color:var(--accent);font-family:'Space Grotesk',sans-serif">${tp+op+mp}</strong></div>`;
   });
@@ -2547,7 +2534,7 @@ async function renderAdminAsync(){
   T.forEach((t,i)=>{
     rows+=`<div class="adm-row">
       <div class="adm-num">${t.id}</div>
-      <div class="adm-nm">${t[lang]}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
+      <div class="adm-nm">${t.kk||""}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
       <button class="abtn aedit" onclick="openEdit(${i})">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Өңдеу
@@ -2696,7 +2683,7 @@ async function openEdit(i){
       renderMapDots();
     }
   } else {
-    ['mTId','mTKk','mTRu','mMapQ','mImgUrl'].forEach(id=>document.getElementById(id).value='');
+    ['mTId','mTKk','mTRu','mMapQ','mImgUrl'].forEach(id=>{ const el=document.getElementById(id); if(el&&el.value!==undefined) el.value=''; });
     rteSetHtml('mKk',''); rteSetHtml('mRu','');
     document.getElementById('imgPreviewWrap').style.display='none';
     window._mapOpts=[];
@@ -2971,6 +2958,49 @@ function rteCmd(edId, cmd){
   document.getElementById(edId)?.focus();
 }
 
+// Тақырып мәтіні ішіне сурет қосу (file upload, base64)
+function topicImgInsert(edId){
+  _rteTargetId = edId;
+  rteSaveRange(edId);
+  document.getElementById('topicImgInput').value = '';
+  document.getElementById('topicImgInput').dataset.targetId = edId;
+  document.getElementById('topicImgInput').click();
+}
+function topicImgLoad(evt){
+  const file = evt.target.files[0];
+  const edId = evt.target.dataset.targetId || _rteTargetId || 'mKk';
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const ed = document.getElementById(edId);
+    if(!ed) return;
+    rteRestoreRange(edId);
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    img.style.cssText = 'max-width:100%;border-radius:8px;margin:6px 0;display:block';
+    img.alt = 'сурет';
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount > 0){
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      const p = document.createElement('p');
+      p.innerHTML = '<br>';
+      const frag = document.createDocumentFragment();
+      frag.appendChild(img);
+      frag.appendChild(p);
+      range.insertNode(frag);
+      range.setStartAfter(p);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      ed.appendChild(img);
+    }
+    ed.focus();
+  };
+  reader.readAsDataURL(file);
+}
+
 // Суретті редактор ішіне кірістіру
 function rteInsertImage(edId){
   _rteTargetId = edId;
@@ -3203,14 +3233,7 @@ function clearTopicImg(){
   document.getElementById('imgPreview').src='';
 }
 
-function toggleLang(){
-  ST.lang=ST.lang==='kk'?'ru':'kk';
-  document.getElementById('langBtn').textContent=ST.lang==='kk'?'РУС':'ҚАЗ';
-  document.getElementById('nb0l').textContent=ST.lang==='kk'?'Тақырыптар':'Темы';
-  document.getElementById('nb1l').textContent=ST.lang==='kk'?'Профиль':'Профиль';
-  if(ST.view==='detail') openDetailAsync(ST.detIdx);
-  else renderTab();
-}
+function toggleLang(){}
 </script>
 </body>
 </html>
