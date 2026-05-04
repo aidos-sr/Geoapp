@@ -638,24 +638,25 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .inp-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 5px; display: block; }
 
 /* ── LESSON PLAN ── */
-.plan-sec { margin-top: 14px; background: linear-gradient(135deg, #fafbff, #f0f0ff); border-radius: var(--r); padding: 16px; border: 1px solid #c7d2fe; }
-.plan-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.plan-sec { margin: 14px 0; border-radius: 18px; border: 1.5px solid #dde3f5; background: #fff; overflow: hidden; box-shadow: 0 2px 12px rgba(79,70,229,.07); }
+.plan-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 14px 16px; background: #fff; user-select: none; }
 .plan-header-left { display: flex; align-items: center; gap: 8px; }
-.plan-title { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
-.plan-toggle { width: 28px; height: 28px; border-radius: 8px; background: #ede9fe; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); transition: transform .2s; }
+.plan-header-icon { display: flex; align-items: center; gap: 5px; }
+.plan-title { font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .8px; }
+.plan-toggle { width: 30px; height: 30px; border-radius: 50%; background: #f0f4ff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent); transition: transform .25s; flex-shrink: 0; }
 .plan-toggle.open { transform: rotate(180deg); }
-.plan-body { display: none; margin-top: 12px; }
+.plan-body { display: none; padding: 0 14px 14px; }
 .plan-body.open { display: block; }
-.plan-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e0e7ff; }
-.plan-row:last-child { border-bottom: none; }
-.plan-step-num { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.plan-goal { background: #f4f6fd; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+.plan-goal-label { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: .9px; text-transform: uppercase; margin-bottom: 6px; }
+.plan-goal-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+.plan-row { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #eef0f8; }
+.plan-row:last-child { border-bottom: none; padding-bottom: 0; }
+.plan-step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
 .plan-step-content { flex: 1; }
-.plan-step-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-.plan-step-time { font-size: 10px; color: var(--accent); font-weight: 700; background: #ede9fe; padding: 1px 7px; border-radius: 4px; display: inline-block; margin-bottom: 3px; }
-.plan-step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-.plan-goal { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid #e0e7ff; }
-.plan-goal-label { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 4px; }
-.plan-goal-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+.plan-step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.plan-step-time { font-size: 11px; color: var(--accent); font-weight: 700; background: #ede9fe; padding: 2px 9px; border-radius: 6px; display: inline-block; margin-bottom: 5px; }
+.plan-step-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
 
 .offline-banner { background: #fef3c7; border-bottom: 1px solid #fde68a; padding: 7px 14px; font-size: 11px; font-weight: 700; color: #92400e; text-align: center; display: none; }
 .offline-banner.show { display: block; }
@@ -911,6 +912,27 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 }
 .btn-finish-quiz:active { transform: scale(.97); }
 
+
+/* ── КЖ (КҮНТІЗБЕЛІК ЖОСПАР) РЕДАКТОР ── */
+.kzh-editor { background: #f0f4ff; border: 1.5px solid #c7d2fe; border-radius: 16px; padding: 14px; margin-top: 6px; }
+.kzh-goal-wrap { margin-bottom: 12px; }
+.kzh-goal-inp { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 54px; background: #fff; color: var(--text); }
+.kzh-goal-inp:focus { outline: none; border-color: var(--accent); }
+.kzh-steps-label { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 8px; }
+.kzh-step { background: #fff; border: 1.5px solid #e0e7ff; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
+.kzh-step-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.kzh-step-num { width: 24px; height: 24px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kzh-step-title { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: inherit; background: #fff; }
+.kzh-step-title:focus { outline: none; border-color: var(--accent); }
+.kzh-step-min { width: 72px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; text-align: center; background: #fff; }
+.kzh-step-min:focus { outline: none; border-color: var(--accent); }
+.kzh-step-desc { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: inherit; resize: none; min-height: 44px; background: #fff; color: var(--muted); }
+.kzh-step-desc:focus { outline: none; border-color: var(--accent); }
+.kzh-step-del { position: absolute; top: 8px; right: 8px; background: #fef2f2; border: none; border-radius: 7px; width: 24px; height: 24px; font-size: 13px; cursor: pointer; color: var(--red); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.kzh-add-btn { width: 100%; border: 1.5px dashed #a5b4fc; border-radius: 10px; padding: 9px; background: none; color: var(--accent); font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; font-family: inherit; transition: background .15s; }
+.kzh-add-btn:hover { background: #e0e7ff; }
+.kzh-toggle-btn { display: flex; align-items: center; gap: 8px; background: #e0e7ff; border: none; border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; font-family: inherit; margin-top: 6px; }
+.kzh-toggle-btn.has-plan { background: #4f46e5; color: #fff; }
 
 /* ══════════════════════════════════════════
    DESKTOP RESPONSIVE (768px +)
@@ -1456,6 +1478,25 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <!-- Нүктелерге сәйкес жауап нұсқалары -->
         <div class="map-opts-editor" id="mapOptsEditor"></div>
       </div>
+    </div>
+
+    <!-- КЖ (КҮНТІЗБЕЛІК ЖОСПАР) -->
+    <div class="modal-section">Күнтізбелік жоспар (КЖ)</div>
+    <button class="kzh-toggle-btn" id="kzhToggleBtn" onclick="kzhToggle()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span id="kzhToggleLbl">КЖ қосу</span>
+    </button>
+    <div class="kzh-editor" id="kzhEditor" style="display:none;margin-top:10px">
+      <div class="kzh-goal-wrap">
+        <label class="inp-label">Сабақ мақсаты</label>
+        <textarea class="kzh-goal-inp" id="kzhGoal" placeholder="Оқушылар ... білуі / түсінуі / қолдана алуы тиіс"></textarea>
+      </div>
+      <div class="kzh-steps-label">Сабақ кезеңдері</div>
+      <div id="kzhStepsContainer"></div>
+      <button class="kzh-add-btn" onclick="kzhAddStep()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Кезең қосу
+      </button>
     </div>
 
     <div style="height:16px"></div>
@@ -2151,24 +2192,27 @@ async function openDetailAsync(idx){
         <div class="plan-step-num">${i+1}</div>
         <div class="plan-step-content">
           <div class="plan-step-title">${s.t}</div>
-          <div class="plan-step-time">${s.min}</div>
-          <div class="plan-step-desc">${s.d}</div>
+          ${s.min ? `<div class="plan-step-time">${s.min}</div>` : ''}
+          ${s.d ? `<div class="plan-step-desc">${s.d}</div>` : ''}
         </div>
       </div>`;
     });
     planH = `<div class="plan-sec">
       <div class="plan-header" onclick="togglePlan(this)">
         <div class="plan-header-left">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          <span class="plan-title">📋 ${lang==='kk'?'Қысқа мерзімді жоспар':'Краткосрочный план'}</span>
+          <span class="plan-header-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            🗓️
+          </span>
+          <span class="plan-title">Қысқа мерзімді жоспар</span>
         </div>
-        <button class="plan-toggle">
+        <button class="plan-toggle open">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
-      <div class="plan-body">
+      <div class="plan-body open">
         <div class="plan-goal">
-          <div class="plan-goal-label">${lang==='kk'?'Сабақ мақсаты':'Цель урока'}</div>
+          <div class="plan-goal-label">Сабақ мақсаты</div>
           <div class="plan-goal-text">${p.goal}</div>
         </div>
         ${stepsH}
@@ -2790,6 +2834,9 @@ async function openEdit(i){
     document.getElementById('imgPreviewWrap').style.display='none';
     window._mapOpts=[];
   }
+  // КЖ жүктеу (T жоғарыда алынған)
+  const t_plan = i>=0 ? T[i]?.plan : null;
+  kzhLoad(t_plan||null);
   document.getElementById('editModal').classList.add('show');
 }
 
@@ -2944,6 +2991,94 @@ function renderMapDots(){
 
 function closeModal(){ document.getElementById('editModal').classList.remove('show'); }
 
+
+// ═══ КЖ (КҮНТІЗБЕЛІК ЖОСПАР) EDITOR ═══
+window._kzhSteps = []; // [{t:'', min:'', d:''}]
+window._kzhActive = false;
+
+function kzhToggle(){
+  window._kzhActive = !window._kzhActive;
+  const ed = document.getElementById('kzhEditor');
+  const btn = document.getElementById('kzhToggleBtn');
+  const lbl = document.getElementById('kzhToggleLbl');
+  if(window._kzhActive){
+    ed.style.display = 'block';
+    btn.classList.add('has-plan');
+    lbl.textContent = 'КЖ бар (жасыру)';
+    if(window._kzhSteps.length === 0) kzhAddStep();
+  } else {
+    ed.style.display = 'none';
+    btn.classList.remove('has-plan');
+    lbl.textContent = 'КЖ қосу';
+  }
+}
+
+function kzhAddStep(){
+  window._kzhSteps.push({t:'', min:'5 мин', d:''});
+  kzhRenderSteps();
+}
+
+function kzhRemoveStep(i){
+  window._kzhSteps.splice(i, 1);
+  kzhRenderSteps();
+}
+
+function kzhRenderSteps(){
+  const c = document.getElementById('kzhStepsContainer');
+  if(!c) return;
+  c.innerHTML = window._kzhSteps.map((s, i) => `
+    <div class="kzh-step" id="kzhStep${i}">
+      <button class="kzh-step-del" onclick="kzhRemoveStep(${i})" title="Жою">✕</button>
+      <div class="kzh-step-row">
+        <div class="kzh-step-num">${i+1}</div>
+        <input class="kzh-step-title" placeholder="Кезең атауы (мысалы: Кіріспе, Жаңа тақырып...)"
+          value="${escH(s.t)}" oninput="window._kzhSteps[${i}].t=this.value">
+        <input class="kzh-step-min" placeholder="5 мин"
+          value="${escH(s.min)}" oninput="window._kzhSteps[${i}].min=this.value">
+      </div>
+      <textarea class="kzh-step-desc" placeholder="Кезеңде не істелетінін қысқаша жазыңыз..."
+        oninput="window._kzhSteps[${i}].d=this.value">${escH(s.d)}</textarea>
+    </div>
+  `).join('');
+}
+
+function kzhLoad(plan){
+  if(plan && plan.goal !== undefined){
+    window._kzhActive = true;
+    window._kzhSteps = (plan.steps||[]).map(s=>({t:s.t||'', min:s.min||'', d:s.d||''}));
+    document.getElementById('kzhGoal').value = plan.goal||'';
+    document.getElementById('kzhEditor').style.display = 'block';
+    document.getElementById('kzhToggleBtn').classList.add('has-plan');
+    document.getElementById('kzhToggleLbl').textContent = 'КЖ бар (жасыру)';
+    kzhRenderSteps();
+  } else {
+    window._kzhActive = false;
+    window._kzhSteps = [];
+    document.getElementById('kzhGoal').value = '';
+    document.getElementById('kzhEditor').style.display = 'none';
+    document.getElementById('kzhToggleBtn').classList.remove('has-plan');
+    document.getElementById('kzhToggleLbl').textContent = 'КЖ қосу';
+  }
+}
+
+function kzhCollect(){
+  if(!window._kzhActive) return null;
+  // DOM-нан соңғы мәндерді жинау
+  window._kzhSteps = window._kzhSteps.map((s, i) => {
+    const block = document.getElementById('kzhStep'+i);
+    if(block){
+      const inputs = block.querySelectorAll('input');
+      const ta = block.querySelector('textarea');
+      return { t: inputs[0]?.value.trim()||s.t, min: inputs[1]?.value.trim()||s.min, d: ta?.value.trim()||s.d };
+    }
+    return s;
+  }).filter(s => s.t.trim());
+  return {
+    goal: document.getElementById('kzhGoal').value.trim(),
+    steps: window._kzhSteps
+  };
+}
+
 async function saveModal(){
   const kk=document.getElementById('mTKk').value.trim();
   if(!kk){alert('Тақырып атауын жазыңыз!');return;}
@@ -3011,7 +3146,8 @@ async function saveModal(){
     mapq:document.getElementById('mMapQ').value.trim(),
     mapImg:window._mapImgData||'',
     mapDots:window._mapDots.slice(),
-    mapOpts:window._mapOpts.slice()
+    mapOpts:window._mapOpts.slice(),
+    plan: kzhCollect()
   };
   if(editIdx>=0) T[editIdx]=entry;
   else T.push(entry);
