@@ -13,14 +13,14 @@
   --green-light: #d1fae5;
   --amber: #f59e0b;
   --red: #ef4444;
-  --bg: #ffe0e0;
+  --bg: #f5f5f7;
   --card: #ffffff;
   --text: #111118;
   --muted: #8e8ea0;
   --border: #ebebef;
   --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
   --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 8px 32px rgba(0,0,0,.06);
-  --r: 22px;
+  --r: 18px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
@@ -443,7 +443,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 /* ── HEADER ── */
 .header {
-  background: rgba(238,240,248,.94); color: var(--text); padding: 13px 16px;
+  background: rgba(255,255,255,.92); color: var(--text); padding: 12px 16px;
   position: sticky; top: 0; z-index: 50;
   border-bottom: 1px solid rgba(0,0,0,.06);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -518,14 +518,14 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .bstat-l { font-size: 10px; opacity: .65; margin-top: 2px; font-weight: 600; letter-spacing: .3px; }
 
 /* ── SECTION LABEL ── */
-.slabel { font-size: 10px; font-weight: 800; color: #a0a3b8; letter-spacing: 1.5px; text-transform: uppercase; padding: 20px 20px 8px; }
+.slabel { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; padding: 20px 20px 10px; }
 
 /* ── TOPIC LIST ── */
-.tlist { padding: 0 12px 8px; display: flex; flex-direction: column; gap: 8px; }
+.tlist { padding: 0 12px 8px; display: flex; flex-direction: column; gap: 6px; }
 .tcard {
-  background: var(--card); border-radius: 20px; padding: 15px 16px;
+  background: var(--card); border-radius: 16px; padding: 14px 16px;
   display: flex; align-items: center; gap: 14px; cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06); border: 1.5px solid #e2e4f0;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s;
 }
 .tcard:hover { border-color: #c7c7f5; box-shadow: var(--shadow-md); }
