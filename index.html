@@ -251,16 +251,24 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 
 #programScreen {
-  background: linear-gradient(160deg, #0d1117 0%, #1a1a3e 45%, #2d1b69 75%, #4f46e5 100%);
+  background: #0a1628;
   display: none; flex-direction: column;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 #programScreen.active { display: flex !important; }
 #programScreen::before {
   content: '';
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background: radial-gradient(ellipse at 70% 20%, rgba(124,58,237,.25) 0%, transparent 60%),
-              radial-gradient(ellipse at 20% 80%, rgba(79,70,229,.2) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 60% 15%, rgba(16,185,129,.12) 0%, transparent 55%),
+              radial-gradient(ellipse at 15% 75%, rgba(56,189,248,.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 80%, rgba(79,70,229,.15) 0%, transparent 45%);
+}
+
+/* Geo animated canvas */
+#geoCanvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0.85;
 }
 .pg-content { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
 
@@ -270,22 +278,22 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 .pg-org {
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25);
   backdrop-filter: blur(8px); border-radius: 20px; padding: 5px 14px;
-  color: rgba(255,255,255,.75); font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.8); font-size: 9px; font-weight: 700;
   letter-spacing: 1px; text-transform: uppercase; text-align: center; line-height: 1.5;
 }
 .pg-globe {
-  width: 64px; height: 64px;
-  background: rgba(255,255,255,.08); border-radius: 20px;
+  width: 70px; height: 70px;
+  background: rgba(16,185,129,.15); border-radius: 22px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(8px);
+  border: 1px solid rgba(16,185,129,.3); backdrop-filter: blur(8px);
   animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(124,58,237,.6));
-  font-size: 32px;
+  filter: drop-shadow(0 0 24px rgba(16,185,129,.55));
+  font-size: 36px;
 }
 .pg-label {
-  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  background: linear-gradient(135deg, #34d399, #38bdf8);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
@@ -295,7 +303,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   font-size: 20px; font-weight: 700; color: #fff;
   line-height: 1.25; letter-spacing: -0.5px; text-align: center;
 }
-.pg-title span { color: #a78bfa; }
+.pg-title span { color: #34d399; }
 .pg-course-type {
   font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.5; text-align: center;
 }
@@ -306,26 +314,26 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   gap: 6px; padding: 0 16px 16px; position: relative; z-index: 1;
 }
 .pg-stat {
-  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.2);
   border-radius: 12px; padding: 10px 6px; backdrop-filter: blur(8px); text-align: center;
 }
 .pg-stat-icon { display: flex; justify-content: center; margin-bottom: 4px; }
-.pg-stat-icon svg { width: 16px; height: 16px; stroke: rgba(255,255,255,.7); }
+.pg-stat-icon svg { width: 16px; height: 16px; stroke: rgba(52,211,153,.85); }
 .pg-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
 .pg-stat-lbl { font-size: 9px; color: rgba(255,255,255,.5); font-weight: 600; margin-top: 1px; }
 
 /* Authors card */
 .pg-authors {
   margin: 0 16px 14px; display: flex; align-items: center; gap: 10px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.18);
   border-radius: 14px; padding: 10px 14px; backdrop-filter: blur(8px);
   position: relative; z-index: 1;
 }
 .pg-avatars { display: flex; }
 .pg-avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  border: 2px solid rgba(255,255,255,.3);
+  background: linear-gradient(135deg, #059669, #0891b2);
+  border: 2px solid rgba(52,211,153,.4);
   display: flex; align-items: center; justify-content: center;
   font-size: 9px; font-weight: 800; color: #fff;
   margin-right: -7px; flex-shrink: 0;
@@ -388,10 +396,10 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .pg-result-pill svg { width: 10px; height: 10px; stroke: #059669; flex-shrink: 0; }
 .btn-program {
   width: 100%; padding: 14px; border: none; border-radius: 14px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #059669, #0891b2);
   color: #fff; font-family: 'Space Grotesk', sans-serif;
   font-size: 14px; font-weight: 700; cursor: pointer;
-  box-shadow: 0 6px 20px rgba(79,70,229,.4);
+  box-shadow: 0 6px 20px rgba(5,150,105,.4);
   transition: transform .15s;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin-top: 4px;
@@ -1070,6 +1078,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <!-- WELCOME / АВТОРЛЫҚ БАҒДАРЛАМА -->
 <!-- АВТОРЛЫҚ БАҒДАРЛАМА SCREEN -->
 <div id="programScreen" class="screen">
+  <canvas id="geoCanvas"></canvas>
   <div class="pg-content">
     <div class="pg-header">
       <div class="pg-org">Қазақстан Республикасы Оқу-ағарту министрлігі<br>Түркістан облысы · Сарыағаш ауданы · №4 мектеп-интернаты КММ</div>
@@ -3531,6 +3540,239 @@ function clearTopicImg(){
 }
 
 function toggleLang(){}
+
+// ═══ GEO CANVAS ANIMATION ═══
+(function(){
+  const canvas = document.getElementById('geoCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // World map simplified outline points (longitude→x, latitude→y normalized 0-1)
+  // Meridian/parallel grid lines + animated "flight paths" + floating dots
+  let W, H, animId;
+  let particles = [];
+  let arcs = [];
+  let t = 0;
+
+  const GEO_GREEN = 'rgba(16,185,129,';
+  const GEO_BLUE  = 'rgba(56,189,248,';
+  const GEO_SOFT  = 'rgba(167,243,208,';
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    initParticles();
+    initArcs();
+  }
+
+  function initParticles(){
+    particles = [];
+    const count = Math.floor(W * H / 14000);
+    for(let i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*W, y: Math.random()*H,
+        r: Math.random()*1.6+0.4,
+        vx:(Math.random()-.5)*0.18, vy:(Math.random()-.5)*0.18,
+        a: Math.random()*0.6+0.15,
+        col: Math.random()>.5 ? GEO_GREEN : GEO_BLUE
+      });
+    }
+  }
+
+  // Arcs = curved "flight paths" between two random points
+  function initArcs(){
+    arcs = [];
+    const n = Math.floor(W/120)+3;
+    for(let i=0;i<n;i++) arcs.push(newArc());
+  }
+
+  function newArc(){
+    const x1=Math.random()*W, y1=Math.random()*H*.8+H*.1;
+    const x2=Math.random()*W, y2=Math.random()*H*.8+H*.1;
+    const cx=(x1+x2)/2 + (Math.random()-.5)*W*.35;
+    const cy=(y1+y2)/2 - Math.abs(x2-x1)*.25 - 40;
+    return {
+      x1,y1,x2,y2,cx,cy,
+      prog:0,
+      speed:0.0008+Math.random()*0.0012,
+      col: Math.random()>.5 ? GEO_GREEN : GEO_BLUE,
+      width: Math.random()*0.8+0.3,
+      dotCol: Math.random()>.5 ? GEO_GREEN : GEO_SOFT
+    };
+  }
+
+  // Draw lat/lon grid
+  function drawGrid(){
+    const lats = 9, lons = 17;
+    // Latitude lines (horizontal)
+    for(let i=1;i<lats;i++){
+      const y = H * i/lats;
+      ctx.beginPath();
+      ctx.moveTo(0,y); ctx.lineTo(W,y);
+      const a = i===lats/2 ? .07 : .03;
+      ctx.strokeStyle = GEO_GREEN+a+')';
+      ctx.lineWidth = i===lats/2 ? 1 : 0.5;
+      ctx.stroke();
+    }
+    // Longitude lines (vertical, slightly curved with bezier to give globe feel)
+    for(let i=1;i<lons;i++){
+      const x = W * i/lons;
+      // slight curve towards center
+      const midY = H/2;
+      const bend = (W/2 - x)*0.04;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.bezierCurveTo(x+bend,H*.25, x+bend,H*.75, x,H);
+      const a = i===Math.floor(lons/2) ? .07 : .025;
+      ctx.strokeStyle = GEO_BLUE+a+')';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+    // Equator emphasis
+    ctx.beginPath();
+    ctx.moveTo(0, H/2); ctx.lineTo(W, H/2);
+    ctx.strokeStyle = GEO_GREEN+'.09)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Draw animated arc flight paths
+  function drawArcs(){
+    arcs.forEach(arc=>{
+      arc.prog += arc.speed;
+      if(arc.prog > 1.15){
+        Object.assign(arc, newArc());
+        arc.prog = 0;
+        return;
+      }
+      const p = Math.min(arc.prog,1);
+      // Draw trail
+      ctx.beginPath();
+      // Use quadratic bezier, sample points up to p
+      const steps = 60;
+      const end = Math.floor(p*steps);
+      if(end<2) return;
+      ctx.moveTo(arc.x1, arc.y1);
+      for(let s=1;s<=end;s++){
+        const tt = s/steps;
+        const px = (1-tt)*(1-tt)*arc.x1 + 2*(1-tt)*tt*arc.cx + tt*tt*arc.x2;
+        const py = (1-tt)*(1-tt)*arc.y1 + 2*(1-tt)*tt*arc.cy + tt*tt*arc.y2;
+        if(s===1) ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+      }
+      const fade = Math.min(p*3,1)*Math.min((1.15-arc.prog)*5,1);
+      ctx.strokeStyle = arc.col+(fade*0.35)+')';
+      ctx.lineWidth = arc.width;
+      ctx.stroke();
+
+      // Leading dot
+      if(p<1){
+        const tt = p;
+        const dx = (1-tt)*(1-tt)*arc.x1 + 2*(1-tt)*tt*arc.cx + tt*tt*arc.x2;
+        const dy = (1-tt)*(1-tt)*arc.y1 + 2*(1-tt)*tt*arc.cy + tt*tt*arc.y2;
+        ctx.beginPath();
+        ctx.arc(dx,dy,2.2,0,Math.PI*2);
+        ctx.fillStyle = arc.dotCol+(fade*0.9)+')';
+        ctx.fill();
+        // glow
+        ctx.beginPath();
+        ctx.arc(dx,dy,5,0,Math.PI*2);
+        ctx.fillStyle = arc.dotCol+(fade*0.15)+')';
+        ctx.fill();
+      }
+    });
+  }
+
+  // Draw floating star-like dots
+  function drawParticles(){
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      const pulse = (Math.sin(t*0.7+p.x*0.01)*0.25+0.75);
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.col+(p.a*pulse)+')';
+      ctx.fill();
+    });
+  }
+
+  // Location pin dots on approximate world capitals
+  const pins = [
+    {lx:.52,ly:.36},{lx:.28,ly:.28},{lx:.58,ly:.42},
+    {lx:.68,ly:.38},{lx:.16,ly:.52},{lx:.85,ly:.55},
+    {lx:.48,ly:.55},{lx:.72,ly:.52},{lx:.42,ly:.22},
+    {lx:.35,ly:.45},{lx:.62,ly:.28},{lx:.55,ly:.62}
+  ];
+  let pinPulse = 0;
+
+  function drawPins(){
+    pinPulse += 0.018;
+    pins.forEach((pin,i)=>{
+      const px = pin.lx*W, py = pin.ly*H;
+      const phase = pinPulse + i*0.6;
+      const pulse = (Math.sin(phase)*0.4+0.6);
+
+      // outer ring
+      ctx.beginPath();
+      ctx.arc(px,py,4+pulse*3,0,Math.PI*2);
+      ctx.strokeStyle = GEO_GREEN+(0.12*pulse)+')';
+      ctx.lineWidth=1;
+      ctx.stroke();
+
+      // dot
+      ctx.beginPath();
+      ctx.arc(px,py,2,0,Math.PI*2);
+      ctx.fillStyle = GEO_GREEN+(0.55+pulse*.2)+')';
+      ctx.fill();
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Deep space background
+    const bg = ctx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#060e1a');
+    bg.addColorStop(.4,'#0a1628');
+    bg.addColorStop(.75,'#0d1f2d');
+    bg.addColorStop(1,'#0a1628');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    t += 0.012;
+    drawGrid();
+    drawArcs();
+    drawParticles();
+    drawPins();
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  function start(){
+    if(animId) cancelAnimationFrame(animId);
+    resize();
+    draw();
+  }
+  function stop(){
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+  }
+
+  window.addEventListener('resize', resize);
+
+  // Start/stop when programScreen becomes visible
+  const observer = new MutationObserver(()=>{
+    const pg = document.getElementById('programScreen');
+    if(pg && pg.classList.contains('active')) start();
+    else stop();
+  });
+  const pg = document.getElementById('programScreen');
+  if(pg){
+    observer.observe(pg,{attributes:true,attributeFilter:['class']});
+    if(pg.classList.contains('active')) start();
+  }
+})();
+
 </script>
 </body>
 </html>
