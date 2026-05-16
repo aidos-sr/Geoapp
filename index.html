@@ -89,20 +89,24 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 /* ── WELCOME SCREEN — бір экранға сыйады, scroll жоқ ── */
 #welcomeScreen {
-  background: transparent;
+  background: linear-gradient(160deg, #0d1117 0%, #1a1a3e 45%, #2d1b69 75%, #4f46e5 100%);
   display: none; flex-direction: column;
   overflow: hidden;
-  position: fixed; inset: 0;
 }
 #welcomeScreen.active { display: flex !important; }
-#welcomeScreen::before { display: none !important; }
-.wc-hero {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 16px 20px 12px;
-  position: relative; z-index: 2; text-align: center; gap: 8px;
+#welcomeScreen::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 70% 20%, rgba(124,58,237,.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(79,70,229,.2) 0%, transparent 50%);
 }
 
 /* Top dark section — compact */
+.wc-hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 16px 20px 12px;
+  position: relative; text-align: center; gap: 8px;
+}
 .wc-badge {
   background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
   backdrop-filter: blur(8px); border-radius: 20px; padding: 5px 14px;
@@ -163,7 +167,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 /* White bottom sheet */
 .wc-sheet {
   background: #fff; border-radius: 24px 24px 0 0; padding: 18px 18px 28px;
-  box-shadow: 0 -12px 40px rgba(0,0,0,.4); position: relative; flex-shrink: 0; z-index: 2;
+  box-shadow: 0 -12px 40px rgba(0,0,0,.4); position: relative; flex-shrink: 0;
 }
 .wc-sheet-title {
   font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700;
@@ -247,14 +251,27 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 
 #programScreen {
-  background: transparent;
+  background: #0a1628;
   display: none; flex-direction: column;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
-  position: fixed; inset: 0;
+  position: fixed; inset: 0; z-index: 100;
+  width: 100%; height: 100%;
 }
 #programScreen.active { display: flex !important; }
-#programScreen::before { display: none !important; }
-.pg-content { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; }
+#programScreen::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse at 60% 15%, rgba(16,185,129,.12) 0%, transparent 55%),
+              radial-gradient(ellipse at 15% 75%, rgba(56,189,248,.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 85% 80%, rgba(79,70,229,.15) 0%, transparent 45%);
+}
+
+/* Geo animated canvas */
+#geoCanvas {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0.9;
+}
+.pg-content { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
 
 /* Program screen header */
 .pg-header {
@@ -262,22 +279,22 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 .pg-org {
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25);
   backdrop-filter: blur(8px); border-radius: 20px; padding: 5px 14px;
-  color: rgba(255,255,255,.75); font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.8); font-size: 9px; font-weight: 700;
   letter-spacing: 1px; text-transform: uppercase; text-align: center; line-height: 1.5;
 }
 .pg-globe {
-  width: 64px; height: 64px;
-  background: rgba(255,255,255,.08); border-radius: 20px;
+  width: 70px; height: 70px;
+  background: rgba(16,185,129,.15); border-radius: 22px;
   display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(8px);
+  border: 1px solid rgba(16,185,129,.3); backdrop-filter: blur(8px);
   animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(124,58,237,.6));
-  font-size: 32px;
+  filter: drop-shadow(0 0 24px rgba(16,185,129,.55));
+  font-size: 36px;
 }
 .pg-label {
-  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  background: linear-gradient(135deg, #34d399, #38bdf8);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
@@ -287,7 +304,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   font-size: 20px; font-weight: 700; color: #fff;
   line-height: 1.25; letter-spacing: -0.5px; text-align: center;
 }
-.pg-title span { color: #a78bfa; }
+.pg-title span { color: #34d399; }
 .pg-course-type {
   font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.5; text-align: center;
 }
@@ -298,26 +315,26 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   gap: 6px; padding: 0 16px 16px; position: relative; z-index: 1;
 }
 .pg-stat {
-  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  background: rgba(16,185,129,.07); border: 1px solid rgba(16,185,129,.2);
   border-radius: 12px; padding: 10px 6px; backdrop-filter: blur(8px); text-align: center;
 }
 .pg-stat-icon { display: flex; justify-content: center; margin-bottom: 4px; }
-.pg-stat-icon svg { width: 16px; height: 16px; stroke: rgba(255,255,255,.7); }
+.pg-stat-icon svg { width: 16px; height: 16px; stroke: rgba(52,211,153,.85); }
 .pg-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
 .pg-stat-lbl { font-size: 9px; color: rgba(255,255,255,.5); font-weight: 600; margin-top: 1px; }
 
 /* Authors card */
 .pg-authors {
   margin: 0 16px 14px; display: flex; align-items: center; gap: 10px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.18);
   border-radius: 14px; padding: 10px 14px; backdrop-filter: blur(8px);
   position: relative; z-index: 1;
 }
 .pg-avatars { display: flex; }
 .pg-avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  border: 2px solid rgba(255,255,255,.3);
+  background: linear-gradient(135deg, #059669, #0891b2);
+  border: 2px solid rgba(52,211,153,.4);
   display: flex; align-items: center; justify-content: center;
   font-size: 9px; font-weight: 800; color: #fff;
   margin-right: -7px; flex-shrink: 0;
@@ -380,10 +397,10 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .pg-result-pill svg { width: 10px; height: 10px; stroke: #059669; flex-shrink: 0; }
 .btn-program {
   width: 100%; padding: 14px; border: none; border-radius: 14px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #059669, #0891b2);
   color: #fff; font-family: 'Space Grotesk', sans-serif;
   font-size: 14px; font-weight: 700; cursor: pointer;
-  box-shadow: 0 6px 20px rgba(79,70,229,.4);
+  box-shadow: 0 6px 20px rgba(5,150,105,.4);
   transition: transform .15s;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   margin-top: 4px;
@@ -1062,6 +1079,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <!-- WELCOME / АВТОРЛЫҚ БАҒДАРЛАМА -->
 <!-- АВТОРЛЫҚ БАҒДАРЛАМА SCREEN -->
 <div id="programScreen" class="screen">
+  <canvas id="geoCanvas"></canvas>
   <div class="pg-content">
     <div class="pg-header">
       <div class="pg-org">Қазақстан Республикасы Оқу-ағарту министрлігі<br>Түркістан облысы · Сарыағаш ауданы · №4 мектеп-интернаты КММ</div>
@@ -2150,6 +2168,8 @@ function showProgram(){
   document.getElementById("nbProg").classList.add("act");
   document.getElementById("mainScreen").classList.remove("active");
   document.getElementById("programScreen").classList.add("active");
+  // Canvas-ты жүктеу
+  if(typeof startGeoCanvas === 'function') startGeoCanvas();
 }
 async function logout(){
   const {signOut} = window._fbFns;
@@ -3523,262 +3543,241 @@ function clearTopicImg(){
 }
 
 function toggleLang(){}
-</script>
 
-<!-- ═══ GEO CANVAS ANIMATION ═══ -->
-<script>
+// ═══ GEO CANVAS ANIMATION ═══
 (function(){
-  // Create canvas and append to body
-  const canvas = document.createElement('canvas');
-  canvas.id = 'geoCanvas';
-  canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;display:none;';
-  document.body.appendChild(canvas);
+  window.startGeoCanvas = start;
+  const canvas = document.getElementById('geoCanvas');
+  if(!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W, H;
 
-  // Also add dark body background style tag
-  const styleEl = document.createElement('style');
-  styleEl.textContent = 'body.geo-on { background: #010c18 !important; }';
-  document.head.appendChild(styleEl);
+  // World map simplified outline points (longitude→x, latitude→y normalized 0-1)
+  // Meridian/parallel grid lines + animated "flight paths" + floating dots
+  let W, H, animId;
+  let particles = [];
+  let arcs = [];
+  let t = 0;
+
+  const GEO_GREEN = 'rgba(16,185,129,';
+  const GEO_BLUE  = 'rgba(56,189,248,';
+  const GEO_SOFT  = 'rgba(167,243,208,';
 
   function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  // Check visibility
-  function isVisible(){
-    const ps = document.getElementById('programScreen');
-    const ws = document.getElementById('welcomeScreen');
-    return !!(ps?.classList.contains('active') || ws?.classList.contains('active'));
+    const pg = document.getElementById('programScreen');
+    W = canvas.width  = pg ? pg.offsetWidth  : window.innerWidth;
+    H = canvas.height = pg ? pg.offsetHeight : window.innerHeight;
+    if(W < 10) { W = window.innerWidth; H = window.innerHeight; }
+    initParticles();
+    initArcs();
   }
 
-  // Stars
-  const stars = Array.from({length:220}, ()=>({
-    x:Math.random(), y:Math.random(),
-    r:Math.random()*1.5+0.2,
-    a:Math.random()*0.8+0.1,
-    ph:Math.random()*Math.PI*2,
-    sp:Math.random()*0.025+0.005
-  }));
-
-  // Floating geo crosshair markers
-  const markers = Array.from({length:30}, ()=>({
-    x:Math.random(), y:Math.random(),
-    vx:(Math.random()-0.5)*0.00012,
-    vy:(Math.random()-0.5)*0.00008,
-    sz:Math.random()*2+1,
-    hue:Math.random()<0.5?(Math.random()*30+185):(Math.random()*40+120),
-    a:Math.random()*0.45+0.15,
-    ph:Math.random()*Math.PI*2
-  }));
-
-  // Simplified continent outlines (normalized 0-1)
-  const conts = [
-    {c:'#22d3ee', a:0.22, pts:[[.44,.20],[.50,.16],[.60,.13],[.70,.15],[.78,.20],[.82,.26],[.78,.33],[.68,.37],[.72,.44],[.65,.48],[.58,.44],[.50,.47],[.46,.40],[.42,.32],[.40,.26]]},
-    {c:'#34d399', a:0.20, pts:[[.49,.38],[.54,.36],[.59,.39],[.61,.47],[.59,.58],[.54,.67],[.48,.69],[.44,.62],[.42,.52],[.44,.44]]},
-    {c:'#818cf8', a:0.18, pts:[[.22,.17],[.27,.15],[.31,.20],[.29,.29],[.25,.38],[.22,.47],[.20,.56],[.19,.65],[.21,.74],[.25,.79],[.29,.75],[.27,.65],[.25,.56],[.27,.46],[.30,.38]]},
-    {c:'#fbbf24', a:0.18, pts:[[.77,.57],[.83,.55],[.87,.58],[.89,.63],[.85,.67],[.79,.67],[.75,.63]]},
-    {c:'#f472b6', a:0.14, pts:[[.10,.70],[.14,.68],[.18,.70],[.20,.75],[.18,.80],[.12,.80],[.09,.75]]}, // Antarctica hint
-  ];
-
-  function drawBg(){
-    const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#010c18');
-    g.addColorStop(0.45,'#051628');
-    g.addColorStop(1,'#020e1e');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    // Aurora top glow
-    const au = ctx.createRadialGradient(W*.5,-H*.05,0,W*.5,-H*.05,H*.7);
-    au.addColorStop(0,'rgba(16,185,129,.08)');
-    au.addColorStop(.5,'rgba(56,189,248,.04)');
-    au.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=au; ctx.fillRect(0,0,W,H);
-    // Bottom warmth
-    const bw = ctx.createRadialGradient(W*.5,H*1.1,0,W*.5,H*1.1,H*.6);
-    bw.addColorStop(0,'rgba(99,102,241,.06)');
-    bw.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=bw; ctx.fillRect(0,0,W,H);
-  }
-
-  function drawGrid(t){
-    ctx.save();
-    // Meridians
-    ctx.strokeStyle='rgba(96,165,250,.055)'; ctx.lineWidth=.8;
-    for(let i=0;i<=14;i++){
-      const x=(i/14)*W;
-      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+  function initParticles(){
+    particles = [];
+    const count = Math.floor(W * H / 14000);
+    for(let i=0;i<count;i++){
+      particles.push({
+        x: Math.random()*W, y: Math.random()*H,
+        r: Math.random()*1.6+0.4,
+        vx:(Math.random()-.5)*0.18, vy:(Math.random()-.5)*0.18,
+        a: Math.random()*0.6+0.15,
+        col: Math.random()>.5 ? GEO_GREEN : GEO_BLUE
+      });
     }
-    // Parallels with wave
-    ctx.strokeStyle='rgba(96,165,250,.045)';
-    for(let j=0;j<=8;j++){
-      const yb=(j/8)*H;
-      ctx.beginPath(); ctx.moveTo(0,yb);
-      for(let x=0;x<=W;x+=8) ctx.lineTo(x, yb+Math.sin(x/W*Math.PI*5+t*.45)*4.5);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
-  function drawStars(t){
-    stars.forEach(s=>{
-      const p=Math.sin(t*s.sp+s.ph)*.35+.65;
-      ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(210,235,255,${s.a*p})`; ctx.fill();
-    });
+  // Arcs = curved "flight paths" between two random points
+  function initArcs(){
+    arcs = [];
+    const n = Math.floor(W/120)+3;
+    for(let i=0;i<n;i++) arcs.push(newArc());
   }
 
-  function drawConts(){
-    conts.forEach(c=>{
-      ctx.save();
-      ctx.lineWidth=1.8; ctx.strokeStyle=c.c; ctx.shadowColor=c.c; ctx.shadowBlur=12;
-      ctx.globalAlpha=c.a;
-      ctx.beginPath(); ctx.moveTo(c.pts[0][0]*W,c.pts[0][1]*H);
-      for(let i=1;i<c.pts.length;i++) ctx.lineTo(c.pts[i][0]*W,c.pts[i][1]*H);
-      ctx.closePath(); ctx.stroke();
-      ctx.globalAlpha=c.a*.28; ctx.fillStyle=c.c; ctx.fill();
-      ctx.restore();
-    });
+  function newArc(){
+    const x1=Math.random()*W, y1=Math.random()*H*.8+H*.1;
+    const x2=Math.random()*W, y2=Math.random()*H*.8+H*.1;
+    const cx=(x1+x2)/2 + (Math.random()-.5)*W*.35;
+    const cy=(y1+y2)/2 - Math.abs(x2-x1)*.25 - 40;
+    return {
+      x1,y1,x2,y2,cx,cy,
+      prog:0,
+      speed:0.0008+Math.random()*0.0012,
+      col: Math.random()>.5 ? GEO_GREEN : GEO_BLUE,
+      width: Math.random()*0.8+0.3,
+      dotCol: Math.random()>.5 ? GEO_GREEN : GEO_SOFT
+    };
   }
 
-  function drawGlobe(t){
-    const cx=W*.78, cy=H*.36, R=Math.min(W,H)*.19;
-    // Halo
-    ctx.save();
-    const h=ctx.createRadialGradient(cx,cy,R*.2,cx,cy,R*1.8);
-    h.addColorStop(0,'rgba(34,211,238,.12)'); h.addColorStop(1,'rgba(34,211,238,0)');
-    ctx.fillStyle=h; ctx.beginPath(); ctx.arc(cx,cy,R*1.8,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-    // Ocean
-    ctx.save();
-    const oc=ctx.createRadialGradient(cx-R*.3,cy-R*.3,R*.05,cx,cy,R);
-    oc.addColorStop(0,'rgba(8,145,178,.55)'); oc.addColorStop(1,'rgba(7,89,133,.28)');
-    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle=oc; ctx.fill();
-    ctx.restore();
-    // Longitude arcs (rotating)
-    ctx.save();
-    for(let i=0;i<8;i++){
-      const a=t*.28+i*Math.PI/8;
-      const cosA=Math.cos(a);
-      ctx.globalAlpha=.16-i*.01; ctx.strokeStyle='#67e8f9'; ctx.lineWidth=.85;
-      ctx.beginPath(); ctx.moveTo(cx+cosA*R,cy-R*.01);
-      ctx.bezierCurveTo(cx+cosA*R*.5,cy-R*.96,cx-cosA*R*.5,cy-R*.96,cx-cosA*R,cy-R*.01);
-      ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx+cosA*R,cy+R*.01);
-      ctx.bezierCurveTo(cx+cosA*R*.5,cy+R*.96,cx-cosA*R*.5,cy+R*.96,cx-cosA*R,cy+R*.01);
-      ctx.stroke();
-    }
-    ctx.restore();
-    // Latitude rings
-    ctx.save();
-    for(let i=1;i<5;i++){
-      const f=i/5, latY=cy-R*Math.cos(f*Math.PI)*.95, latRx=R*Math.sin(f*Math.PI)*.97;
-      ctx.globalAlpha=.13; ctx.strokeStyle='#67e8f9'; ctx.lineWidth=.7;
-      ctx.beginPath(); ctx.ellipse(cx,latY,latRx,latRx*.16,0,0,Math.PI*2); ctx.stroke();
-    }
-    ctx.restore();
-    // Equator
-    ctx.save(); ctx.globalAlpha=.22; ctx.strokeStyle='#e879f9'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.ellipse(cx,cy,R,R*.15,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
-    // Border
-    ctx.save(); ctx.globalAlpha=.5; ctx.strokeStyle='#38bdf8'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke(); ctx.restore();
-    // Pulse dot on globe
-    const dotA=.4+Math.sin(t*2)*.3;
-    ctx.save(); ctx.globalAlpha=dotA; ctx.fillStyle='#f0abfc'; ctx.shadowColor='#f0abfc'; ctx.shadowBlur=12;
-    ctx.beginPath(); ctx.arc(cx+R*.18, cy-R*.22, 3.5, 0, Math.PI*2); ctx.fill(); ctx.restore();
-  }
-
-  function drawMarkers(t){
-    markers.forEach(m=>{
-      m.x+=m.vx; m.y+=m.vy;
-      if(m.x<0)m.x=1; if(m.x>1)m.x=0;
-      if(m.y<0)m.y=1; if(m.y>1)m.y=0;
-      m.ph+=.022;
-      const p=Math.sin(m.ph)*.3+.7;
-      const px=m.x*W, py=m.y*H, sz=m.sz;
-      ctx.save();
-      ctx.globalAlpha=m.a*p; ctx.fillStyle=`hsl(${m.hue},80%,70%)`;
-      ctx.shadowColor=`hsl(${m.hue},80%,70%)`; ctx.shadowBlur=7;
-      ctx.beginPath(); ctx.arc(px,py,sz,0,Math.PI*2); ctx.fill();
-      ctx.globalAlpha=m.a*.35*p; ctx.strokeStyle=`hsl(${m.hue},80%,70%)`; ctx.lineWidth=.8;
-      ctx.beginPath(); ctx.moveTo(px-sz*2.8,py); ctx.lineTo(px+sz*2.8,py); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(px,py-sz*2.8); ctx.lineTo(px,py+sz*2.8); ctx.stroke();
-      ctx.restore();
-    });
-  }
-
-  function drawCompass(t){
-    const cx=W*.09, cy=H*.88, R=24;
-    ctx.save(); ctx.globalAlpha=.38; ctx.translate(cx,cy);
-    ctx.rotate(Math.sin(t*.07)*.07);
-    ctx.strokeStyle='#38bdf8'; ctx.lineWidth=.9;
-    ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2); ctx.stroke();
-    for(let i=0;i<4;i++){
-      const a=i*Math.PI/2;
-      ctx.beginPath(); ctx.moveTo(Math.cos(a)*R*.82,Math.sin(a)*R*.82);
-      ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R); ctx.stroke();
-    }
-    ctx.fillStyle='#f87171';
-    ctx.beginPath(); ctx.moveTo(0,-R*.78); ctx.lineTo(-4,2); ctx.lineTo(4,2); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,.7)';
-    ctx.beginPath(); ctx.moveTo(0,R*.78); ctx.lineTo(-4,-2); ctx.lineTo(4,-2); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#38bdf8'; ctx.beginPath(); ctx.arc(0,0,2.5,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha=.55; ctx.fillStyle='#fff'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center';
-    ctx.fillText('N',0,-R*1.35);
-    ctx.restore();
-  }
-
-  function drawCoords(t){
-    const lat=(Math.sin(t*.1)*43).toFixed(1);
-    const lon=(Math.cos(t*.07)*89).toFixed(1);
-    ctx.save(); ctx.globalAlpha=.28; ctx.fillStyle='#67e8f9';
-    ctx.font='bold 9px monospace'; ctx.textAlign='left';
-    ctx.fillText(`${lat > 0 ? '+':''}${lat}° N   ${lon > 0 ? '+':''}${lon}° E`, W*.04, H*.965);
-    ctx.restore();
-  }
-
-  // Shooting stars
-  const shoots = [];
-  function maybeShoot(t){
-    if(Math.random()<.002){
-      shoots.push({x:Math.random()*.6,y:Math.random()*.4,len:Math.random()*80+40,a:.8,angle:Math.PI*.18});
-    }
-    for(let i=shoots.length-1;i>=0;i--){
-      const s=shoots[i]; s.a-=.015;
-      if(s.a<=0){shoots.splice(i,1);continue;}
-      ctx.save(); ctx.globalAlpha=s.a; ctx.strokeStyle='#e0f2fe'; ctx.lineWidth=1.2;
+  // Draw lat/lon grid
+  function drawGrid(){
+    const lats = 9, lons = 17;
+    // Latitude lines (horizontal)
+    for(let i=1;i<lats;i++){
+      const y = H * i/lats;
       ctx.beginPath();
-      ctx.moveTo(s.x*W,s.y*H);
-      ctx.lineTo(s.x*W+Math.cos(s.angle)*s.len,s.y*H+Math.sin(s.angle)*s.len);
-      ctx.stroke(); ctx.restore();
-      s.x+=Math.cos(s.angle)*.004; s.y+=Math.sin(s.angle)*.004;
+      ctx.moveTo(0,y); ctx.lineTo(W,y);
+      const a = i===lats/2 ? .07 : .03;
+      ctx.strokeStyle = GEO_GREEN+a+')';
+      ctx.lineWidth = i===lats/2 ? 1 : 0.5;
+      ctx.stroke();
     }
+    // Longitude lines (vertical, slightly curved with bezier to give globe feel)
+    for(let i=1;i<lons;i++){
+      const x = W * i/lons;
+      // slight curve towards center
+      const midY = H/2;
+      const bend = (W/2 - x)*0.04;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.bezierCurveTo(x+bend,H*.25, x+bend,H*.75, x,H);
+      const a = i===Math.floor(lons/2) ? .07 : .025;
+      ctx.strokeStyle = GEO_BLUE+a+')';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+    // Equator emphasis
+    ctx.beginPath();
+    ctx.moveTo(0, H/2); ctx.lineTo(W, H/2);
+    ctx.strokeStyle = GEO_GREEN+'.09)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
   }
 
-  let start=performance.now();
-  function frame(){
-    requestAnimationFrame(frame);
-    const vis=isVisible();
-    canvas.style.display=vis?'block':'none';
-    if(vis) document.body.classList.add('geo-on');
-    else document.body.classList.remove('geo-on');
-    if(!vis) return;
-    const t=(performance.now()-start)/1000;
-    drawBg();
-    drawStars(t);
-    drawGrid(t);
-    drawConts();
-    drawGlobe(t);
-    drawMarkers(t);
-    maybeShoot(t);
-    drawCompass(t);
-    drawCoords(t);
+  // Draw animated arc flight paths
+  function drawArcs(){
+    arcs.forEach(arc=>{
+      arc.prog += arc.speed;
+      if(arc.prog > 1.15){
+        Object.assign(arc, newArc());
+        arc.prog = 0;
+        return;
+      }
+      const p = Math.min(arc.prog,1);
+      // Draw trail
+      ctx.beginPath();
+      // Use quadratic bezier, sample points up to p
+      const steps = 60;
+      const end = Math.floor(p*steps);
+      if(end<2) return;
+      ctx.moveTo(arc.x1, arc.y1);
+      for(let s=1;s<=end;s++){
+        const tt = s/steps;
+        const px = (1-tt)*(1-tt)*arc.x1 + 2*(1-tt)*tt*arc.cx + tt*tt*arc.x2;
+        const py = (1-tt)*(1-tt)*arc.y1 + 2*(1-tt)*tt*arc.cy + tt*tt*arc.y2;
+        if(s===1) ctx.moveTo(px,py);
+        else ctx.lineTo(px,py);
+      }
+      const fade = Math.min(p*3,1)*Math.min((1.15-arc.prog)*5,1);
+      ctx.strokeStyle = arc.col+(fade*0.35)+')';
+      ctx.lineWidth = arc.width;
+      ctx.stroke();
+
+      // Leading dot
+      if(p<1){
+        const tt = p;
+        const dx = (1-tt)*(1-tt)*arc.x1 + 2*(1-tt)*tt*arc.cx + tt*tt*arc.x2;
+        const dy = (1-tt)*(1-tt)*arc.y1 + 2*(1-tt)*tt*arc.cy + tt*tt*arc.y2;
+        ctx.beginPath();
+        ctx.arc(dx,dy,2.2,0,Math.PI*2);
+        ctx.fillStyle = arc.dotCol+(fade*0.9)+')';
+        ctx.fill();
+        // glow
+        ctx.beginPath();
+        ctx.arc(dx,dy,5,0,Math.PI*2);
+        ctx.fillStyle = arc.dotCol+(fade*0.15)+')';
+        ctx.fill();
+      }
+    });
   }
-  requestAnimationFrame(frame);
+
+  // Draw floating star-like dots
+  function drawParticles(){
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      const pulse = (Math.sin(t*0.7+p.x*0.01)*0.25+0.75);
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.col+(p.a*pulse)+')';
+      ctx.fill();
+    });
+  }
+
+  // Location pin dots on approximate world capitals
+  const pins = [
+    {lx:.52,ly:.36},{lx:.28,ly:.28},{lx:.58,ly:.42},
+    {lx:.68,ly:.38},{lx:.16,ly:.52},{lx:.85,ly:.55},
+    {lx:.48,ly:.55},{lx:.72,ly:.52},{lx:.42,ly:.22},
+    {lx:.35,ly:.45},{lx:.62,ly:.28},{lx:.55,ly:.62}
+  ];
+  let pinPulse = 0;
+
+  function drawPins(){
+    pinPulse += 0.018;
+    pins.forEach((pin,i)=>{
+      const px = pin.lx*W, py = pin.ly*H;
+      const phase = pinPulse + i*0.6;
+      const pulse = (Math.sin(phase)*0.4+0.6);
+
+      // outer ring
+      ctx.beginPath();
+      ctx.arc(px,py,4+pulse*3,0,Math.PI*2);
+      ctx.strokeStyle = GEO_GREEN+(0.12*pulse)+')';
+      ctx.lineWidth=1;
+      ctx.stroke();
+
+      // dot
+      ctx.beginPath();
+      ctx.arc(px,py,2,0,Math.PI*2);
+      ctx.fillStyle = GEO_GREEN+(0.55+pulse*.2)+')';
+      ctx.fill();
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Deep space background
+    const bg = ctx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#060e1a');
+    bg.addColorStop(.4,'#0a1628');
+    bg.addColorStop(.75,'#0d1f2d');
+    bg.addColorStop(1,'#0a1628');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,W,H);
+
+    t += 0.012;
+    drawGrid();
+    drawArcs();
+    drawParticles();
+    drawPins();
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  function start(){
+    if(animId) cancelAnimationFrame(animId);
+    setTimeout(()=>{ resize(); draw(); }, 30);
+  }
+  function stop(){
+    if(animId){ cancelAnimationFrame(animId); animId=null; }
+  }
+
+  window.addEventListener('resize', resize);
+
+  // Start/stop when programScreen becomes visible
+  const observer = new MutationObserver(()=>{
+    const pg = document.getElementById('programScreen');
+    if(pg && pg.classList.contains('active')) start();
+    else stop();
+  });
+  const pg = document.getElementById('programScreen');
+  if(pg){
+    observer.observe(pg,{attributes:true,attributeFilter:['class']});
+    if(pg.classList.contains('active')) start();
+  }
 })();
+
 </script>
 </body>
 </html>
