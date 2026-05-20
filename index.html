@@ -1566,6 +1566,117 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .adm-sec-title svg { stroke: var(--gold2) !important; }
 
 
+
+/* ════════════════════════════════════════
+   PATCH 2 — Бағдарлама беті толық стильдері
+════════════════════════════════════════ */
+
+/* ── pg-authors блогі ── */
+.pg-authors {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(201,168,76,.07); border: 1px solid rgba(201,168,76,.15);
+  border-radius: 18px; padding: 12px 16px;
+  margin: 0 16px 20px; backdrop-filter: blur(12px);
+  position: relative; z-index: 1;
+}
+.pg-avatars { display: flex; }
+.pg-avatar {
+  width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--ocean);
+  margin-right: -6px; border: 2px solid rgba(6,13,28,.8);
+  background: var(--gold-g);
+}
+.pg-avatar:last-child { margin-right: 0; background: var(--sage-g); color: #fff; }
+.pg-author-info { flex: 1; margin-left: 10px; }
+.pg-author-name { color: #fff; font-size: 12px; font-weight: 700; }
+.pg-author-role { color: rgba(255,255,255,.4); font-size: 10px; margin-top: 2px; }
+.pg-verified {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--sage-g); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; flex-shrink: 0;
+}
+
+/* ── pg-sheet (ақ парақ → қою) ── */
+.pg-sheet {
+  background: var(--deep);
+  border-radius: 28px 28px 0 0;
+  padding: 24px 16px 40px;
+  border-top: 1px solid rgba(201,168,76,.15);
+  position: relative; z-index: 1;
+}
+
+/* ── pg-section-title (бөлім тақырыбы) ── */
+.pg-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-b); font-size: 11px; font-weight: 800;
+  color: var(--gold2); text-transform: uppercase; letter-spacing: 1px;
+  padding: 18px 0 10px; border-top: 1px solid rgba(201,168,76,.08);
+  margin-top: 6px;
+}
+.pg-section-title:first-child { border-top: none; padding-top: 0; }
+.pg-section-title svg {
+  width: 15px; height: 15px; stroke: var(--gold2); flex-shrink: 0;
+}
+.pg-section-title::after {
+  content: ''; flex: 1; height: 1px; background: rgba(201,168,76,.1);
+}
+
+/* ── pg-text (мәтін блогы) ── */
+.pg-text {
+  font-size: 13.5px; line-height: 1.85; color: rgba(232,234,240,.72);
+  margin-bottom: 6px;
+}
+.pg-text .pg-list-item {
+  padding: 3px 0; color: rgba(232,234,240,.72);
+}
+
+/* ── pg-goals (мақсаттар тізімі) ── */
+.pg-goals { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; }
+.pg-goal {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: rgba(201,168,76,.06); border: 1px solid rgba(201,168,76,.1);
+  border-radius: 14px; padding: 12px 14px;
+}
+.pg-goal-dot {
+  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+  background: var(--gold-g); color: var(--ocean);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800;
+}
+.pg-goal-text {
+  flex: 1; font-size: 13px; line-height: 1.65; color: rgba(232,234,240,.8);
+}
+
+/* ── pg-sections-grid (тақырыптық жоспар кестесі) ── */
+.pg-sections-grid {
+  display: flex; flex-direction: column; gap: 4px;
+  margin-bottom: 6px;
+}
+
+/* pg-sec-row мен pg-sec-header override */
+.pg-sec-header {
+  background: rgba(201,168,76,.08) !important;
+  border: 1px solid rgba(201,168,76,.15) !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  margin-bottom: 4px;
+}
+.pg-sec-header .pg-sec-name {
+  color: var(--gold2) !important;
+  font-weight: 800 !important;
+  font-size: 10px !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+}
+.pg-sec-header .pg-sec-num {
+  background: rgba(201,168,76,.2) !important;
+  color: var(--gold2) !important;
+  font-size: 9px !important;
+}
+
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
