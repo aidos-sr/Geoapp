@@ -101,7 +101,7 @@ body {
 /* ── ICONS ── */
 .icon { display: inline-flex; align-items: center; justify-content: center; }
 .icon svg { display: block; }
-.load-globe svg { width: 52px; height: 52px; stroke: var(--gold2); margin-bottom: 18px; display: block; }
+.load-globe svg { width: 52px; height: 52px; stroke: var(--gold2); display: block; margin: 0; }
 .wc-badge svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 4px; }
 .wc-card-icon svg { width: 28px; height: 28px; stroke: var(--gold2); display: block; margin: 0 auto 6px; }
 .wc-topic-pill svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 3px; flex-shrink: 0; }
@@ -235,7 +235,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   position: relative;
 }
 .wc-globe svg { display: none; }
-.wc-globe::after { content: '🌍'; font-size: 44px; }
+.wc-globe::after { display: none; }
 .wc-globe-ring {
   position: absolute; inset: -12px; border-radius: 50%;
   border: 1px solid rgba(201,168,76,.2);
@@ -407,7 +407,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   backdrop-filter: blur(12px); border-radius: 100px; padding: 6px 14px;
   color: var(--gold2); font-size: 9.5px; font-weight: 600; letter-spacing: .5px;
 }
-.pg-org-badge::before { content: '🇰🇿'; font-size: 12px; }
+.pg-org-badge::before { display: none; }
 
 .pg-globe-wrap { position: relative; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; }
 .pg-globe-ring {
@@ -2005,7 +2005,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
     <div class="load-globe">
       <div class="load-globe-ring"></div>
       <div class="load-globe-ring2"></div>
-      🌍
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
     </div>
     <div class="load-logo">ГЕО 10</div>
     <div class="load-sub">Геосаясат · 10-сынып</div>
@@ -2019,14 +2019,14 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   <canvas id="geoCanvas"></canvas>
   <div class="pg-content">
     <div class="pg-header">
-      <div class="pg-org-badge">Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
+      <div class="pg-org-badge"><svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
       <div class="pg-globe-wrap">
         <div class="pg-globe-ring"></div>
-        <div class="pg-globe">🌍</div>
+        <div class="pg-globe"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       </div>
       <div class="pg-eyebrow">Авторлық бағдарлама · 2026</div>
       <div class="pg-title">Геосаясат:<br><em>Жаһандық тұрақтылық</em><br>және Қазақстан</div>
-      <div class="pg-subtitle">✦ Элективті курс · 10-сынып</div>
+      <div class="pg-subtitle"><svg width="9" height="9" viewBox="0 0 24 24" fill="var(--sage2)" stroke="none" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Элективті курс · 10-сынып</div>
     </div>
 
     <div class="pg-stats">
@@ -2057,7 +2057,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <div class="pg-author-name">Есенов Т.Қ. · Аимбаева А.С.</div>
         <div class="pg-author-role">педагог-шебер · педагог-зерттеуші</div>
       </div>
-      <div class="pg-verified">✓</div>
+      <div class="pg-verified"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     </div>
 
     <div class="pg-sheet">
@@ -2149,11 +2149,11 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         Пәнаралық байланыс
       </div>
       <div class="pg-text">
-        <div class="pg-list-item">📚 <strong>География:</strong> Саяси картамен жұмыс, табиғи ресурстарды игеру.</div>
-        <div class="pg-list-item">📜 <strong>Тарих:</strong> Мемлекеттік шекаралардың қалыптасуы, отарсызданудан кейінгі даулар.</div>
-        <div class="pg-list-item">💹 <strong>Экономика:</strong> Геоэкономикалық интеграция, транспорттық дәліздер, мұнай-газ дипломатиясы.</div>
-        <div class="pg-list-item">⚖️ <strong>Құқық:</strong> Делимитация, демаркация және халықаралық келісімшарттар.</div>
-        <div class="pg-list-item">🎓 <strong>Кәсіптік бағдар:</strong> Дипломат, халықаралық саясаттанушы, аймақтанушы, халықаралық заңгер немесе географ-аналитик мамандықтары.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><strong>География:</strong> Саяси картамен жұмыс, табиғи ресурстарды игеру.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><strong>Тарих:</strong> Мемлекеттік шекаралардың қалыптасуы, отарсызданудан кейінгі даулар.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><strong>Экономика:</strong> Геоэкономикалық интеграция, транспорттық дәліздер, мұнай-газ дипломатиясы.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 7l9-4 9 4"/><path d="M3 17l3 2 3-2"/><path d="M15 17l3 2 3-2"/></svg><strong>Құқық:</strong> Делимитация, демаркация және халықаралық келісімшарттар.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><strong>Кәсіптік бағдар:</strong> Дипломат, халықаралық саясаттанушы, аймақтанушы, халықаралық заңгер немесе географ-аналитик мамандықтары.</div>
       </div>
 
       <!-- КҮТІЛЕТІН НӘТИЖЕ -->
@@ -2232,7 +2232,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   <div class="auth-top">
     <div class="auth-emblem">
       <div class="auth-emblem-ring"></div>
-      🌍
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
     </div>
     <div class="auth-logo">ГЕО 10</div>
     <div class="auth-sub">Геосаясат элективті курсы · 10-сынып</div>
@@ -2262,7 +2262,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 
 <!-- MAIN -->
 <div id="mainScreen" class="screen">
-  <div class="offline-banner" id="offlineBanner">📡 Интернет жоқ — офлайн режим</div>
+  <div class="offline-banner" id="offlineBanner"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><path d="M1 6c0 0 5-4 11-4s11 4 11 4"/><path d="M5 10s3-2.5 7-2.5 7 2.5 7 2.5"/><path d="M9 14s1.5-1 3-1 3 1 3 1"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Интернет жоқ — офлайн режим</div>
   <div class="header hbar">
     <div class="hrow">
       <button class="hback" id="backBtn" onclick="goBack()">
@@ -2337,7 +2337,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
     <!-- 1. ТАҚЫРЫП АТАУЛАРЫ -->
@@ -2356,7 +2356,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
       <img id="imgPreview" style="width:100%;display:block;max-height:180px;object-fit:cover">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8f7ff">
         <span style="font-size:11px;color:var(--muted);font-weight:600">Сурет алдын ала көру</span>
-        <button onclick="clearTopicImg()" style="background:#fef2f2;border:none;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--red);cursor:pointer">✕ Өшіру</button>
+        <button onclick="clearTopicImg()" style="background:#fef2f2;border:none;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--red);cursor:pointer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Өшіру</button>
       </div>
     </div>
 
@@ -2451,7 +2451,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
           </div>
           <img id="mapEditorImg" style="display:none;pointer-events:none" alt="карта">
         </div>
-        <div class="map-editor-hint">📍 Картаға нүкте қосу үшін фотоны басыңыз. Нүктені жою үшін нүктенің өзін басыңыз.</div>
+        <div class="map-editor-hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Картаға нүкте қосу үшін фотоны басыңыз. Нүктені жою үшін нүктенің өзін басыңыз.</div>
 
         <!-- Қосылған нүктелер тізімі -->
         <div class="map-dots-list" id="mapDotsList"></div>
@@ -2493,7 +2493,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <!-- TABLE PICKER POPUP -->
 <div class="tbl-picker-overlay" id="tblPickerOverlay">
   <div class="tbl-picker-box">
-    <div class="tbl-picker-title">📊 Кесте өлшемін таңдаңыз</div>
+    <div class="tbl-picker-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/></svg> Кесте өлшемін таңдаңыз</div>
     <div class="tbl-grid" id="tblGrid"></div>
     <div class="tbl-size-label" id="tblSizeLabel">— × —</div>
     <div class="tbl-picker-btns">
@@ -2790,7 +2790,7 @@ const DEF_TOPICS = [
    plan:{goal:"Мемлекеттік шекараға қатысты негізгі ұғымдарды (делимитация, демаркация, анклав, буферлік аймақ) ажырату және Қазақстанның шекаралық саясатын талдау.",steps:[{t:"Ұйымдастыру",min:"5 мин",d:"«Миға шабуыл»: Картадан ерекше шекараларды тауып, оның ерекшелігін болжау."}, {t:"Терминдермен жұмыс",min:"10 мин",d:"Жұптық талқылау: делимитация мен демаркацияны дипломатиялық сценарий арқылы ажырату."}, {t:"Топтық пікірталас",min:"15 мин",d:"1-топ: Қазақстанның Ресеймен шекарасы. 2-топ: Каспий мәселесі. 3-топ: Дүниедегі ең ерекше шекаралар."}, {t:"Қорытынды",min:"5 мин",d:"Шекараларды бейбіт жолмен шешудің маңызы. Қазақстанның үлгісі."}]},
    kk:"Шекара мәселесі және делимитация мен демаркация процестері",
    ru:"Пограничный вопрос: процессы делимитации и демаркации",
-   tkk:"<p><strong>11 тақырып: Шекара мәселесі және делимитация мен демаркация процестері</strong></p>\n<p>Біз картаға қараған кезде түрлі-түсті мемлекеттерді бөліп тұрған сызықтарды көреміз. Бізге бұл сызықтар әуел бастан осылай болған сияқты. Бірақ шын мәнінде, олардың әрқайсысының артында <strong>ұзақ тарихи, дипломатиялық және кейде әскери процестер</strong> жатыр.</p>\n\n<p><strong>Шекараға қатысты негізгі терминдер</strong></p>\n<p>— <strong>Делимитация (Delimitation)</strong> — бұл «қағаздағы шекара». Көршілес мемлекеттердің үкіметтері келіссөздер жүргізіп, шекараның өтетін жолын картада анықтайды және арнайы халықаралық шарт жасасады.</p>\n<p>— <strong>Демаркация (Demarcation)</strong> — бұл «жердегі шекара». Делимитациядан кейін арнайы мамандар (топографтар, әскерилер) картадағы сызықты нақты жерде бекіндіреді — тіректер, заставалар, биіктер орнатады.</p>\n<p>— <strong>Анклав</strong> — бір мемлекеттің басқа бір мемлекеттің аумағымен толық қоршалған бөлігі (Мысалы: Оңтүстік Африка Республикасы ішіндегі Лесото).</p>\n<p>— <strong>Эксклав</strong> — елдің негізгі аумағынан бөлініп қалған, бірақ сол елге тиесілі жер (Мысалы: Ресейдің Еуропадағы Калининград облысы).</p>\n<p>— <strong>Буферлік аймақ</strong> — қақтығысты болдырмау үшін екі мемлекет арасындағы бейтарап, қарусыздандырылған аймақ (Мысалы: Корей демилитаризацияланған аймағы).</p>\n\n<p><strong>Қазақстан шекарасы туралы маңызды факт:</strong> Қазақстан тәуелсіздік алғаннан кейін өзінің барлық көршілерімен (Ресей, Қытай, Өзбекстан, Қырғызстан, Түркменстан) шекараларын бейбіт келіссөздер арқылы делимитациялап, демаркациялады. Бұл — елдің дипломатиялық жетістіктерінің бірі.</p>\n\n<p><strong>🌍 Әлемнің ең қызықты шекаралары</strong></p>\n<p><strong>1. Ең шатасқан шекара: Барле-Хертог және Барле-Нассау (Бельгия мен Нидерланд)</strong></p>\n<p>Бұл екі елдің шекарасы кішкентай қалашықтың ішінен өтеді. Бір үйдің ас үйі Бельгияда, ал жатын бөлмесі Нидерландта болуы мүмкін. Шекараны бағана мен жер бетіндегі арнайы белгілер ғана танытады.</p>\n<p><strong>2. Уақыт машинасы: Диомид аралдары (АҚШ пен Ресей)</strong></p>\n<p>Беринг бұғазындағы бұл екі аралдың арасы небәрі 3,8 шақырым, бірақ олардың арасынан Халықаралық күн шекарасы өтеді. Яғни Үлкен Диомидтен (Ресей) Кіші Диомидке (АҚШ) жүзіп өтсеңіз, <strong>«ертеңнен кешеге»</strong> немесе керісінше өтесіз.</p>\n<p><strong>3. Ең биік шекара: Эверест шыңы (Қытай мен Непал)</strong></p>\n<p>Әлемдегі ең биік нүкте – Эверест тауының (8848 метр) шыңы арқылы Қытай мен Непалдың мемлекеттік шекарасы өтеді.</p>\n<p><strong>4. Табиғатқа берілген еркіндік: Корея демилитаризацияланған аймағы</strong></p>\n<p>Ені 4 шақырымдық, ұзындығы 250 шақырымдық бұл аймақ 70 жылдан астам уақыт бойы адам қолы тимеген — нәтижесінде сирек кездесетін жануарлар мен өсімдіктердің бірегей резерватына айналды.</p>\n\n<p><strong>Каспий теңізіндегі акваторияны бөлу мәселесі</strong> ұзақ уақыт бойы жағалаудағы елдер (Ресей, Қазақстан, Иран, Түрікменстан, Әзербайжан) арасында талқыланды. 2018 жылы <strong>Актау конвенциясы</strong> жасалып, Каспийдің «теңіз де, көл де емес» ерекше мәртебесі бекітілді.</p>",
+   tkk:"<p><strong>11 тақырып: Шекара мәселесі және делимитация мен демаркация процестері</strong></p>\n<p>Біз картаға қараған кезде түрлі-түсті мемлекеттерді бөліп тұрған сызықтарды көреміз. Бізге бұл сызықтар әуел бастан осылай болған сияқты. Бірақ шын мәнінде, олардың әрқайсысының артында <strong>ұзақ тарихи, дипломатиялық және кейде әскери процестер</strong> жатыр.</p>\n\n<p><strong>Шекараға қатысты негізгі терминдер</strong></p>\n<p>— <strong>Делимитация (Delimitation)</strong> — бұл «қағаздағы шекара». Көршілес мемлекеттердің үкіметтері келіссөздер жүргізіп, шекараның өтетін жолын картада анықтайды және арнайы халықаралық шарт жасасады.</p>\n<p>— <strong>Демаркация (Demarcation)</strong> — бұл «жердегі шекара». Делимитациядан кейін арнайы мамандар (топографтар, әскерилер) картадағы сызықты нақты жерде бекіндіреді — тіректер, заставалар, биіктер орнатады.</p>\n<p>— <strong>Анклав</strong> — бір мемлекеттің басқа бір мемлекеттің аумағымен толық қоршалған бөлігі (Мысалы: Оңтүстік Африка Республикасы ішіндегі Лесото).</p>\n<p>— <strong>Эксклав</strong> — елдің негізгі аумағынан бөлініп қалған, бірақ сол елге тиесілі жер (Мысалы: Ресейдің Еуропадағы Калининград облысы).</p>\n<p>— <strong>Буферлік аймақ</strong> — қақтығысты болдырмау үшін екі мемлекет арасындағы бейтарап, қарусыздандырылған аймақ (Мысалы: Корей демилитаризацияланған аймағы).</p>\n\n<p><strong>Қазақстан шекарасы туралы маңызды факт:</strong> Қазақстан тәуелсіздік алғаннан кейін өзінің барлық көршілерімен (Ресей, Қытай, Өзбекстан, Қырғызстан, Түркменстан) шекараларын бейбіт келіссөздер арқылы делимитациялап, демаркациялады. Бұл — елдің дипломатиялық жетістіктерінің бірі.</p>\n\n<p><strong>[()] Әлемнің ең қызықты шекаралары</strong></p>\n<p><strong>1. Ең шатасқан шекара: Барле-Хертог және Барле-Нассау (Бельгия мен Нидерланд)</strong></p>\n<p>Бұл екі елдің шекарасы кішкентай қалашықтың ішінен өтеді. Бір үйдің ас үйі Бельгияда, ал жатын бөлмесі Нидерландта болуы мүмкін. Шекараны бағана мен жер бетіндегі арнайы белгілер ғана танытады.</p>\n<p><strong>2. Уақыт машинасы: Диомид аралдары (АҚШ пен Ресей)</strong></p>\n<p>Беринг бұғазындағы бұл екі аралдың арасы небәрі 3,8 шақырым, бірақ олардың арасынан Халықаралық күн шекарасы өтеді. Яғни Үлкен Диомидтен (Ресей) Кіші Диомидке (АҚШ) жүзіп өтсеңіз, <strong>«ертеңнен кешеге»</strong> немесе керісінше өтесіз.</p>\n<p><strong>3. Ең биік шекара: Эверест шыңы (Қытай мен Непал)</strong></p>\n<p>Әлемдегі ең биік нүкте – Эверест тауының (8848 метр) шыңы арқылы Қытай мен Непалдың мемлекеттік шекарасы өтеді.</p>\n<p><strong>4. Табиғатқа берілген еркіндік: Корея демилитаризацияланған аймағы</strong></p>\n<p>Ені 4 шақырымдық, ұзындығы 250 шақырымдық бұл аймақ 70 жылдан астам уақыт бойы адам қолы тимеген — нәтижесінде сирек кездесетін жануарлар мен өсімдіктердің бірегей резерватына айналды.</p>\n\n<p><strong>Каспий теңізіндегі акваторияны бөлу мәселесі</strong> ұзақ уақыт бойы жағалаудағы елдер (Ресей, Қазақстан, Иран, Түрікменстан, Әзербайжан) арасында талқыланды. 2018 жылы <strong>Актау конвенциясы</strong> жасалып, Каспийдің «теңіз де, көл де емес» ерекше мәртебесі бекітілді.</p>",
    tru:"<p><strong>11 тема: Пограничный вопрос: процессы делимитации и демаркации</strong></p>\n<p>За каждой линией на карте стоят длительные исторические, дипломатические и порой военные процессы.</p>\n\n<p><strong>Основные термины</strong></p>\n<p>— <strong>Делимитация</strong> — «граница на бумаге»: правительства соседних государств договариваются и определяют линию границы на карте.</p>\n<p>— <strong>Демаркация</strong> — «граница на земле»: специалисты закрепляют картографическую линию физически — столбами, заставами, отметками.</p>\n<p>— <strong>Анклав</strong> — часть одного государства, полностью окружённая территорией другого (Лесото внутри ЮАР).</p>\n<p>— <strong>Эксклав</strong> — отделённая от основной территории часть государства (Калининградская область России).</p>\n<p>— <strong>Буферная зона</strong> — нейтральная демилитаризованная зона между двумя государствами (Корейская ДМЗ).</p>\n\n<p><strong>Факт о границах Казахстана:</strong> После обретения независимости Казахстан мирным путём делимитировал и демаркировал границы со всеми соседями (Россия, Китай, Узбекистан, Кыргызстан, Туркменистан) — это одно из дипломатических достижений страны.</p>\n\n<p><strong>Самые интересные границы мира</strong></p>\n<p><strong>Baarle-Hertog/Nassau:</strong> Граница между Бельгией и Нидерландами проходит прямо через дома — кухня в одной стране, спальня в другой.</p>\n<p><strong>Острова Диомида:</strong> Между двумя островами (3,8 км) проходит Линия перемены дат — «из завтра во вчера».</p>\n<p><strong>Эверест:</strong> Граница Китая и Непала проходит через высочайшую точку Земли (8848 м).</p>\n<p><strong>Корейская ДМЗ:</strong> За 70+ лет без людей стала уникальным заповедником редких животных.</p>\n<p><strong>Каспийская конвенция 2018 года</strong> в Актау закрепила особый статус Каспия — «ни море, ни озеро».</p>",
    qkk:"Делимитация дегеніміз не?",
    ans:"A",
@@ -3150,7 +3150,7 @@ async function renderTopicsAsync(){
   const pts = calcPts(u.uid, T, prog);
 
   let h=`<div class="banner">
-    <div class="banner-badge">🌍 10-СЫНЫП · ЭЛЕКТИВТІ КУРС</div>
+    <div class="banner-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 10-СЫНЫП · ЭЛЕКТИВТІ КУРС</div>
     <h2>Геосаясат</h2>
     <p>Жаһандық тұрақтылық және Қазақстан</p>
     <div class="bstats">
@@ -3167,9 +3167,9 @@ async function renderTopicsAsync(){
     const mp=prog[pk(u.uid,t.id,'map')]||0;
     const done=tp||op||mp;
     let badges='';
-    if(tp) badges+=`<span class="badge done">✓ Тест</span>`;
-    if(op) badges+=`<span class="badge done">✓ Ашық</span>`;
-    if(mp) badges+=`<span class="badge done">✓ Карта</span>`;
+    if(tp) badges+=`<span class="badge done"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> Тест</span>`;
+    if(op) badges+=`<span class="badge done"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> Ашық</span>`;
+    if(mp) badges+=`<span class="badge done"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> Карта</span>`;
     if(!done) badges=`<span class="badge">${lang==='kk'?'Жаңа':'Новое'}</span>`;
     h+=`<div class="tcard${done?' done':''}" onclick="openDetailAsync(${i})">
       <div class="tnum">${t.id}</div>
@@ -3216,7 +3216,7 @@ async function openDetailAsync(idx){
         <div class="plan-header-left">
           <span class="plan-header-icon">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            🗓️
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </span>
           <span class="plan-title">Қысқа мерзімді жоспар</span>
         </div>
@@ -3281,7 +3281,7 @@ async function openDetailAsync(idx){
         openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op_oi+' балл':'Выполнено! '+op_oi+' баллов'}</div>`;
       } else {
         openH+=`<textarea class="open-inp" id="openAns_${oi}" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
-        <button class="tsub" onclick="submitOpenMulti(${idx},${oi})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+        <button class="tsub" onclick="submitOpenMulti(${idx},${oi})"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
       }
       openH+=`</div>`;
     });
@@ -3298,13 +3298,13 @@ async function openDetailAsync(idx){
   if(mp){
     mapH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
   } else if(t.mapDots && t.mapDots.length){
-    mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
+    mapH+=`<div class="map-inst">${lang==='kk'?'↓ Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'↓ Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
     mapH+=`<div class="map-wrap" id="mapWrap" style="background:#e0e7ff;min-height:180px;">${buildMapSVG(t, idx)}</div>`;
     mapH+=`<div class="map-opts" id="mapOpts">`;
     (t.mapOpts||[]).forEach((o,oi)=>{
       mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
     });
-    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+    mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
   }
   mapH+=`</div>`;
   } // end if mapq
@@ -3387,7 +3387,7 @@ async function openTaskScreen(idx){
         openH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+op_oi+' балл':'Выполнено! '+op_oi+' баллов'}</div>`;
       } else {
         openH+=`<textarea class="open-inp" id="openAns_${oi}" placeholder="${lang==='kk'?'Жауабыңызды жазыңыз...':'Напишите ваш ответ...'}"></textarea>
-        <button class="tsub" onclick="submitOpenMulti(${idx},${oi})">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+        <button class="tsub" onclick="submitOpenMulti(${idx},${oi})"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
       }
       openH+=`</div>`;
     });
@@ -3405,13 +3405,13 @@ async function openTaskScreen(idx){
     if(mp){
       mapH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+mp+' балл':'Выполнено! '+mp+' баллов'}</div>`;
     } else if(t.mapDots && t.mapDots.length){
-      mapH+=`<div class="map-inst">${lang==='kk'?'👇 Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'👇 Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
+      mapH+=`<div class="map-inst">${lang==='kk'?'↓ Алдымен төменгі тізімнен жауапты таңдаңыз, сосын картадағы нүктені басыңыз.':'↓ Сначала выберите ответ из списка ниже, затем нажмите на точку на карте.'}</div>`;
       mapH+=`<div class="map-wrap" id="mapWrap" style="background:#e0e7ff;min-height:180px;">${buildMapSVG(t, idx)}</div>`;
       mapH+=`<div class="map-opts" id="mapOpts">`;
       (t.mapOpts||[]).forEach((o,oi)=>{
         mapH+=`<button class="map-opt" id="mopt${oi}" onclick="selectMapOpt('${o.replace(/'/g,"\\'")}',${oi})">${o}</button>`;
       });
-      mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none">✓ ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
+      mapH+=`</div><button class="tsub" id="mapSubmitBtn" onclick="submitMap(${idx})" style="opacity:.35;pointer-events:none"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> ${lang==='kk'?'Жіберу':'Отправить'}</button>`;
     }
     mapH+=`</div>`;
   }
@@ -3694,7 +3694,7 @@ async function renderAdminAsync(){
   T.forEach((t,i)=>{
     rows+=`<div class="adm-row">
       <div class="adm-num">${t.id}</div>
-      <div class="adm-nm">${t.kk||""}<small>${t.qkk ? '📝 Тест бар' : '—'}</small></div>
+      <div class="adm-nm">${t.kk||""}<small>${t.qkk ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Тест бар' : '—'}</small></div>
       <button class="abtn aedit" onclick="openEdit(${i})">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Өңдеу
@@ -3885,7 +3885,7 @@ function renderTestBlocks(){
     <div class="mtask-block" id="testBlock${idx}">
       <div class="mtask-block-header">
         <span class="mtask-block-label">Тест ${idx+1}</span>
-        <button class="mtask-remove" onclick="removeTestBlock(${idx})" title="Жою">✕</button>
+        <button class="mtask-remove" onclick="removeTestBlock(${idx})" title="Жою"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <label class="inp-label">Сұрақ (ҚАЗ)</label>
       <input class="adm-inp" placeholder="Сұрақ мәтіні" value="${escH(tb.q)}" oninput="window._testBlocks[${idx}].q=this.value">
@@ -3909,7 +3909,7 @@ function renderOpenBlocks(){
     <div class="mtask-block open-block" id="openBlock${idx}">
       <div class="mtask-block-header">
         <span class="mtask-block-label">Ашық сұрақ ${idx+1}</span>
-        <button class="mtask-remove" onclick="removeOpenBlock(${idx})" title="Жою">✕</button>
+        <button class="mtask-remove" onclick="removeOpenBlock(${idx})" title="Жою"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
       <textarea class="adm-ta" placeholder="Оқушы өз сөзімен жауап беретін сұрақ..." style="margin-bottom:0" oninput="window._openBlocks[${idx}].q=this.value">${escH(ob.q)}</textarea>
     </div>`).join('');
@@ -3992,7 +3992,7 @@ function renderMapDots(){
   });
   // Dots list (tags)
   const list=document.getElementById('mapDotsList');
-  list.innerHTML=window._mapDots.length?window._mapDots.map((d,i)=>`<div class="map-dot-tag"><span>${i+1}. нүкте</span><button onclick="removeMapDot(${i})">✕</button></div>`).join(''):'';
+  list.innerHTML=window._mapDots.length?window._mapDots.map((d,i)=>`<div class="map-dot-tag"><span>${i+1}. нүкте</span><button onclick="removeMapDot(${i})"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join(''):'';
   // Options editor
   const optsEl=document.getElementById('mapOptsEditor');
   if(window._mapDots.length===0){optsEl.innerHTML='';return;}
@@ -4042,7 +4042,7 @@ function kzhRenderSteps(){
   if(!c) return;
   c.innerHTML = window._kzhSteps.map((s, i) => `
     <div class="kzh-step" id="kzhStep${i}">
-      <button class="kzh-step-del" onclick="kzhRemoveStep(${i})" title="Жою">✕</button>
+      <button class="kzh-step-del" onclick="kzhRemoveStep(${i})" title="Жою"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       <div class="kzh-step-row">
         <div class="kzh-step-num">${i+1}</div>
         <input class="kzh-step-title" placeholder="Кезең атауы (мысалы: Кіріспе, Жаңа тақырып...)"
