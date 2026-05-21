@@ -1989,6 +1989,126 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   color: var(--gold2);
 }
 
+/* ═══ БАҒДАРЛАМА РЕДАКТОРЫ ═══ */
+.prog-editor-modal {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.7); backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+.prog-editor-modal.show { display: block; }
+.prog-editor-wrap {
+  margin: 16px auto; max-width: 600px; width: calc(100% - 32px);
+  background: var(--deep); border-radius: 20px;
+  border: 1px solid rgba(201,168,76,.15);
+  overflow: hidden;
+}
+.prog-editor-head {
+  padding: 16px 18px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(201,168,76,.06); border-bottom: 1px solid rgba(201,168,76,.12);
+}
+.prog-editor-head-title {
+  font-family: var(--font-h); font-size: 16px; color: var(--gold2);
+  display: flex; align-items: center; gap: 8px;
+}
+.prog-editor-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.prog-section-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--gold2); padding: 10px 0 6px;
+  border-top: 1px solid rgba(201,168,76,.1); margin-top: 4px;
+}
+.prog-section-label:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.prog-inp {
+  width: 100%; padding: 11px 13px; border: 1.5px solid rgba(201,168,76,.15);
+  border-radius: 12px; background: rgba(255,255,255,.04);
+  color: var(--text); font-family: var(--font-b); font-size: 13px; outline: none;
+  transition: border .15s;
+}
+.prog-inp:focus { border-color: var(--gold); background: rgba(201,168,76,.06); }
+.prog-inp::placeholder { color: var(--muted); }
+.prog-ta {
+  width: 100%; min-height: 80px; resize: vertical;
+  padding: 11px 13px; border: 1.5px solid rgba(201,168,76,.15);
+  border-radius: 12px; background: rgba(255,255,255,.04);
+  color: var(--text); font-family: var(--font-b); font-size: 13px; outline: none;
+  transition: border .15s; line-height: 1.7;
+}
+.prog-ta:focus { border-color: var(--gold); background: rgba(201,168,76,.06); }
+.prog-inp-row { display: flex; gap: 8px; }
+.prog-inp-row .prog-inp { flex: 1; }
+.prog-goals-list { display: flex; flex-direction: column; gap: 6px; }
+.prog-goal-row {
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.prog-goal-row .prog-ta { min-height: 56px; }
+.prog-goal-del {
+  width: 30px; height: 30px; flex-shrink: 0; margin-top: 2px;
+  border: none; border-radius: 8px; cursor: pointer;
+  background: rgba(224,92,92,.12); color: var(--coral);
+  display: flex; align-items: center; justify-content: center;
+}
+.prog-goal-del svg { width: 12px; height: 12px; }
+.prog-add-btn {
+  border: 1.5px dashed rgba(201,168,76,.25); border-radius: 10px;
+  padding: 9px; width: 100%; background: transparent; color: var(--gold2);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background .15s;
+}
+.prog-add-btn:hover { background: rgba(201,168,76,.06); }
+.prog-schedule-list { display: flex; flex-direction: column; gap: 6px; }
+.prog-sched-row {
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(201,168,76,.04); border: 1px solid rgba(201,168,76,.1);
+  border-radius: 10px; padding: 8px 10px;
+}
+.prog-sched-num {
+  width: 32px; flex-shrink: 0;
+  padding: 6px 8px; border: 1px solid rgba(201,168,76,.15);
+  border-radius: 8px; background: rgba(255,255,255,.03);
+  color: var(--text); font-size: 12px; font-weight: 700; text-align: center; outline: none;
+}
+.prog-sched-name {
+  flex: 1; padding: 6px 10px; border: 1px solid rgba(201,168,76,.15);
+  border-radius: 8px; background: rgba(255,255,255,.03);
+  color: var(--text); font-size: 12px; outline: none;
+}
+.prog-sched-type {
+  width: 90px; flex-shrink: 0; padding: 6px 8px;
+  border: 1px solid rgba(201,168,76,.15); border-radius: 8px;
+  background: rgba(255,255,255,.03); color: var(--text); font-size: 11px; outline: none;
+}
+.prog-sched-final-chk { accent-color: var(--sage2); width: 14px; height: 14px; cursor: pointer; }
+.prog-sched-del {
+  width: 26px; height: 26px; flex-shrink: 0; border: none; border-radius: 7px;
+  cursor: pointer; background: rgba(224,92,92,.1); color: var(--coral);
+  display: flex; align-items: center; justify-content: center;
+}
+.prog-sched-del svg { width: 11px; height: 11px; }
+.prog-img-wrap {
+  border: 1.5px dashed rgba(201,168,76,.2); border-radius: 12px;
+  padding: 14px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.prog-img-preview {
+  width: 100%; border-radius: 10px; object-fit: cover; max-height: 160px; display: none;
+}
+.prog-img-btns { display: flex; gap: 8px; width: 100%; }
+.prog-img-btn {
+  flex: 1; padding: 9px; border: 1px solid rgba(201,168,76,.2); border-radius: 10px;
+  background: rgba(201,168,76,.06); color: var(--gold2); font-size: 11px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.prog-img-btn svg { width: 13px; height: 13px; }
+.prog-img-btn.del { background: rgba(224,92,92,.08); color: var(--coral); border-color: rgba(224,92,92,.2); }
+.prog-save-btn {
+  width: 100%; padding: 15px; border: none; border-radius: 16px;
+  background: var(--gold-g); color: var(--ocean);
+  font-family: var(--font-b); font-size: 15px; font-weight: 800;
+  cursor: pointer; box-shadow: 0 8px 28px rgba(201,168,76,.35);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 4px;
+}
+.prog-save-btn:active { transform: scale(.97); }
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -2019,55 +2139,58 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   <canvas id="geoCanvas"></canvas>
   <div class="pg-content">
     <div class="pg-header">
-      <div class="pg-org-badge"><svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
+      <div class="pg-org-badge" id="pgOrgBadge"><svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
       <div class="pg-globe-wrap">
         <div class="pg-globe-ring"></div>
         <div class="pg-globe"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       </div>
-      <div class="pg-eyebrow">Авторлық бағдарлама · 2026</div>
-      <div class="pg-title">Геосаясат:<br><em>Жаһандық тұрақтылық</em><br>және Қазақстан</div>
-      <div class="pg-subtitle"><svg width="9" height="9" viewBox="0 0 24 24" fill="var(--sage2)" stroke="none" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Элективті курс · 10-сынып</div>
+      <div class="pg-eyebrow" id="pgEyebrow">Авторлық бағдарлама · 2026</div>
+      <div class="pg-title" id="pgTitle">Геосаясат:<br><em>Жаһандық тұрақтылық</em><br>және Қазақстан</div>
+      <div class="pg-subtitle" id="pgSubtitle"><svg width="9" height="9" viewBox="0 0 24 24" fill="var(--sage2)" stroke="none" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Элективті курс · 10-сынып</div>
     </div>
 
     <div class="pg-stats">
       <div class="pg-stat">
         <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <div class="pg-stat-val">5</div><div class="pg-stat-lbl">Бөлім</div>
+        <div class="pg-stat-val" id="pgStatSections">5</div><div class="pg-stat-lbl">Бөлім</div>
       </div>
       <div class="pg-stat">
         <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="pg-stat-val">34</div><div class="pg-stat-lbl">Сағат</div>
+        <div class="pg-stat-val" id="pgStatHours">34</div><div class="pg-stat-lbl">Сағат</div>
       </div>
       <div class="pg-stat">
         <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
-        <div class="pg-stat-val">10</div><div class="pg-stat-lbl">Сынып</div>
+        <div class="pg-stat-val" id="pgStatGrade">10</div><div class="pg-stat-lbl">Сынып</div>
       </div>
       <div class="pg-stat">
         <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16M9 22V12M15 22V12"/><path d="M18 2H6v10a6 6 0 0 0 12 0V2z"/></svg></div>
-        <div class="pg-stat-val">1</div><div class="pg-stat-lbl">Апталық</div>
+        <div class="pg-stat-val" id="pgStatWeekly">1</div><div class="pg-stat-lbl">Апталық</div>
       </div>
     </div>
 
     <div class="pg-authors">
       <div class="pg-avatars">
-        <div class="pg-avatar">ТЕ</div>
-        <div class="pg-avatar">АА</div>
+        <div class="pg-avatar" id="pgAv1">ТЕ</div>
+        <div class="pg-avatar" id="pgAv2">АА</div>
       </div>
       <div class="pg-author-info">
-        <div class="pg-author-name">Есенов Т.Қ. · Аимбаева А.С.</div>
-        <div class="pg-author-role">педагог-шебер · педагог-зерттеуші</div>
+        <div class="pg-author-name" id="pgAuthorName">Есенов Т.Қ. · Аимбаева А.С.</div>
+        <div class="pg-author-role" id="pgAuthorRole">педагог-шебер · педагог-зерттеуші</div>
       </div>
       <div class="pg-verified"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     </div>
 
     <div class="pg-sheet">
 
+      <!-- HEADER IMAGE -->
+      <img id="pgHeaderImg" style="display:none;width:100%;border-radius:16px;margin-bottom:16px;object-fit:cover;max-height:200px" alt="бағдарлама суреті">
+
       <!-- ТҮСІНІК ХАТ -->
       <div class="pg-section-title">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Түсінік хат
       </div>
-      <div class="pg-text">
+      <div class="pg-text" id="pgExplanatoryNote">
         «Геосаясат: Жаһандық тұрақтылық және Қазақстан» элективті курсы 10-сыныптың география және құқық негіздері бағдарламасындағы «Дүниежүзінің саяси картасы» тарауымен тығыз байланысты. Курс оқушылардың жаһандық саяси процестерді талдау, Қазақстанның әлемдік аренадағы орнын айқындау және геосаяси тәуекелдерді бағалау дағдыларын қалыптастыруға бағытталған. Курстың ұзақтығы: 34 сағат, аптасына — 1 сағат. 5–6-шы сабақтардан кейін әр оқушы жыл соңында қорғайтын зерттеу жобасының тақырыбын таңдайды.
       </div>
 
@@ -2076,7 +2199,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         Курстың мақсаты
       </div>
-      <div class="pg-goals">
+      <div class="pg-goals" id="pgGoals">
         <div class="pg-goal"><div class="pg-goal-dot">1</div><div class="pg-goal-text">Қазіргі дүниежүзінің геосаяси бейнесі, мемлекеттердің қуатын айқындайтын факторлар және жаһандық тұрақтылықты сақтау тетіктері туралы жүйелі білім беру.</div></div>
         <div class="pg-goal"><div class="pg-goal-dot">2</div><div class="pg-goal-text">Қазақстанның Еуразия орталығындағы стратегиялық маңызын, транзиттік әлеуетін және энергетикалық дипломатиясын зерттеу арқылы аналитикалық ойлауды дамыту.</div></div>
         <div class="pg-goal"><div class="pg-goal-dot">3</div><div class="pg-goal-text">Халықаралық қақтығыстар мен шекаралық даулардың себеп-салдарын талдау арқылы оқушылардың саяси сауаттылығын және мемлекетшілдік позициясын қалыптастыру.</div></div>
@@ -2087,7 +2210,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Курстың міндеттері
       </div>
-      <div class="pg-text">
+      <div class="pg-text" id="pgTasks">
         <div class="pg-list-item">• Геосаяси жағдайдың басты ерекшеліктері мен әлемдік даму факторларын түсіндіру;</div>
         <div class="pg-list-item">• Қазақстанның халықаралық интеграциялық бірлестіктердегі рөлін айқындау;</div>
         <div class="pg-list-item">• Әлемнің «ыстық нүктелері» мен аумақтық даулардың туындау алғышарттарын зерттеу;</div>
@@ -2100,7 +2223,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         Тақырыптық жоспар (34 сағат)
       </div>
-      <div class="pg-sections-grid">
+      <div class="pg-sections-grid" id="pgScheduleGrid">
         <div class="pg-sec-row pg-sec-header"><div class="pg-sec-num">№</div><div class="pg-sec-name">Тақырып</div><div class="pg-sec-hrs">Түрі</div></div>
         <div class="pg-sec-divider">Кіріспе бөлім (5 сағат)</div>
         <div class="pg-sec-row"><div class="pg-sec-num">1</div><div class="pg-sec-name">Кіріспе. Геосаяси жағдай, басты ерекшеліктер</div><div class="pg-sec-hrs">Дәріс</div></div>
@@ -2218,7 +2341,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
         Курсқа кіру
       </button>
-      <div class="pg-footer">
+      <div class="pg-footer" id="pgFooter">
         №4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы
       </div>
     </div>
@@ -2506,6 +2629,97 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <!-- Hidden image file input -->
 <input type="file" id="rteImgInput" accept="image/*" style="display:none" onchange="rteLoadImage(event)">
 
+<!-- БАҒДАРЛАМА РЕДАКТОРЫ МОДАЛІ -->
+<div class="prog-editor-modal" id="progEditorModal">
+  <div class="prog-editor-wrap">
+    <div class="prog-editor-head">
+      <div class="prog-editor-head-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Бағдарлама редакторы
+      </div>
+      <button class="modal-close" onclick="closeProgEditor()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="prog-editor-body">
+      <div class="prog-section-label">Жоғарғы сурет</div>
+      <div class="prog-img-wrap">
+        <img id="progImgPreview" class="prog-img-preview" alt="сурет алдын ала көру">
+        <div class="prog-img-btns">
+          <button class="prog-img-btn" onclick="document.getElementById('progImgFileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Галереядан
+          </button>
+          <button class="prog-img-btn del" id="progImgDelBtn" onclick="clearProgImg()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Жою
+          </button>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center">Немесе URL арқылы қосыңыз</div>
+        <input class="prog-inp" id="progImgUrl" placeholder="https://..." oninput="previewProgImg()">
+      </div>
+      <input type="file" id="progImgFileInput" accept="image/*" style="display:none" onchange="loadProgImgFile(event)">
+
+      <div class="prog-section-label">Ұйым / Мекеме мәліметтері</div>
+      <input class="prog-inp" id="peOrgBadge" placeholder="Ұйым атауы...">
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peEyebrow" placeholder="Авторлық бағдарлама · 2026">
+        <input class="prog-inp" id="peSubtitle" placeholder="Элективті курс · 10-сынып">
+      </div>
+
+      <div class="prog-section-label">Бағдарлама атауы</div>
+      <input class="prog-inp" id="peTitleLine1" placeholder="Геосаясат:">
+      <input class="prog-inp" id="peTitleLine2" placeholder="Жаһандық тұрақтылық (курсив)">
+      <input class="prog-inp" id="peTitleLine3" placeholder="және Қазақстан">
+
+      <div class="prog-section-label">Статистика карточкалары</div>
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peStatSections" placeholder="Бөлім саны">
+        <input class="prog-inp" id="peStatHours" placeholder="Сағат саны">
+        <input class="prog-inp" id="peStatGrade" placeholder="Сынып">
+        <input class="prog-inp" id="peStatWeekly" placeholder="Апталық">
+      </div>
+
+      <div class="prog-section-label">Авторлар</div>
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peAv1" placeholder="Бірінші инициал (ТЕ)">
+        <input class="prog-inp" id="peAv2" placeholder="Екінші инициал (АА)">
+      </div>
+      <input class="prog-inp" id="peAuthorName" placeholder="Есенов Т.Қ. · Аимбаева А.С.">
+      <input class="prog-inp" id="peAuthorRole" placeholder="педагог-шебер · педагог-зерттеуші">
+
+      <div class="prog-section-label">Түсінік хат мәтіні</div>
+      <textarea class="prog-ta" id="peExplanatoryNote" style="min-height:100px" placeholder="Курс туралы жалпы мәліметтер..."></textarea>
+
+      <div class="prog-section-label">Курстың мақсаттары</div>
+      <div class="prog-goals-list" id="peGoalsList"></div>
+      <button class="prog-add-btn" onclick="addProgGoal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Мақсат қосу
+      </button>
+
+      <div class="prog-section-label">Курстың міндеттері (жол — жаңа пункт)</div>
+      <textarea class="prog-ta" id="peTasks" style="min-height:100px" placeholder="• Бірінші міндет;&#10;• Екінші міндет;"></textarea>
+
+      <div class="prog-section-label">
+        Тақырыптық жоспар жолдары
+        <span style="font-size:9px;color:var(--muted);font-weight:400;margin-left:6px">— Жасыл = қорытынды жол</span>
+      </div>
+      <div class="prog-schedule-list" id="peScheduleList"></div>
+      <button class="prog-add-btn" onclick="addProgScheduleRow()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Жол қосу
+      </button>
+
+      <div class="prog-section-label">Мекеме (төменгі мәтін)</div>
+      <input class="prog-inp" id="peFooter" placeholder="№4 мектеп-интернаты КММ · Сарыағаш ауданы...">
+
+      <button class="prog-save-btn" onclick="saveProgEditor()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+        Сақтау
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -2618,6 +2832,60 @@ async function fbGetAllProgress() {
     const snap = await get(ref(window._fbDb, 'progress'));
     return snap.exists() ? snap.val() : {};
   } catch { return {}; }
+}
+
+// ═══ БАҒДАРЛАМА ДЕРЕКТЕРІ ═══
+async function fbGetProgramData() {
+  try {
+    if (!window._fbDb) return null;
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'programData'));
+    return snap.exists() ? snap.val() : null;
+  } catch { return null; }
+}
+async function fbSaveProgramData(data) {
+  try {
+    if (!window._fbDb) return;
+    const {set, ref} = window._fbFns;
+    await set(ref(window._fbDb, 'programData'), data);
+  } catch(e) { console.warn('ProgramData save error:', e); }
+}
+
+let _programData = null;
+async function getProgramData() {
+  if (_programData) return _programData;
+  const fb = await fbGetProgramData();
+  if (fb) { _programData = fb; return _programData; }
+  // Әдепкі мәндер — HTML-дегі статикалық мазмұн
+  _programData = {
+    orgBadge: 'Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ',
+    eyebrow: 'Авторлық бағдарлама · 2026',
+    titleLine1: 'Геосаясат:',
+    titleLine2: 'Жаһандық тұрақтылық',
+    titleLine3: 'және Қазақстан',
+    subtitle: 'Элективті курс · 10-сынып',
+    statSections: '5', statHours: '34', statGrade: '10', statWeekly: '1',
+    authorInitials1: 'ТЕ', authorInitials2: 'АА',
+    authorName: 'Есенов Т.Қ. · Аимбаева А.С.',
+    authorRole: 'педагог-шебер · педагог-зерттеуші',
+    explanatoryNote: '«Геосаясат: Жаһандық тұрақтылық және Қазақстан» элективті курсы 10-сыныптың география және құқық негіздері бағдарламасындағы «Дүниежүзінің саяси картасы» тарауымен тығыз байланысты. Курс оқушылардың жаһандық саяси процестерді талдау, Қазақстанның әлемдік аренадағы орнын айқындау және геосаяси тәуекелдерді бағалау дағдыларын қалыптастыруға бағытталған. Курстың ұзақтығы: 34 сағат, аптасына — 1 сағат. 5–6-шы сабақтардан кейін әр оқушы жыл соңында қорғайтын зерттеу жобасының тақырыбын таңдайды.',
+    goals: [
+      'Қазіргі дүниежүзінің геосаяси бейнесі, мемлекеттердің қуатын айқындайтын факторлар және жаһандық тұрақтылықты сақтау тетіктері туралы жүйелі білім беру.',
+      'Қазақстанның Еуразия орталығындағы стратегиялық маңызын, транзиттік әлеуетін және энергетикалық дипломатиясын зерттеу арқылы аналитикалық ойлауды дамыту.',
+      'Халықаралық қақтығыстар мен шекаралық даулардың себеп-салдарын талдау арқылы оқушылардың саяси сауаттылығын және мемлекетшілдік позициясын қалыптастыру.'
+    ],
+    tasks: '• Геосаяси жағдайдың басты ерекшеліктері мен әлемдік даму факторларын түсіндіру;\n• Қазақстанның халықаралық интеграциялық бірлестіктердегі рөлін айқындау;\n• Әлемнің «ыстық нүктелері» мен аумақтық даулардың туындау алғышарттарын зерттеу;\n• Ресурстық (су, энергия) дипломатияның жаһандық қауіпсіздікке ықпалын талдау;\n• Оқушыларды геосаяси болжамдар мен жобалық жұмыстарды қорғауға дағдыландыру.',
+    scheduleRows: [
+      {num:'1',name:'Кіріспе. Геосаяси жағдай, басты ерекшеліктер',type:'Дәріс',final:false},
+      {num:'2',name:'Әлем дамуына ықпал ететін геосаяси факторлар',type:'Семинар',final:false},
+      {num:'3',name:'Әлем аймақтарының геосаяси кеңістіктегі рөлі',type:'Практикалық',final:false},
+      {num:'4',name:'Діни және ұлттық қақтығыстардың саяси бейнеге ықпалы',type:'Пікірталас',final:false},
+      {num:'5',name:'Геосаяси қуаттың демографиялық және экономикалық детерминанттары',type:'Зерттеу',final:false}
+    ],
+    headerImg: '',
+    footer: '№4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы'
+  };
+  return _programData;
 }
 
 const LS = {
@@ -3113,6 +3381,58 @@ function showProgram(){
   document.getElementById("programScreen").classList.add("active");
   // Canvas-ты жүктеу
   if(typeof startGeoCanvas === 'function') startGeoCanvas();
+  // Динамикалық мазмұн
+  renderProgramScreen();
+}
+
+async function renderProgramScreen() {
+  const pd = await getProgramData();
+  // Org badge
+  const ob = document.getElementById('pgOrgBadge');
+  if(ob) ob.innerHTML = `<svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>${pd.orgBadge||''}`;
+  // Eyebrow
+  const ey = document.getElementById('pgEyebrow');
+  if(ey) ey.textContent = pd.eyebrow||'';
+  // Title
+  const ti = document.getElementById('pgTitle');
+  if(ti) ti.innerHTML = `${pd.titleLine1||''}<br><em>${pd.titleLine2||''}</em><br>${pd.titleLine3||''}`;
+  // Subtitle
+  const su = document.getElementById('pgSubtitle');
+  if(su) su.innerHTML = `<svg width="9" height="9" viewBox="0 0 24 24" fill="var(--sage2)" stroke="none" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${pd.subtitle||''}`;
+  // Stats
+  const ss = [{id:'pgStatSections',v:pd.statSections},{id:'pgStatHours',v:pd.statHours},{id:'pgStatGrade',v:pd.statGrade},{id:'pgStatWeekly',v:pd.statWeekly}];
+  ss.forEach(s=>{ const el=document.getElementById(s.id); if(el) el.textContent=s.v||''; });
+  // Authors
+  const a1=document.getElementById('pgAv1'); if(a1) a1.textContent=pd.authorInitials1||'';
+  const a2=document.getElementById('pgAv2'); if(a2) a2.textContent=pd.authorInitials2||'';
+  const an=document.getElementById('pgAuthorName'); if(an) an.textContent=pd.authorName||'';
+  const ar=document.getElementById('pgAuthorRole'); if(ar) ar.textContent=pd.authorRole||'';
+  // Header image
+  const hi=document.getElementById('pgHeaderImg');
+  if(hi){ if(pd.headerImg){ hi.src=pd.headerImg; hi.style.display='block'; } else { hi.style.display='none'; } }
+  // Explanatory note
+  const en=document.getElementById('pgExplanatoryNote'); if(en) en.textContent=pd.explanatoryNote||'';
+  // Goals
+  const gw=document.getElementById('pgGoals');
+  if(gw){
+    const goals=pd.goals||[];
+    gw.innerHTML=goals.map((g,i)=>`<div class="pg-goal"><div class="pg-goal-dot">${i+1}</div><div class="pg-goal-text">${g}</div></div>`).join('');
+  }
+  // Tasks
+  const tw=document.getElementById('pgTasks');
+  if(tw){
+    const lines=(pd.tasks||'').split('\n').filter(l=>l.trim());
+    tw.innerHTML=lines.map(l=>`<div class="pg-list-item">${l}</div>`).join('');
+  }
+  // Schedule
+  const sw=document.getElementById('pgScheduleGrid');
+  if(sw){
+    const rows=pd.scheduleRows||[];
+    sw.innerHTML=`<div class="pg-sec-row pg-sec-header"><div class="pg-sec-num">№</div><div class="pg-sec-name">Тақырып</div><div class="pg-sec-hrs">Түрі</div></div>`
+      + rows.map(r=>`<div class="pg-sec-row${r.final?' pg-sec-final':''}"><div class="pg-sec-num">${r.num}</div><div class="pg-sec-name">${r.name}</div><div class="pg-sec-hrs">${r.type}</div></div>`).join('');
+  }
+  // Footer
+  const fo=document.getElementById('pgFooter'); if(fo) fo.textContent=pd.footer||'';
 }
 async function logout(){
   const {signOut} = window._fbFns;
@@ -3683,6 +4003,186 @@ async function renderProfileAsync(){
   showOnly('tabProfile');
 }
 
+
+// ═══ БАҒДАРЛАМА РЕДАКТОРЫ ФУНКЦИЯЛАРЫ ═══
+let _peGoals = [];
+let _peScheduleRows = [];
+let _peImgData = '';
+
+async function openProgEditor() {
+  const pd = await getProgramData();
+  // Суретті жүктеу
+  _peImgData = pd.headerImg || '';
+  const preview = document.getElementById('progImgPreview');
+  const delBtn = document.getElementById('progImgDelBtn');
+  const urlInp = document.getElementById('progImgUrl');
+  if(_peImgData){ preview.src=_peImgData; preview.style.display='block'; delBtn.style.display='flex'; }
+  else { preview.style.display='none'; delBtn.style.display='none'; }
+  urlInp.value = (_peImgData && _peImgData.startsWith('http')) ? _peImgData : '';
+
+  // Мәтін өрістерін толтыру
+  const fields = {
+    peOrgBadge: pd.orgBadge||'', peEyebrow: pd.eyebrow||'', peSubtitle: pd.subtitle||'',
+    peTitleLine1: pd.titleLine1||'', peTitleLine2: pd.titleLine2||'', peTitleLine3: pd.titleLine3||'',
+    peStatSections: pd.statSections||'', peStatHours: pd.statHours||'', peStatGrade: pd.statGrade||'', peStatWeekly: pd.statWeekly||'',
+    peAv1: pd.authorInitials1||'', peAv2: pd.authorInitials2||'',
+    peAuthorName: pd.authorName||'', peAuthorRole: pd.authorRole||'',
+    peExplanatoryNote: pd.explanatoryNote||'',
+    peTasks: pd.tasks||'',
+    peFooter: pd.footer||''
+  };
+  Object.entries(fields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+
+  // Мақсаттар
+  _peGoals = (pd.goals || []).slice();
+  renderProgGoals();
+
+  // Кесте жолдары
+  _peScheduleRows = (pd.scheduleRows || []).map(r=>({...r}));
+  renderProgSchedule();
+
+  document.getElementById('progEditorModal').classList.add('show');
+  document.getElementById('progEditorModal').scrollTop = 0;
+}
+
+function closeProgEditor() {
+  document.getElementById('progEditorModal').classList.remove('show');
+}
+
+function renderProgGoals() {
+  const list = document.getElementById('peGoalsList');
+  if(!list) return;
+  list.innerHTML = _peGoals.map((g,i) => `
+    <div class="prog-goal-row">
+      <textarea class="prog-ta" style="min-height:56px" placeholder="Мақсат мәтіні..."
+        oninput="_peGoals[${i}]=this.value">${escH(g)}</textarea>
+      <button class="prog-goal-del" onclick="removeProgGoal(${i})" title="Жою">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function addProgGoal() {
+  _peGoals.push('');
+  renderProgGoals();
+  // Соңғы textarea-ға фокус беру
+  setTimeout(()=>{
+    const items = document.querySelectorAll('#peGoalsList .prog-ta');
+    if(items.length) items[items.length-1].focus();
+  }, 50);
+}
+
+function removeProgGoal(i) {
+  _peGoals.splice(i,1);
+  renderProgGoals();
+}
+
+function renderProgSchedule() {
+  const list = document.getElementById('peScheduleList');
+  if(!list) return;
+  list.innerHTML = _peScheduleRows.map((r,i) => `
+    <div class="prog-sched-row">
+      <input class="prog-sched-num" value="${escH(r.num||'')}" placeholder="№"
+        oninput="_peScheduleRows[${i}].num=this.value">
+      <input class="prog-sched-name" value="${escH(r.name||'')}" placeholder="Тақырып атауы..."
+        oninput="_peScheduleRows[${i}].name=this.value">
+      <input class="prog-sched-type" value="${escH(r.type||'')}" placeholder="Дәріс"
+        oninput="_peScheduleRows[${i}].type=this.value">
+      <input type="checkbox" class="prog-sched-final-chk" title="Қорытынды жол"
+        ${r.final?'checked':''} onchange="_peScheduleRows[${i}].final=this.checked">
+      <button class="prog-sched-del" onclick="removeProgScheduleRow(${i})" title="Жою">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function addProgScheduleRow() {
+  _peScheduleRows.push({num: String(_peScheduleRows.length+1), name:'', type:'Дәріс', final:false});
+  renderProgSchedule();
+}
+
+function removeProgScheduleRow(i) {
+  _peScheduleRows.splice(i,1);
+  renderProgSchedule();
+}
+
+function previewProgImg() {
+  const url = document.getElementById('progImgUrl').value.trim();
+  const preview = document.getElementById('progImgPreview');
+  const delBtn = document.getElementById('progImgDelBtn');
+  if(url){ preview.src=url; preview.style.display='block'; delBtn.style.display='flex'; _peImgData=url; }
+  else { preview.style.display='none'; delBtn.style.display='none'; _peImgData=''; }
+}
+
+function loadProgImgFile(evt) {
+  const file = evt.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    _peImgData = e.target.result;
+    const preview = document.getElementById('progImgPreview');
+    const delBtn = document.getElementById('progImgDelBtn');
+    preview.src = _peImgData; preview.style.display = 'block';
+    delBtn.style.display = 'flex';
+    document.getElementById('progImgUrl').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearProgImg() {
+  _peImgData = '';
+  document.getElementById('progImgPreview').style.display='none';
+  document.getElementById('progImgDelBtn').style.display='none';
+  document.getElementById('progImgUrl').value='';
+}
+
+async function saveProgEditor() {
+  // DOM-нан соңғы мәндерді жинау
+  _peGoals = _peGoals.map((g,i)=>{
+    const el = document.querySelectorAll('#peGoalsList .prog-ta')[i];
+    return el ? el.value.trim() : g;
+  }).filter(g=>g.trim());
+  _peScheduleRows = _peScheduleRows.map((r,i)=>{
+    const row = document.querySelectorAll('#peScheduleList .prog-sched-row')[i];
+    if(!row) return r;
+    const inputs = row.querySelectorAll('input');
+    return {
+      num: inputs[0]?.value.trim()||r.num,
+      name: inputs[1]?.value.trim()||r.name,
+      type: inputs[2]?.value.trim()||r.type,
+      final: inputs[3]?.checked||false
+    };
+  });
+
+  const newData = {
+    headerImg: _peImgData||'',
+    orgBadge: document.getElementById('peOrgBadge').value.trim(),
+    eyebrow: document.getElementById('peEyebrow').value.trim(),
+    subtitle: document.getElementById('peSubtitle').value.trim(),
+    titleLine1: document.getElementById('peTitleLine1').value.trim(),
+    titleLine2: document.getElementById('peTitleLine2').value.trim(),
+    titleLine3: document.getElementById('peTitleLine3').value.trim(),
+    statSections: document.getElementById('peStatSections').value.trim(),
+    statHours: document.getElementById('peStatHours').value.trim(),
+    statGrade: document.getElementById('peStatGrade').value.trim(),
+    statWeekly: document.getElementById('peStatWeekly').value.trim(),
+    authorInitials1: document.getElementById('peAv1').value.trim(),
+    authorInitials2: document.getElementById('peAv2').value.trim(),
+    authorName: document.getElementById('peAuthorName').value.trim(),
+    authorRole: document.getElementById('peAuthorRole').value.trim(),
+    explanatoryNote: document.getElementById('peExplanatoryNote').value.trim(),
+    goals: _peGoals,
+    tasks: document.getElementById('peTasks').value.trim(),
+    scheduleRows: _peScheduleRows,
+    footer: document.getElementById('peFooter').value.trim()
+  };
+
+  _programData = newData;
+  await fbSaveProgramData(newData);
+  closeProgEditor();
+  renderProgramScreen();
+  alert('✅ Бағдарлама сәтті сақталды!');
+}
+
 // ═══ ADMIN ═══
 let editIdx=null;
 
@@ -3763,6 +4263,18 @@ async function renderAdminAsync(){
       <button class="adm-add" onclick="openEdit(-1)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
         ${lang==='kk'?'Жаңа тақырып қосу':'Добавить тему'}
+      </button>
+    </div>
+
+    <div class="adm-sec" style="border-top:1px solid rgba(201,168,76,.1);padding-top:14px;margin-top:4px">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Бағдарлама беті
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:4px 0 12px;line-height:1.5">«Бағдарлама» батырмасы арқылы көрінетін страницаның мазмұнын, суреттерін және жоспар кестесін өңдеңіз.</p>
+      <button class="adm-add" onclick="openProgEditor()" style="background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:var(--gold2)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Бағдарламаны өңдеу
       </button>
     </div>
 
