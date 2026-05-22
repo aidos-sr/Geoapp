@@ -3528,13 +3528,22 @@ function startSession(u){
   _prog = {};
   hideLoading();
   document.getElementById('authScreen').classList.remove('active');
-
-  // Авторлық бағдарлама — тікелей негізгі экранға өту
   document.getElementById('mainScreen').classList.add('active');
   document.getElementById('nb2').classList.toggle('hidden', !u.isAdmin);
   switchTab(0);
   document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
   document.getElementById('authBtn').disabled = false;
+
+  // Соңғы тапсырма сессиясын қалпына келтіру
+  try {
+    const lastIdx = localStorage.getItem('sh_lastTaskIdx');
+    if (lastIdx !== null) {
+      const idx = parseInt(lastIdx);
+      if (!isNaN(idx)) {
+        setTimeout(() => openTaskScreen(idx), 300);
+      }
+    }
+  } catch(e) {}
 }
 
 function enterCourse(){ enterProgram(); }
@@ -3956,10 +3965,14 @@ async function openTaskScreen(idx){
   const ts = document.getElementById('taskScreen');
   ts.classList.add('active');
   ts.scrollTop = 0;
+  // Сессияны сақтау — сайттан шықса қайта оралу үшін
+  try { localStorage.setItem('sh_lastTaskIdx', idx); } catch(e){}
 }
 
 function closeTaskScreen(){
   document.getElementById('taskScreen').classList.remove('active');
+  // Сессияны тазалау
+  try { localStorage.removeItem('sh_lastTaskIdx'); } catch(e){}
 }
 
 async function showQuizResult(idx){
@@ -4216,13 +4229,24 @@ async function renderProfileAsync(){
 
 // ═══ КЕРІ БАЙЛАНЫС ФУНКЦИЯЛАРЫ ═══
 
-// Firebase: feedback жазу
+// Firebase: feedback жазу (uid кілті арқылы — бір пайдаланушы бір тақырыпқа 1 рет)
 async function fbSaveFeedback(topicId, data) {
   try {
     if (!window._fbDb) return;
-    const {ref, push} = window._fbFns;
-    await push(ref(window._fbDb, 'feedback/' + topicId), data);
+    const {ref, set} = window._fbFns;
+    const uid = data.uid || 'anonymous';
+    await set(ref(window._fbDb, 'feedback/' + topicId + '/' + uid), data);
   } catch(e) { console.warn('Feedback save error:', e); }
+}
+
+// Firebase: белгілі тақырып бойынша осы пайдаланушы пікір қалдырды ма?
+async function fbHasFeedback(topicId, uid) {
+  try {
+    if (!window._fbDb) return false;
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'feedback/' + topicId + '/' + uid));
+    return snap.exists();
+  } catch { return false; }
 }
 
 // Firebase: барлық feedback оқу (admin үшін)
@@ -4241,8 +4265,30 @@ const _fbInlineState = {};
 function toggleFeedbackBlock(header) {
   const chevron = header.querySelector('.feedback-chevron');
   const body = header.nextElementSibling;
-  chevron.classList.toggle('open');
-  body.classList.toggle('open');
+  const isOpen = body.classList.contains('open');
+  chevron.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+  // Ашылған кезде бұрын пікір берілді ма тексер
+  if (!isOpen) {
+    const idMatch = body.id && body.id.match(/fbInlineBody_(\d+)/);
+    if (idMatch) checkFeedbackAlreadySent(parseInt(idMatch[1]));
+  }
+}
+
+async function checkFeedbackAlreadySent(idx) {
+  const T = await getTopics();
+  const t = T[idx];
+  const u = ST.currentUser;
+  const uid = u?.uid || 'anonymous';
+  const already = await fbHasFeedback(t.id, uid);
+  if (!already) return;
+  const body = document.getElementById('fbInlineBody_' + idx);
+  if (body && !body.querySelector('.feedback-sent')) {
+    body.innerHTML = `<div class="feedback-sent">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Сіз бұл тақырыпқа пікір қалдырдыңыз. Рақмет!
+    </div>`;
+  }
 }
 
 function setInlineStar(idx, val) {
@@ -4271,6 +4317,7 @@ async function submitInlineFeedback(idx) {
   const text = (document.getElementById('fbInlineText_' + idx)?.value || '').trim();
   const star = _fbInlineState[idx]?.star || 0;
   const u = ST.currentUser;
+  const uid = u?.uid || 'anonymous';
 
   if (!text && !star) {
     alert('Бағалаңыз немесе пікір жазыңыз!');
@@ -4280,10 +4327,23 @@ async function submitInlineFeedback(idx) {
   const btn = document.getElementById('fbInlineBtn_' + idx);
   if (btn) { btn.disabled = true; btn.textContent = 'Жіберілуде...'; }
 
+  // Бұрын пікір қалдырылды ма тексер
+  const already = await fbHasFeedback(t.id, uid);
+  if (already) {
+    const body = document.getElementById('fbInlineBody_' + idx);
+    if (body) {
+      body.innerHTML = `<div class="feedback-sent">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Сіз бұл тақырыпқа пікір қалдырдыңыз.
+      </div>`;
+    }
+    return;
+  }
+
   const entry = {
     topicId: t.id,
     topicName: t.kk || ('§' + t.id),
-    uid: u?.uid || 'anonymous',
+    uid,
     userName: u?.displayName || u?.email || 'Белгісіз',
     star,
     text,
@@ -4292,7 +4352,6 @@ async function submitInlineFeedback(idx) {
 
   await fbSaveFeedback(t.id, entry);
 
-  // Жіберілді хабарламасы
   const body = document.getElementById('fbInlineBody_' + idx);
   if (body) {
     body.innerHTML = `<div class="feedback-sent">
