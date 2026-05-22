@@ -1202,6 +1202,89 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .btn-finish-quiz { width: 100%; padding: 14px; border: none; border-radius: 14px; background: var(--gold-g); color: var(--ocean); font-family: var(--font-b); font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(201,168,76,.35); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; transition: transform .15s; }
 .btn-finish-quiz:active { transform: scale(.97); }
 
+/* ═══ КЕРІ БАЙЛАНЫС ═══ */
+.feedback-block {
+  margin: 18px 0 8px;
+  border: 1.5px solid rgba(201,168,76,.18);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(201,168,76,.04);
+}
+.feedback-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.feedback-header-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(201,168,76,.12); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--gold2);
+}
+.feedback-header-icon svg { width: 16px; height: 16px; }
+.feedback-header-text { flex: 1; }
+.feedback-header-title { font-size: 14px; font-weight: 800; color: var(--gold2); }
+.feedback-header-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.feedback-chevron { color: var(--muted); transition: transform .25s; }
+.feedback-chevron.open { transform: rotate(180deg); }
+.feedback-chevron svg { width: 16px; height: 16px; }
+.feedback-body { display: none; padding: 0 16px 16px; }
+.feedback-body.open { display: block; }
+.feedback-stars { display: flex; gap: 8px; margin-bottom: 14px; }
+.feedback-star {
+  font-size: 28px; cursor: pointer;
+  filter: grayscale(1) opacity(.4);
+  transition: filter .15s, transform .15s;
+  user-select: none;
+}
+.feedback-star.active { filter: none; transform: scale(1.15); }
+.feedback-star:hover { filter: none; transform: scale(1.1); }
+.feedback-inp-wrap { position: relative; }
+.feedback-inp {
+  width: 100%; min-height: 88px; resize: none;
+  padding: 12px 14px 40px; border: 1.5px solid rgba(201,168,76,.18);
+  border-radius: 14px; background: rgba(255,255,255,.04);
+  color: var(--text); font-family: var(--font-b); font-size: 13px;
+  line-height: 1.6; outline: none; transition: border .15s;
+}
+.feedback-inp:focus { border-color: var(--gold); background: rgba(201,168,76,.06); }
+.feedback-inp::placeholder { color: var(--muted); }
+.feedback-char { position: absolute; right: 12px; bottom: 12px; font-size: 10px; color: var(--muted); }
+.feedback-send-btn {
+  width: 100%; margin-top: 10px; padding: 13px;
+  border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #c9a84c, #e6c26e);
+  color: #06131c; font-family: var(--font-b); font-size: 14px; font-weight: 800;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .15s; box-shadow: 0 6px 20px rgba(201,168,76,.3);
+}
+.feedback-send-btn:active { transform: scale(.97); }
+.feedback-send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.feedback-sent {
+  text-align: center; padding: 16px 0 4px;
+  color: var(--sage2); font-size: 14px; font-weight: 700;
+}
+.feedback-sent svg { display: block; margin: 0 auto 8px; }
+
+/* Admin feedback panel */
+.fb-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.fb-card {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(201,168,76,.12);
+  border-radius: 14px; padding: 12px 14px;
+}
+.fb-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.fb-card-topic { font-size: 12px; font-weight: 800; color: var(--gold2); }
+.fb-card-stars { font-size: 14px; letter-spacing: 1px; }
+.fb-card-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.fb-card-text { font-size: 13px; color: var(--text); line-height: 1.6; margin-top: 6px; }
+.fb-empty { text-align: center; padding: 24px 0; color: var(--muted); font-size: 13px; }
+.fb-chip {
+  padding: 6px 12px; border: 1px solid rgba(201,168,76,.2); border-radius: 20px;
+  background: rgba(201,168,76,.06); color: var(--gold2); font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+.fb-chip:hover, .fb-chip.selected { background: rgba(201,168,76,.18); border-color: var(--gold); }
+
 /* KZH editor */
 .kzh-editor { background: rgba(201,168,76,.06); border: 1.5px solid rgba(201,168,76,.15); border-radius: 16px; padding: 14px; margin-top: 6px; }
 .kzh-goal-wrap { margin-bottom: 12px; }
@@ -2139,7 +2222,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   <canvas id="geoCanvas"></canvas>
   <div class="pg-content">
     <div class="pg-header">
-      <div class="pg-org-badge" id="pgOrgBadge"><svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
+      <div class="pg-org-badge" id="pgOrgBadge">Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
       <div class="pg-globe-wrap">
         <div class="pg-globe-ring"></div>
         <div class="pg-globe"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
@@ -2455,6 +2538,56 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
   </div>
 </div>
 
+<!-- FEEDBACK MODAL -->
+<div class="quiz-result-overlay" id="feedbackModal" style="z-index:202">
+  <div class="quiz-result-modal" style="padding:0;overflow:hidden">
+    <div style="padding:16px 18px 14px;background:rgba(201,168,76,.06);border-bottom:1px solid rgba(201,168,76,.12);display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:11px;background:rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;color:var(--gold2);flex-shrink:0">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:800;color:var(--gold2)">Кері байланыс</div>
+        <div id="fbModalTopicName" style="font-size:11px;color:var(--muted);margin-top:1px"></div>
+      </div>
+      <button class="modal-close" onclick="closeFeedbackModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:18px" id="fbModalBody">
+      <!-- Stars -->
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Бағалаңыз</div>
+      <div class="feedback-stars" id="fbStars">
+        <span class="feedback-star" onclick="setFbStar(1)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(2)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(3)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(4)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(5)">⭐</span>
+      </div>
+      <!-- Text -->
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin:12px 0 8px;text-transform:uppercase;letter-spacing:.8px">Ұсыныс / Пікір</div>
+      <div class="feedback-inp-wrap">
+        <textarea class="feedback-inp" id="fbText" maxlength="500"
+          placeholder="Бұл тақырып туралы ойыңызды жазыңыз... Ұнаған жерлер, жақсартуға болатын тұстар — барлығы маңызды!"
+          oninput="document.getElementById('fbCharCount').textContent=this.value.length+'/500'"></textarea>
+        <div class="feedback-char" id="fbCharCount">0/500</div>
+      </div>
+      <!-- Quick chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px" id="fbChips">
+        <button class="fb-chip" onclick="addFbChip(this,'Өте қызықты болды')">Өте қызықты болды</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Тым күрделі')">Тым күрделі</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Мысалдар жетіспеді')">Мысалдар жетіспеді</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Суреттер қосса болар еді')">Суреттер қосса болар еді</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Тапсырмалар ұнады')">Тапсырмалар ұнады</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Толықтыруды сұраймын')">Толықтыруды сұраймын</button>
+      </div>
+      <button class="feedback-send-btn" id="fbSendBtn" onclick="submitFeedback()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Жіберу
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="overlay" id="editModal">
   <div class="modal">
@@ -2687,7 +2820,23 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
       <input class="prog-inp" id="peAuthorRole" placeholder="педагог-шебер · педагог-зерттеуші">
 
       <div class="prog-section-label">Түсінік хат мәтіні</div>
-      <textarea class="prog-ta" id="peExplanatoryNote" style="min-height:100px" placeholder="Курс туралы жалпы мәліметтер..."></textarea>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('peExplanatoryNote','bold')" title="Қою">B</button>
+          <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('peExplanatoryNote','italic')" title="Курсив"><em>I</em></button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('peExplanatoryNote')" title="Сурет қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Сурет
+          </button>
+          <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('peExplanatoryNote')" title="Кесте қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Кесте
+          </button>
+        </div>
+        <div class="rte-editor" id="peExplanatoryNote" contenteditable="true"
+          data-placeholder="Курс туралы жалпы мәліметтер..."></div>
+      </div>
 
       <div class="prog-section-label">Курстың мақсаттары</div>
       <div class="prog-goals-list" id="peGoalsList"></div>
@@ -2696,8 +2845,24 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
         Мақсат қосу
       </button>
 
-      <div class="prog-section-label">Курстың міндеттері (жол — жаңа пункт)</div>
-      <textarea class="prog-ta" id="peTasks" style="min-height:100px" placeholder="• Бірінші міндет;&#10;• Екінші міндет;"></textarea>
+      <div class="prog-section-label">Курстың міндеттері</div>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('peTasks','bold')" title="Қою">B</button>
+          <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('peTasks','italic')" title="Курсив"><em>I</em></button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('peTasks')" title="Сурет қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Сурет
+          </button>
+          <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('peTasks')" title="Кесте қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Кесте
+          </button>
+        </div>
+        <div class="rte-editor" id="peTasks" contenteditable="true"
+          data-placeholder="• Бірінші міндет;&#10;• Екінші міндет;"></div>
+      </div>
 
       <div class="prog-section-label">
         Тақырыптық жоспар жолдары
@@ -2724,7 +2889,7 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyArwDELpm7FMM6WLS7VyDYnpc_1HoRhw_4",
@@ -2743,7 +2908,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 
   window._fbAuth = auth;
   window._fbDb = db;
-  window._fbFns = { set, get, ref, update, onValue,
+  window._fbFns = { set, get, ref, update, onValue, push,
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged };
 
@@ -3389,7 +3554,7 @@ async function renderProgramScreen() {
   const pd = await getProgramData();
   // Org badge
   const ob = document.getElementById('pgOrgBadge');
-  if(ob) ob.innerHTML = `<svg width="16" height="11" viewBox="0 0 28 18" fill="none" style="margin-right:5px;vertical-align:middle;border-radius:2px"><rect width="28" height="18" fill="#00AFCA"/><circle cx="14" cy="9" r="4" fill="#FFD700"/><path d="M2 9h4M22 9h4" stroke="#FFD700" stroke-width="1.8"/></svg>${pd.orgBadge||''}`;
+  if(ob) ob.textContent = pd.orgBadge||'';
   // Eyebrow
   const ey = document.getElementById('pgEyebrow');
   if(ey) ey.textContent = pd.eyebrow||'';
@@ -3411,19 +3576,18 @@ async function renderProgramScreen() {
   const hi=document.getElementById('pgHeaderImg');
   if(hi){ if(pd.headerImg){ hi.src=pd.headerImg; hi.style.display='block'; } else { hi.style.display='none'; } }
   // Explanatory note
-  const en=document.getElementById('pgExplanatoryNote'); if(en) en.textContent=pd.explanatoryNote||'';
-  // Goals
+  // Explanatory note — RTE HTML
+  const en=document.getElementById('pgExplanatoryNote');
+  if(en) en.innerHTML = pd.explanatoryNote||'';
+  // Goals — RTE HTML
   const gw=document.getElementById('pgGoals');
   if(gw){
     const goals=pd.goals||[];
     gw.innerHTML=goals.map((g,i)=>`<div class="pg-goal"><div class="pg-goal-dot">${i+1}</div><div class="pg-goal-text">${g}</div></div>`).join('');
   }
-  // Tasks
+  // Tasks — RTE HTML
   const tw=document.getElementById('pgTasks');
-  if(tw){
-    const lines=(pd.tasks||'').split('\n').filter(l=>l.trim());
-    tw.innerHTML=lines.map(l=>`<div class="pg-list-item">${l}</div>`).join('');
-  }
+  if(tw) tw.innerHTML = pd.tasks||'';
   // Schedule
   const sw=document.getElementById('pgScheduleGrid');
   if(sw){
@@ -3736,13 +3900,59 @@ async function openTaskScreen(idx){
     mapH+=`</div>`;
   }
 
+  const fbInlineHtml = `
+    <div class="feedback-block">
+      <div class="feedback-header" onclick="toggleFeedbackBlock(this)">
+        <div class="feedback-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="feedback-header-text">
+          <div class="feedback-header-title">Кері байланыс</div>
+          <div class="feedback-header-sub">Бұл тақырып туралы ойыңызды қалдырыңыз</div>
+        </div>
+        <div class="feedback-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="feedback-body" id="fbInlineBody_${idx}">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Бағалаңыз</div>
+        <div class="feedback-stars" id="fbInlineStars_${idx}">
+          <span class="feedback-star" onclick="setInlineStar(${idx},1)">⭐</span>
+          <span class="feedback-star" onclick="setInlineStar(${idx},2)">⭐</span>
+          <span class="feedback-star" onclick="setInlineStar(${idx},3)">⭐</span>
+          <span class="feedback-star" onclick="setInlineStar(${idx},4)">⭐</span>
+          <span class="feedback-star" onclick="setInlineStar(${idx},5)">⭐</span>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 8px">Ұсыныс / Пікір</div>
+        <div class="feedback-inp-wrap">
+          <textarea class="feedback-inp" id="fbInlineText_${idx}" maxlength="500"
+            placeholder="Ұсыныс немесе пікіріңіз..."
+            oninput="document.getElementById('fbInlineChar_${idx}').textContent=this.value.length+'/500'"></textarea>
+          <div class="feedback-char" id="fbInlineChar_${idx}">0/500</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px">
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Өте қызықты болды')">Өте қызықты болды</button>
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Тым күрделі')">Тым күрделі</button>
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Мысалдар жетіспеді')">Мысалдар жетіспеді</button>
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Суреттер қосса болар еді')">Суреттер қосса болар еді</button>
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Тапсырмалар ұнады')">Тапсырмалар ұнады</button>
+          <button class="fb-chip" onclick="addInlineChip(${idx},this,'Толықтыруды сұраймын')">Толықтыруды сұраймын</button>
+        </div>
+        <button class="feedback-send-btn" id="fbInlineBtn_${idx}" onclick="submitInlineFeedback(${idx})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Жіберу
+        </button>
+      </div>
+    </div>`;
+
   document.getElementById('taskContent').innerHTML=`
     <div class="task-topic-badge">§${t.id} — ${t.kk||""}</div>
     ${testH}${openH}${mapH}
     ${(allTests.length > 0 || allOpens.length > 0) ? `<button class="btn-finish-quiz" onclick="showQuizResult(${idx})">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       ${lang==='kk'?'Тестті аяқтау':'Завершить тест'}
-    </button>` : ''}`;
+    </button>` : ''}
+    ${fbInlineHtml}`;
   const ts = document.getElementById('taskScreen');
   ts.classList.add('active');
   ts.scrollTop = 0;
@@ -4004,6 +4214,183 @@ async function renderProfileAsync(){
 }
 
 
+// ═══ КЕРІ БАЙЛАНЫС ФУНКЦИЯЛАРЫ ═══
+
+// Firebase: feedback жазу
+async function fbSaveFeedback(topicId, data) {
+  try {
+    if (!window._fbDb) return;
+    const {ref, push} = window._fbFns;
+    await push(ref(window._fbDb, 'feedback/' + topicId), data);
+  } catch(e) { console.warn('Feedback save error:', e); }
+}
+
+// Firebase: барлық feedback оқу (admin үшін)
+async function fbGetAllFeedback() {
+  try {
+    if (!window._fbDb) return {};
+    const {get, ref} = window._fbFns;
+    const snap = await get(ref(window._fbDb, 'feedback'));
+    return snap.exists() ? snap.val() : {};
+  } catch { return {}; }
+}
+
+// Inline feedback state
+const _fbInlineState = {};
+
+function toggleFeedbackBlock(header) {
+  const chevron = header.querySelector('.feedback-chevron');
+  const body = header.nextElementSibling;
+  chevron.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function setInlineStar(idx, val) {
+  if (!_fbInlineState[idx]) _fbInlineState[idx] = {star: 0};
+  _fbInlineState[idx].star = val;
+  const stars = document.querySelectorAll('#fbInlineStars_' + idx + ' .feedback-star');
+  stars.forEach((s, i) => s.classList.toggle('active', i < val));
+}
+
+function addInlineChip(idx, btn, text) {
+  btn.classList.toggle('selected');
+  const ta = document.getElementById('fbInlineText_' + idx);
+  if (!ta) return;
+  if (btn.classList.contains('selected')) {
+    ta.value = ta.value ? ta.value + ' ' + text : text;
+  } else {
+    ta.value = ta.value.replace(' ' + text, '').replace(text, '').trim();
+  }
+  const charEl = document.getElementById('fbInlineChar_' + idx);
+  if (charEl) charEl.textContent = ta.value.length + '/500';
+}
+
+async function submitInlineFeedback(idx) {
+  const T = await getTopics();
+  const t = T[idx];
+  const text = (document.getElementById('fbInlineText_' + idx)?.value || '').trim();
+  const star = _fbInlineState[idx]?.star || 0;
+  const u = ST.currentUser;
+
+  if (!text && !star) {
+    alert('Бағалаңыз немесе пікір жазыңыз!');
+    return;
+  }
+
+  const btn = document.getElementById('fbInlineBtn_' + idx);
+  if (btn) { btn.disabled = true; btn.textContent = 'Жіберілуде...'; }
+
+  const entry = {
+    topicId: t.id,
+    topicName: t.kk || ('§' + t.id),
+    uid: u?.uid || 'anonymous',
+    userName: u?.displayName || u?.email || 'Белгісіз',
+    star,
+    text,
+    ts: Date.now()
+  };
+
+  await fbSaveFeedback(t.id, entry);
+
+  // Жіберілді хабарламасы
+  const body = document.getElementById('fbInlineBody_' + idx);
+  if (body) {
+    body.innerHTML = `<div class="feedback-sent">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Рақмет! Пікіріңіз қабылданды.
+    </div>`;
+  }
+}
+
+// Modal feedback (unused in current flow but kept for extension)
+let _fbModalIdx = -1;
+let _fbModalStar = 0;
+
+function openFeedbackModal(idx) {
+  _fbModalIdx = idx; _fbModalStar = 0;
+  document.querySelectorAll('#fbStars .feedback-star').forEach(s => s.classList.remove('active'));
+  document.getElementById('fbText').value = '';
+  document.getElementById('fbCharCount').textContent = '0/500';
+  document.querySelectorAll('#fbChips .fb-chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('fbSendBtn').disabled = false;
+  document.getElementById('fbSendBtn').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Жіберу';
+  document.getElementById('feedbackModal').classList.add('show');
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').classList.remove('show');
+}
+
+function setFbStar(val) {
+  _fbModalStar = val;
+  document.querySelectorAll('#fbStars .feedback-star').forEach((s, i) => s.classList.toggle('active', i < val));
+}
+
+function addFbChip(btn, text) {
+  btn.classList.toggle('selected');
+  const ta = document.getElementById('fbText');
+  if (btn.classList.contains('selected')) {
+    ta.value = ta.value ? ta.value + ' ' + text : text;
+  } else {
+    ta.value = ta.value.replace(' ' + text, '').replace(text, '').trim();
+  }
+  document.getElementById('fbCharCount').textContent = ta.value.length + '/500';
+}
+
+async function submitFeedback() {
+  const T = await getTopics();
+  const t = T[_fbModalIdx];
+  if (!t) return;
+  const text = document.getElementById('fbText').value.trim();
+  if (!text && !_fbModalStar) { alert('Бағалаңыз немесе пікір жазыңыз!'); return; }
+  const btn = document.getElementById('fbSendBtn');
+  btn.disabled = true; btn.textContent = 'Жіберілуде...';
+  const u = ST.currentUser;
+  await fbSaveFeedback(t.id, {
+    topicId: t.id, topicName: t.kk || ('§' + t.id),
+    uid: u?.uid || 'anonymous', userName: u?.displayName || u?.email || 'Белгісіз',
+    star: _fbModalStar, text, ts: Date.now()
+  });
+  document.getElementById('fbModalBody').innerHTML = `<div class="feedback-sent" style="padding:30px 0">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Рақмет! Пікіріңіз қабылданды.
+  </div>`;
+  setTimeout(closeFeedbackModal, 2000);
+}
+
+// Admin: барлық пікірлерді жүктеу және көрсету
+async function loadAdminFeedback() {
+  const wrap = document.getElementById('adminFeedbackList');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="fb-empty">Жүктелуде...</div>';
+  const all = await fbGetAllFeedback();
+  const items = [];
+  Object.values(all).forEach(topicFbs => {
+    if (typeof topicFbs === 'object') {
+      Object.values(topicFbs).forEach(fb => { if (fb && fb.ts) items.push(fb); });
+    }
+  });
+  items.sort((a, b) => b.ts - a.ts);
+  if (!items.length) {
+    wrap.innerHTML = '<div class="fb-empty">Әзірге пікірлер жоқ</div>';
+    return;
+  }
+  wrap.innerHTML = items.map(fb => {
+    const stars = fb.star ? '⭐'.repeat(fb.star) + '☆'.repeat(5 - fb.star) : '—';
+    const date = new Date(fb.ts).toLocaleDateString('kk-KZ', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    return `<div class="fb-card">
+      <div class="fb-card-head">
+        <div>
+          <div class="fb-card-topic">§${fb.topicId} — ${escH(fb.topicName||'')}</div>
+          <div class="fb-card-meta">${escH(fb.userName||'')} · ${date}</div>
+        </div>
+        <div class="fb-card-stars">${stars}</div>
+      </div>
+      ${fb.text ? `<div class="fb-card-text">${escH(fb.text)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 // ═══ БАҒДАРЛАМА РЕДАКТОРЫ ФУНКЦИЯЛАРЫ ═══
 let _peGoals = [];
 let _peScheduleRows = [];
@@ -4027,11 +4414,12 @@ async function openProgEditor() {
     peStatSections: pd.statSections||'', peStatHours: pd.statHours||'', peStatGrade: pd.statGrade||'', peStatWeekly: pd.statWeekly||'',
     peAv1: pd.authorInitials1||'', peAv2: pd.authorInitials2||'',
     peAuthorName: pd.authorName||'', peAuthorRole: pd.authorRole||'',
-    peExplanatoryNote: pd.explanatoryNote||'',
-    peTasks: pd.tasks||'',
     peFooter: pd.footer||''
   };
   Object.entries(fields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+  // RTE өрістерін жүктеу
+  rteSetHtml('peExplanatoryNote', pd.explanatoryNote||'');
+  rteSetHtml('peTasks', pd.tasks||'');
 
   // Мақсаттар
   _peGoals = (pd.goals || []).slice();
@@ -4053,10 +4441,23 @@ function renderProgGoals() {
   const list = document.getElementById('peGoalsList');
   if(!list) return;
   list.innerHTML = _peGoals.map((g,i) => `
-    <div class="prog-goal-row">
-      <textarea class="prog-ta" style="min-height:56px" placeholder="Мақсат мәтіні..."
-        oninput="_peGoals[${i}]=this.value">${escH(g)}</textarea>
-      <button class="prog-goal-del" onclick="removeProgGoal(${i})" title="Жою">
+    <div class="prog-goal-row" id="pgGoalRow${i}">
+      <div style="flex:1">
+        <div class="rte-wrap" style="margin-bottom:0">
+          <div class="rte-toolbar" style="padding:4px 8px;gap:4px">
+            <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('pgGoalRte${i}','bold')" title="Қою">B</button>
+            <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('pgGoalRte${i}','italic')"><em>I</em></button>
+            <div class="rte-sep"></div>
+            <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('pgGoalRte${i}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Сурет
+            </button>
+          </div>
+          <div class="rte-editor" id="pgGoalRte${i}" contenteditable="true" style="min-height:52px"
+            data-placeholder="Мақсат мәтіні...">${g}</div>
+        </div>
+      </div>
+      <button class="prog-goal-del" onclick="removeProgGoal(${i})" title="Жою" style="margin-top:36px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>`).join('');
@@ -4136,11 +4537,11 @@ function clearProgImg() {
 }
 
 async function saveProgEditor() {
-  // DOM-нан соңғы мәндерді жинау
+  // DOM-нан соңғы мәндерді жинау — мақсаттарды RTE-дан оқу
   _peGoals = _peGoals.map((g,i)=>{
-    const el = document.querySelectorAll('#peGoalsList .prog-ta')[i];
-    return el ? el.value.trim() : g;
-  }).filter(g=>g.trim());
+    const el = document.getElementById('pgGoalRte'+i);
+    return el ? el.innerHTML.trim() : g;
+  }).filter(g=>g.replace(/<[^>]+>/g,'').trim());
   _peScheduleRows = _peScheduleRows.map((r,i)=>{
     const row = document.querySelectorAll('#peScheduleList .prog-sched-row')[i];
     if(!row) return r;
@@ -4169,9 +4570,9 @@ async function saveProgEditor() {
     authorInitials2: document.getElementById('peAv2').value.trim(),
     authorName: document.getElementById('peAuthorName').value.trim(),
     authorRole: document.getElementById('peAuthorRole').value.trim(),
-    explanatoryNote: document.getElementById('peExplanatoryNote').value.trim(),
+    explanatoryNote: rteGetHtml('peExplanatoryNote'),
     goals: _peGoals,
-    tasks: document.getElementById('peTasks').value.trim(),
+    tasks: rteGetHtml('peTasks'),
     scheduleRows: _peScheduleRows,
     footer: document.getElementById('peFooter').value.trim()
   };
@@ -4278,6 +4679,16 @@ async function renderAdminAsync(){
       </button>
     </div>
 
+    <div class="adm-sec" style="border-top:1px solid rgba(201,168,76,.1);padding-top:14px;margin-top:4px">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Оқушылардың пікірлері мен ұсыныстары
+      </div>
+      <div class="fb-list" id="adminFeedbackList">
+        <div class="fb-empty">Жүктелуде...</div>
+      </div>
+    </div>
+
     <div class="adm-sec">
       <div class="adm-sec-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm12 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -4288,6 +4699,8 @@ async function renderAdminAsync(){
   </div>`;
   document.getElementById('hTitle').textContent = lang==='kk'?'Админ панелі':'Панель Админа';
   showOnly('tabAdmin');
+  // Пікірлерді жүктеу
+  setTimeout(loadAdminFeedback, 100);
 }
 
 async function delTopicAsync(i){
