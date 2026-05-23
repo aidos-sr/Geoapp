@@ -1141,6 +1141,26 @@ p svg[stroke="#ef4444"], p svg[data-alert] { stroke: var(--red); }
 .mtask-add.green { border-color: rgba(76,175,121,.2); color: var(--sage2); background: transparent; }
 .mtask-add.green:hover { background: rgba(76,175,121,.08); }
 
+/* Dynamic test options */
+.ans-opts-container { display: flex; flex-direction: column; gap: 6px; }
+.ans-opt-row { display: flex; align-items: center; gap: 7px; }
+.ans-opt-letter { width: 26px; height: 26px; border-radius: 8px; background: rgba(201,168,76,.15); color: var(--gold2); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ans-opt-row .adm-inp { flex: 1; margin-bottom: 0 !important; }
+.opt-remove-btn { width: 26px; height: 26px; border-radius: 8px; border: none; background: rgba(224,92,92,.08); color: var(--coral); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+.opt-remove-btn:hover { background: rgba(224,92,92,.2); }
+.add-opt-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 1.5px dashed rgba(76,175,121,.3); border-radius: 20px; background: rgba(76,175,121,.06); color: var(--sage2); font-family: var(--font-b); font-size: 11px; font-weight: 700; cursor: pointer; transition: background .15s; }
+.add-opt-btn:hover { background: rgba(76,175,121,.14); }
+
+/* RTE image upload placeholder */
+.rte-img-uploading { display: inline-flex; align-items: center; gap: 7px; background: rgba(201,168,76,.08); border: 1px dashed rgba(201,168,76,.3); border-radius: 10px; padding: 10px 16px; margin: 6px 0; font-size: 12px; font-weight: 600; color: var(--gold2); }
+
+/* Cloudinary config panel */
+.cld-cfg-box { background: rgba(15,32,64,.7); border: 1px solid rgba(201,168,76,.18); border-radius: 14px; padding: 14px; margin-top: 4px; }
+.cld-cfg-box .cld-status { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; padding: 7px 12px; border-radius: 10px; margin-bottom: 12px; }
+.cld-cfg-box .cld-status.ok { background: rgba(76,175,121,.1); color: var(--sage2); border: 1px solid rgba(76,175,121,.2); }
+.cld-cfg-box .cld-status.warn { background: rgba(240,160,48,.08); color: var(--amber); border: 1px solid rgba(240,160,48,.2); }
+.cld-save-btn { width: 100%; margin-top: 10px; padding: 11px; border: none; border-radius: 12px; background: var(--sage-g); color: #fff; font-family: var(--font-b); font-size: 13px; font-weight: 700; cursor: pointer; }
+
 /* Map editor */
 .map-editor-wrap { border: 2px dashed rgba(201,168,76,.2); border-radius: 14px; overflow: hidden; position: relative; background: rgba(15,32,64,.4); margin-bottom: 10px; cursor: crosshair; min-height: 180px; }
 .map-editor-wrap img { width: 100%; display: block; user-select: none; pointer-events: none; }
@@ -2912,6 +2932,52 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged };
 
+  // ═══ CLOUDINARY CONFIG ═══
+  // Cloudinary баптауы: https://cloudinary.com → Settings → Upload → Upload presets
+  // "unsigned" preset жасаңыз және төмендегі мәндерді өзгертіңіз
+  window._cloudinaryCfg = {
+    cloudName: 'YOUR_CLOUD_NAME',       // Мысалы: 'dxyz123abc'
+    uploadPreset: 'YOUR_UPLOAD_PRESET'  // Мысалы: 'geo_unsigned'
+  };
+
+  // Cloudinary-ге сурет жүктеу (барлық upload нүктелері осыны пайдаланады)
+  window.uploadToCloudinary = async function(file, onProgress) {
+    const cfg = window._cloudinaryCfg;
+    if (!cfg.cloudName || cfg.cloudName === 'YOUR_CLOUD_NAME') {
+      // Cloudinary баптанбаса — ескі base64 тәсілі
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ url: e.target.result, source: 'base64' });
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', cfg.uploadPreset);
+    formData.append('folder', 'geoapp8');
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/upload`);
+      if (onProgress) {
+        xhr.upload.onprogress = e => {
+          if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
+        };
+      }
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          resolve({ url: data.secure_url, source: 'cloudinary' });
+        } else {
+          reject(new Error('Cloudinary upload failed: ' + xhr.status));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(formData);
+    });
+  };
+
   // Firebase auth state
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -3533,6 +3599,8 @@ function startSession(u){
   switchTab(0);
   document.getElementById('authBtn').textContent = isRegMode ? 'Тіркелу' : 'Кіру';
   document.getElementById('authBtn').disabled = false;
+  // Cloudinary конфигурациясын жүктеу
+  loadCldCfg();
 
   // Соңғы тапсырма сессиясын қалпына келтіру
   try {
@@ -3639,7 +3707,13 @@ async function renderTopicsAsync(){
   const u = ST.currentUser;
   const prog = await getProg();
   const {lang} = ST;
-  const doneCount = T.filter(t=>prog[pk(u.uid,t.id,'test')]||prog[pk(u.uid,t.id,'open')]||prog[pk(u.uid,t.id,'map')]).length;
+  const doneCount = T.filter(t=>{
+    const tp = prog[pk(u.uid,t.id,'test')];
+    const op = prog[pk(u.uid,t.id,'open')];
+    const mp = prog[pk(u.uid,t.id,'map')];
+    // prog=-1 (қате жауап) да "орындалды" деп есептейміз
+    return (tp !== undefined && tp !== null) || op || mp;
+  }).length;
   const pts = calcPts(u.uid, T, prog);
 
   let h=`<div class="banner">
@@ -3655,10 +3729,12 @@ async function renderTopicsAsync(){
   <div class="tlist">`;
 
   T.forEach((t,i)=>{
-    const tp=prog[pk(u.uid,t.id,'test')]||0;
+    const tp_raw = prog[pk(u.uid,t.id,'test')];
+    const tp=tp_raw !== undefined && tp_raw !== null ? (tp_raw > 0 ? tp_raw : 0) : 0;
+    const tp_attempted = tp_raw !== undefined && tp_raw !== null;
     const op=prog[pk(u.uid,t.id,'open')]||0;
     const mp=prog[pk(u.uid,t.id,'map')]||0;
-    const done=tp||op||mp;
+    const done=tp_attempted||op||mp;
     let badges='';
     if(tp) badges+=`<span class="badge done"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> Тест</span>`;
     if(op) badges+=`<span class="badge done"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"/></svg> Ашық</span>`;
@@ -3731,7 +3807,7 @@ async function openDetailAsync(idx){
   // Collect all test tasks: legacy + extras
   const allTests = [];
   if(t.qkk) allTests.push({q:t.qkk, opts:t.opts||[], ans:t.ans||'A'});
-  (t.tests||[]).forEach(tb=>{ if(tb.q) allTests.push({q:tb.q, opts:[tb.a,tb.b,tb.c,tb.d], ans:tb.ans||'A'}); });
+  (t.tests||[]).forEach(tb=>{ if(tb.q) allTests.push({q:tb.q, opts: tb.opts && tb.opts.length ? tb.opts : [tb.a||'',tb.b||'',tb.c||'',tb.d||''].filter(o=>o), ans:tb.ans||'A'}); });
 
   if(allTests.length>0){
     allTests.forEach((task, ti)=>{
@@ -3747,7 +3823,8 @@ async function openDetailAsync(idx){
         testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp_ti+' балл':'Выполнено! '+tp_ti+' баллов'}</div>`;
       } else {
         task.opts.forEach((o,oi)=>{
-          testH+=`<button class="opt" id="opt_${ti}_${oi}" onclick="answerTestMulti(${idx},${ti},'${task.ans}',${oi})">${o}</button>`;
+          const letter = (typeof OPT_LETTERS !== 'undefined' ? OPT_LETTERS : ['A','B','C','D','E','F','G','H'])[oi] || String(oi+1);
+          testH+=`<button class="opt" id="opt_${ti}_${oi}" onclick="answerTestMulti(${idx},${ti},'${task.ans}',${oi})">${letter}. ${o}</button>`;
         });
       }
       testH+=`</div>`;
@@ -3803,7 +3880,12 @@ async function openDetailAsync(idx){
   } // end if mapq
 
   const hasTask = allTests.length>0 || allOpens.length>0 || (t.mapq || (t.mapDots&&t.mapDots.length));
-  const taskDone = !!(tp || op);
+  // Кез келген тапсырма орындалды ма (дұрыс та, қате де) — барлық кілттерді тексеру
+  const allTestKeys = allTests.map((_,ti) => ti===0 ? 'test' : 'test_'+ti);
+  const allOpenKeys = allOpens.map((_,oi) => oi===0 ? 'open' : 'open_'+oi);
+  const anyTestDone = allTestKeys.some(k => prog[pk(u.uid,t.id,k)] !== undefined && prog[pk(u.uid,t.id,k)] !== null);
+  const anyOpenDone = allOpenKeys.some(k => prog[pk(u.uid,t.id,k)]);
+  const taskDone = !!(anyTestDone || anyOpenDone || mp);
   document.getElementById('tabTopics').innerHTML=`
     <div class="dwrap">
       <div class="det-badge">§${t.id}</div>
@@ -3837,24 +3919,35 @@ async function openTaskScreen(idx){
 
   const allTests = [];
   if(t.qkk) allTests.push({q:t.qkk, opts:t.opts||[], ans:t.ans||'A'});
-  (t.tests||[]).forEach(tb=>{ if(tb.q) allTests.push({q:tb.q, opts:[tb.a,tb.b,tb.c,tb.d], ans:tb.ans||'A'}); });
+  (t.tests||[]).forEach(tb=>{ if(tb.q) allTests.push({q:tb.q, opts: tb.opts && tb.opts.length ? tb.opts : [tb.a||'',tb.b||'',tb.c||'',tb.d||''].filter(o=>o), ans:tb.ans||'A'}); });
 
   let testH='';
   if(allTests.length>0){
     allTests.forEach((task, ti)=>{
       const progKey = ti===0 ? 'test' : 'test_'+ti;
-      const tp_ti = prog[pk(u.uid,t.id,progKey)]||0;
+      const tp_ti_raw = prog[pk(u.uid,t.id,progKey)];
+      const tp_ti = tp_ti_raw || 0;
+      const tp_ti_attempted = tp_ti_raw !== undefined && tp_ti_raw !== null;
       testH+=`<div class="tsec">
         <div class="thead">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M9 3h6v4H9z"/></svg>
-          ${lang==='kk'?'Тест':'Тест'} ${allTests.length>1?ti+1:''}${tp_ti?` <span class="schip">+${tp_ti} балл</span>`:''}
+          ${lang==='kk'?'Тест':'Тест'} ${allTests.length>1?ti+1:''}${tp_ti>0?` <span class="schip">+${tp_ti} балл</span>`:''}
         </div>
         <div class="tq">${task.q}</div>`;
-      if(tp_ti){
+      if(tp_ti > 0){
         testH+=`<div class="tres ok"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${lang==='kk'?'Орындалды! '+tp_ti+' балл':'Выполнено! '+tp_ti+' баллов'}</div>`;
+      } else if(tp_ti_attempted){
+        // Қате жауап берілген (prog=-1) — батырмаларды disabled күйде көрсетеміз
+        task.opts.forEach((o,oi)=>{
+          const letter = (typeof OPT_LETTERS !== 'undefined' ? OPT_LETTERS : ['A','B','C','D','E','F','G','H'])[oi] || String(oi+1);
+          const isCorrect = letter === task.ans;
+          testH+=`<button class="opt${isCorrect?' correct':''}" disabled>${letter}. ${o}</button>`;
+        });
+        testH+=`<div class="tres ko"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${lang==='kk'?'Қате жауап берілді':'Ответ был неверным'}</div>`;
       } else {
         task.opts.forEach((o,oi)=>{
-          testH+=`<button class="opt" id="opt_${ti}_${oi}" onclick="answerTestMulti(${idx},${ti},'${task.ans}',${oi})">${o}</button>`;
+          const letter = (typeof OPT_LETTERS !== 'undefined' ? OPT_LETTERS : ['A','B','C','D','E','F','G','H'])[oi] || String(oi+1);
+          testH+=`<button class="opt" id="opt_${ti}_${oi}" onclick="answerTestMulti(${idx},${ti},'${task.ans}',${oi})">${letter}. ${o}</button>`;
         });
       }
       testH+=`</div>`;
@@ -4083,19 +4176,24 @@ function closeQuizResult(){
 
 // ═══ ANSWER HANDLERS ═══
 async function answerTestMulti(idx, taskIdx, correct, optIdx){
-  const letters=['A','B','C','D'];
+  const letters=['A','B','C','D','E','F','G','H'];
   const chosen = letters[optIdx];
   const isOk = chosen === correct;
-  // Disable all opts for this task
-  for(let i=0;i<4;i++){
-    const b=document.getElementById(`opt_${taskIdx}_${i}`);
-    if(b){ b.disabled=true; if(letters[i]===correct) b.classList.add('correct'); else if(i===optIdx&&!isOk) b.classList.add('wrong'); }
+  // Disable all opts for this task (any number of options)
+  let oi = 0;
+  while(true){
+    const b=document.getElementById(`opt_${taskIdx}_${oi}`);
+    if(!b) break;
+    b.disabled=true;
+    if(letters[oi]===correct) b.classList.add('correct');
+    else if(oi===optIdx&&!isOk) b.classList.add('wrong');
+    oi++;
   }
   const T = await getTopics();
   const t = T[idx];
   const progKey = taskIdx===0 ? 'test' : 'test_'+taskIdx;
+  const prog = await getProg();
   if(isOk){
-    const prog = await getProg();
     prog[pk(ST.currentUser.uid, t.id, progKey)] = 5;
     await saveProg(prog);
     setTimeout(()=>{
@@ -4106,6 +4204,9 @@ async function answerTestMulti(idx, taskIdx, correct, optIdx){
       }
     },600);
   } else {
+    // Қате жауап берілсе де, қайта тапсыруды болдырмау үшін -1 сақтаймыз
+    prog[pk(ST.currentUser.uid, t.id, progKey)] = -1;
+    await saveProg(prog);
     setTimeout(()=>{
       const btn=document.getElementById(`opt_${taskIdx}_0`);
       if(btn){
@@ -4576,16 +4677,26 @@ function previewProgImg() {
 
 function loadProgImgFile(evt) {
   const file = evt.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    _peImgData = e.target.result;
-    const preview = document.getElementById('progImgPreview');
-    const delBtn = document.getElementById('progImgDelBtn');
-    preview.src = _peImgData; preview.style.display = 'block';
+  const preview = document.getElementById('progImgPreview');
+  const delBtn = document.getElementById('progImgDelBtn');
+  const urlInp = document.getElementById('progImgUrl');
+
+  urlInp.value = 'Жүктелуде...';
+  urlInp.disabled = true;
+
+  uploadToCloudinary(file, pct => {
+    urlInp.value = 'Жүктелуде... ' + pct + '%';
+  }).then(result => {
+    _peImgData = result.url;
+    preview.src = result.url; preview.style.display = 'block';
     delBtn.style.display = 'flex';
-    document.getElementById('progImgUrl').value = '';
-  };
-  reader.readAsDataURL(file);
+    urlInp.value = result.source === 'cloudinary' ? result.url : '';
+    urlInp.disabled = false;
+  }).catch(err => {
+    urlInp.value = '';
+    urlInp.disabled = false;
+    alert('Сурет жүктелмеді: ' + err.message);
+  });
 }
 
 function clearProgImg() {
@@ -4748,6 +4859,36 @@ async function renderAdminAsync(){
       </div>
     </div>
 
+    <div class="adm-sec" style="border-top:1px solid rgba(201,168,76,.1);padding-top:14px;margin-top:4px">
+      <div class="adm-sec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Cloudinary — сурет хостингі
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin:4px 0 10px;line-height:1.6">
+        Суреттер Firebase-ға емес, Cloudinary-ге жүктеледі — трафик азаяды. 
+        <a href="https://cloudinary.com" target="_blank" style="color:var(--gold2)">cloudinary.com</a>-да тегін тіркеліп,
+        <b style="color:var(--text)">Settings → Upload → Upload presets</b> бетінен <b style="color:var(--text)">unsigned</b> preset жасаңыз.
+      </p>
+      <div class="cld-cfg-box" id="cldCfgBox">
+        ${(()=>{
+          const cfg = window._cloudinaryCfg||{};
+          const ok = cfg.cloudName && cfg.cloudName !== 'YOUR_CLOUD_NAME';
+          return `<div class="cld-status ${ok?'ok':'warn'}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${ok?'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>':'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg>
+            ${ok ? 'Cloudinary қосулы · ' + cfg.cloudName : 'Cloudinary баптанбаған — суреттер base64 ретінде сақталады'}
+          </div>`;
+        })()}
+        <label class="inp-label">Cloud Name</label>
+        <input class="adm-inp" id="cldCloudName" placeholder="dxyz123abc" value="${(window._cloudinaryCfg?.cloudName||'') !== 'YOUR_CLOUD_NAME' ? (window._cloudinaryCfg?.cloudName||'') : ''}">
+        <label class="inp-label" style="margin-top:8px">Upload Preset (unsigned)</label>
+        <input class="adm-inp" id="cldUploadPreset" placeholder="geo_unsigned" value="${(window._cloudinaryCfg?.uploadPreset||'') !== 'YOUR_UPLOAD_PRESET' ? (window._cloudinaryCfg?.uploadPreset||'') : ''}">
+        <button class="cld-save-btn" onclick="saveCldCfg()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:5px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+          Сақтау
+        </button>
+      </div>
+    </div>
+
     <div class="adm-sec">
       <div class="adm-sec-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm12 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -4800,8 +4941,11 @@ async function openEdit(i){
     rteSetHtml('mRu', t.tru||'');
 
     // Load test blocks: first from legacy field, then from tests[]
-    const legacyTest = t.qkk ? [{q:t.qkk, a:t.opts?.[0]||'', b:t.opts?.[1]||'', c:t.opts?.[2]||'', d:t.opts?.[3]||'', ans:t.ans||'A'}] : [];
-    const extraTests = t.tests || [];
+    const legacyTest = t.qkk ? [{q:t.qkk, opts: t.opts && t.opts.length ? t.opts : [t.opts?.[0]||'', t.opts?.[1]||'', t.opts?.[2]||'', t.opts?.[3]||''], a:t.opts?.[0]||'', b:t.opts?.[1]||'', c:t.opts?.[2]||'', d:t.opts?.[3]||'', ans:t.ans||'A'}] : [];
+    const extraTests = (t.tests||[]).map(tb => ({
+      ...tb,
+      opts: tb.opts && tb.opts.length ? tb.opts : [tb.a||'', tb.b||'', tb.c||'', tb.d||'']
+    }));
     window._testBlocks = [...legacyTest, ...extraTests];
     renderTestBlocks();
     if(window._testBlocks.length>0) openSectionPanel('test');
@@ -4862,10 +5006,27 @@ function closeSectionPanel(sec){
 window._testBlocks = []; // [{q, a, b, c, d, ans}]
 window._openBlocks = []; // [{q}]
 
+const OPT_LETTERS = ['A','B','C','D','E','F','G','H'];
+
 function renderTestBlocks(){
   const container = document.getElementById('testBlocksContainer');
   if(!container) return;
-  container.innerHTML = window._testBlocks.map((tb, idx) => `
+  container.innerHTML = window._testBlocks.map((tb, idx) => {
+    // opts массивін қалыпқа келтіру (ескі a,b,c,d форматынан)
+    if(!tb.opts || tb.opts.length === 0){
+      tb.opts = [tb.a||'', tb.b||'', tb.c||'', tb.d||''];
+    }
+    const optsHtml = tb.opts.map((o, oi) => `
+      <div class="ans-opt-row" id="optRow_${idx}_${oi}">
+        <div class="ans-opt-letter">${OPT_LETTERS[oi]||oi+1}</div>
+        <input class="adm-inp" placeholder="${OPT_LETTERS[oi]||oi+1}. жауабы..." value="${escH(o)}"
+          oninput="window._testBlocks[${idx}].opts[${oi}]=this.value">
+        ${tb.opts.length > 2 ? `<button class="opt-remove-btn" onclick="removeTestOpt(${idx},${oi})" title="Жою">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : ''}
+      </div>`).join('');
+    const currentAns = tb.ans || 'A';
+    return `
     <div class="mtask-block" id="testBlock${idx}">
       <div class="mtask-block-header">
         <span class="mtask-block-label">Тест ${idx+1}</span>
@@ -4873,17 +5034,50 @@ function renderTestBlocks(){
       </div>
       <label class="inp-label">Сұрақ (ҚАЗ)</label>
       <input class="adm-inp" placeholder="Сұрақ мәтіні" value="${escH(tb.q)}" oninput="window._testBlocks[${idx}].q=this.value">
-      <div class="ans-grid">
-        <div><label class="inp-label">A жауабы</label><input class="adm-inp" placeholder="A. ..." value="${escH(tb.a)}" oninput="window._testBlocks[${idx}].a=this.value"></div>
-        <div><label class="inp-label">B жауабы</label><input class="adm-inp" placeholder="B. ..." value="${escH(tb.b)}" oninput="window._testBlocks[${idx}].b=this.value"></div>
-        <div><label class="inp-label">C жауабы</label><input class="adm-inp" placeholder="C. ..." value="${escH(tb.c)}" oninput="window._testBlocks[${idx}].c=this.value"></div>
-        <div><label class="inp-label">D жауабы</label><input class="adm-inp" placeholder="D. ..." value="${escH(tb.d)}" oninput="window._testBlocks[${idx}].d=this.value"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px">
+        <label class="inp-label" style="margin:0">Жауап нұсқалары</label>
+        ${tb.opts.length < 8 ? `<button class="add-opt-btn" onclick="addTestOpt(${idx})">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Нұсқа қосу
+        </button>` : ''}
       </div>
-      <label class="inp-label">Дұрыс жауап</label>
+      <div class="ans-opts-container" id="optsContainer_${idx}">${optsHtml}</div>
+      <label class="inp-label" style="margin-top:10px">Дұрыс жауап</label>
       <select class="answer-select adm-inp" style="width:100%;margin-bottom:0" onchange="window._testBlocks[${idx}].ans=this.value">
-        ${['A','B','C','D'].map(l=>`<option value="${l}"${tb.ans===l?' selected':''}>${l}</option>`).join('')}
+        ${tb.opts.map((_,oi)=>`<option value="${OPT_LETTERS[oi]||oi+1}"${currentAns===(OPT_LETTERS[oi]||String(oi+1))?' selected':''}>${OPT_LETTERS[oi]||oi+1}</option>`).join('')}
       </select>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function addTestOpt(blockIdx){
+  // DOM-нан соңғы мәндерді сақтау
+  syncTestBlockFromDOM(blockIdx);
+  window._testBlocks[blockIdx].opts.push('');
+  renderTestBlocks();
+}
+
+function removeTestOpt(blockIdx, optIdx){
+  syncTestBlockFromDOM(blockIdx);
+  const tb = window._testBlocks[blockIdx];
+  if(tb.opts.length <= 2) return;
+  tb.opts.splice(optIdx, 1);
+  // Дұрыс жауапты тексеру — жойылған нұсқадан кейінгі болса түзету
+  const ansIdx = OPT_LETTERS.indexOf(tb.ans);
+  if(ansIdx >= tb.opts.length) tb.ans = OPT_LETTERS[tb.opts.length - 1];
+  renderTestBlocks();
+}
+
+function syncTestBlockFromDOM(blockIdx){
+  const block = document.getElementById('testBlock'+blockIdx);
+  if(!block) return;
+  const tb = window._testBlocks[blockIdx];
+  const qInp = block.querySelector('input.adm-inp');
+  if(qInp) tb.q = qInp.value;
+  const optInps = block.querySelectorAll('.ans-opt-row input.adm-inp');
+  optInps.forEach((inp, oi) => { if(tb.opts[oi] !== undefined) tb.opts[oi] = inp.value; });
+  const sel = block.querySelector('select');
+  if(sel) tb.ans = sel.value;
 }
 
 function renderOpenBlocks(){
@@ -4900,7 +5094,7 @@ function renderOpenBlocks(){
 }
 
 function addTestBlock(){
-  window._testBlocks.push({q:'',a:'',b:'',c:'',d:'',ans:'A'});
+  window._testBlocks.push({q:'', opts:['','','',''], ans:'A'});
   renderTestBlocks();
   // Auto open panel
   openSectionPanel('test');
@@ -4921,6 +5115,48 @@ function removeOpenBlock(idx){
   if(window._openBlocks.length===0) closeSectionPanel('open');
 }
 
+// ═══ CLOUDINARY CONFIG FUNCTIONS ═══
+async function saveCldCfg(){
+  const cloudName = document.getElementById('cldCloudName').value.trim();
+  const uploadPreset = document.getElementById('cldUploadPreset').value.trim();
+  if(!cloudName || !uploadPreset){
+    alert('Cloud Name және Upload Preset жазыңыз!');
+    return;
+  }
+  window._cloudinaryCfg = { cloudName, uploadPreset };
+  try {
+    if(window._fbDb){
+      const {set, ref} = window._fbFns;
+      await set(ref(window._fbDb, 'config/cloudinary'), { cloudName, uploadPreset });
+    }
+  } catch(e){ console.warn('Cloudinary config save:', e); }
+  try { localStorage.setItem('_cldCfg', JSON.stringify({cloudName, uploadPreset})); } catch(e){}
+  renderAdminAsync();
+  alert('✅ Cloudinary баптамасы сақталды!');
+}
+
+async function loadCldCfg(){
+  try {
+    if(window._fbDb){
+      const {get, ref} = window._fbFns;
+      const snap = await get(ref(window._fbDb, 'config/cloudinary'));
+      if(snap.exists()){
+        window._cloudinaryCfg = snap.val();
+        return;
+      }
+    }
+  } catch(e){}
+  try {
+    const saved = localStorage.getItem('_cldCfg');
+    if(saved){
+      const parsed = JSON.parse(saved);
+      if(parsed.cloudName && parsed.cloudName !== 'YOUR_CLOUD_NAME'){
+        window._cloudinaryCfg = parsed;
+      }
+    }
+  } catch(e){}
+}
+
 function escH(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // Map editor
@@ -4930,17 +5166,30 @@ window._mapOpts=[];
 
 function loadMapImage(evt){
   const file=evt.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    window._mapImgData=e.target.result;
-    const img=document.getElementById('mapEditorImg');
-    img.src=e.target.result; img.style.display='block';
-    document.getElementById('mapEditorEmpty').style.display='none';
+  const img=document.getElementById('mapEditorImg');
+  const empty=document.getElementById('mapEditorEmpty');
+
+  // Жүктелу индикаторы
+  empty.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--gold2)">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin-slow 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <span id="mapImgProgress" style="font-size:11px;font-weight:700">Жүктелуде...</span>
+  </div>`;
+  empty.style.display='flex';
+
+  uploadToCloudinary(file, pct => {
+    const el = document.getElementById('mapImgProgress');
+    if(el) el.textContent = pct + '%';
+  }).then(result => {
+    window._mapImgData = result.url;
+    img.src = result.url; img.style.display='block';
+    empty.style.display='none';
     window._mapDots=[];
     window._mapOpts=[];
     renderMapDots();
-  };
-  reader.readAsDataURL(file);
+  }).catch(err => {
+    empty.innerHTML = `<span style="color:var(--coral);font-size:12px">Қате: ${err.message}</span>`;
+    console.error('Map image upload error:', err);
+  });
 }
 
 function addMapDot(evt){
@@ -5090,21 +5339,21 @@ async function saveModal(){
 
   // Collect test blocks from DOM (inputs may not have fired oninput yet)
   const testBlocks = window._testBlocks.map((tb,idx)=>{
-    // Try to read from DOM directly in case oninput didn't fire
     const block = document.getElementById('testBlock'+idx);
     if(block){
-      const inputs = block.querySelectorAll('input.adm-inp');
+      const qInp = block.querySelector('input.adm-inp');
+      const optInps = block.querySelectorAll('.ans-opt-row input.adm-inp');
       const sel = block.querySelector('select');
+      const opts = tb.opts ? [...tb.opts] : ['','','',''];
+      optInps.forEach((inp, oi) => { opts[oi] = inp.value.trim(); });
       return {
-        q: inputs[0]?.value.trim()||tb.q,
-        a: inputs[1]?.value.trim()||tb.a,
-        b: inputs[2]?.value.trim()||tb.b,
-        c: inputs[3]?.value.trim()||tb.c,
-        d: inputs[4]?.value.trim()||tb.d,
+        q: qInp?.value.trim()||tb.q,
+        opts: opts.filter((_,i)=>i < (tb.opts||['','','','']).length),
+        a: opts[0]||'', b: opts[1]||'', c: opts[2]||'', d: opts[3]||'',
         ans: sel?.value||tb.ans
       };
     }
-    return tb;
+    return { ...tb, a: tb.opts?.[0]||'', b: tb.opts?.[1]||'', c: tb.opts?.[2]||'', d: tb.opts?.[3]||'' };
   }).filter(tb=>tb.q.trim());
 
   const openBlocks = window._openBlocks.map((ob,idx)=>{
@@ -5135,7 +5384,7 @@ async function saveModal(){
     // Legacy single fields (first task)
     qkk: firstTest?.q||'',
     ans: firstTest?.ans||'A',
-    opts: firstTest?[firstTest.a,firstTest.b,firstTest.c,firstTest.d]:[],
+    opts: firstTest?.opts || (firstTest ? [firstTest.a,firstTest.b,firstTest.c,firstTest.d] : []),
     openq: firstOpen?.q||'',
     // Extra tasks
     tests: extraTests,
@@ -5206,35 +5455,37 @@ function topicImgLoad(evt){
   const file = evt.target.files[0];
   const edId = evt.target.dataset.targetId || _rteTargetId || 'mKk';
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const ed = document.getElementById(edId);
-    if(!ed) return;
-    rteRestoreRange(edId);
+  const ed = document.getElementById(edId);
+  if(!ed) return;
+
+  // Алдын ала placeholder кірістіру
+  rteRestoreRange(edId);
+  const placeholder = document.createElement('div');
+  placeholder.className = 'rte-img-uploading';
+  placeholder.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin-slow 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Жүктелуде...`;
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount > 0){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(placeholder);
+  } else {
+    ed.appendChild(placeholder);
+  }
+
+  uploadToCloudinary(file).then(result => {
     const img = document.createElement('img');
-    img.src = e.target.result;
+    img.src = result.url;
     img.style.cssText = 'max-width:100%;border-radius:8px;margin:6px 0;display:block';
     img.alt = 'сурет';
-    const sel = window.getSelection();
-    if(sel && sel.rangeCount > 0){
-      const range = sel.getRangeAt(0);
-      range.deleteContents();
-      const p = document.createElement('p');
-      p.innerHTML = '<br>';
-      const frag = document.createDocumentFragment();
-      frag.appendChild(img);
-      frag.appendChild(p);
-      range.insertNode(frag);
-      range.setStartAfter(p);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else {
-      ed.appendChild(img);
-    }
+    const p = document.createElement('p');
+    p.innerHTML = '<br>';
+    placeholder.replaceWith(img);
+    img.insertAdjacentElement('afterend', p);
     ed.focus();
-  };
-  reader.readAsDataURL(file);
+  }).catch(err => {
+    placeholder.remove();
+    alert('Сурет жүктелмеді: ' + err.message);
+  });
 }
 
 // Суретті редактор ішіне кірістіру
@@ -5248,39 +5499,37 @@ function rteInsertImage(edId){
 function rteLoadImage(evt){
   const file = evt.target.files[0];
   if(!file || !_rteTargetId) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const ed = document.getElementById(_rteTargetId);
-    if(!ed) return;
-    rteRestoreRange(_rteTargetId);
-    // Img элементі жасаймыз
+  const ed = document.getElementById(_rteTargetId);
+  if(!ed) return;
+
+  // Алдын ала placeholder кірістіру
+  rteRestoreRange(_rteTargetId);
+  const placeholder = document.createElement('div');
+  placeholder.className = 'rte-img-uploading';
+  placeholder.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin-slow 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Жүктелуде...`;
+  const sel = window.getSelection();
+  if(sel && sel.rangeCount > 0){
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(placeholder);
+  } else {
+    ed.appendChild(placeholder);
+  }
+
+  uploadToCloudinary(file).then(result => {
     const img = document.createElement('img');
-    img.src = e.target.result;
+    img.src = result.url;
     img.style.cssText = 'max-width:100%;border-radius:8px;margin:6px 0;display:block';
     img.alt = 'сурет';
-    // Selection орнына кірістіреміз
-    const sel = window.getSelection();
-    if(sel && sel.rangeCount > 0){
-      const range = sel.getRangeAt(0);
-      range.deleteContents();
-      // Суреттен кейін жаңа параграф
-      const p = document.createElement('p');
-      p.innerHTML = '<br>';
-      const frag = document.createDocumentFragment();
-      frag.appendChild(img);
-      frag.appendChild(p);
-      range.insertNode(frag);
-      // Курсорды жаңа параграфқа жылжытамыз
-      range.setStartAfter(p);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    } else {
-      ed.appendChild(img);
-    }
+    const p = document.createElement('p');
+    p.innerHTML = '<br>';
+    placeholder.replaceWith(img);
+    img.insertAdjacentElement('afterend', p);
     ed.focus();
-  };
-  reader.readAsDataURL(file);
+  }).catch(err => {
+    placeholder.remove();
+    alert('Сурет жүктелмеді: ' + err.message);
+  });
 }
 
 // Кесте picker
