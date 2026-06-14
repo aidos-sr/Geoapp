@@ -53,10 +53,11 @@ async function fbGetProg(uid) {
       .select('topic_id,task_type,score')
       .eq('user_id', uid);
     if (error) throw error;
-    return Object.fromEntries((data || []).map((row) => [
-      pk(uid, row.topic_id, row.task_type),
-      row.score
-    ]));
+    return (data || []).reduce((result, row) => {
+      if (!row?.topic_id || !row?.task_type) return result;
+      result[pk(uid, row.topic_id, row.task_type)] = row.score;
+      return result;
+    }, {});
   } catch { return {}; }
 }
 async function fbSaveProg(uid, prog) {
@@ -96,10 +97,15 @@ async function callSecureFunction(name, payload = {}) {
       .from('answer_keys')
       .select('topic_id,tests,map_answers,open_count');
     if (error) throw error;
-    return Object.fromEntries((data || []).map((row) => [
-      row.topic_id,
-      {tests: row.tests || [], map: row.map_answers || [], openCount: row.open_count || 0}
-    ]));
+    return (data || []).reduce((result, row) => {
+      if (!row?.topic_id) return result;
+      result[row.topic_id] = {
+        tests: row.tests || [],
+        map: row.map_answers || [],
+        openCount: row.open_count || 0
+      };
+      return result;
+    }, {});
   }
   const call = calls[name];
   if (!call) throw new Error(`Unknown secure function: ${name}`);

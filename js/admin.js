@@ -69,8 +69,14 @@ async function renderAdminAsync(){
     return s + calcPts(u.uid, T, uprog);
   },0);
 
-  const userById = Object.fromEntries(allUsers.map((u) => [u.uid, u]));
-  const topicById = Object.fromEntries(T.map((topic) => [String(topic.id), topic]));
+  const userById = allUsers.reduce((result, user) => {
+    if (user?.uid) result[user.uid] = user;
+    return result;
+  }, {});
+  const topicById = T.reduce((result, topic) => {
+    if (topic?.id !== undefined && topic?.id !== null) result[String(topic.id)] = topic;
+    return result;
+  }, {});
   const pendingHtml = pendingOpens.length ? pendingOpens.map((item) => {
     const student = userById[item.user_id] || {};
     const topic = topicById[String(item.topic_id)] || {};
