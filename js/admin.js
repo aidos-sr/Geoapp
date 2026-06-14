@@ -3,6 +3,14 @@ let editIdx=null;
 
 async function renderAdminAsync(){
   if(!requireAdmin()) return;
+  const panel = document.getElementById('tabAdmin');
+  showOnly('tabAdmin');
+  document.getElementById('hTitle').textContent = ST.lang==='kk'?'Админ панелі':'Панель Админа';
+  panel.innerHTML = `<div class="adm-wrap"><div class="adm-sec" style="text-align:center;padding:28px 16px">
+    <div class="load-bar-wrap" style="margin:0 auto 14px"><div class="load-bar"></div></div>
+    <div style="font-size:12px;color:var(--muted)">Админ панелі жүктелуде...</div>
+  </div></div>`;
+
   const T = await getTopics();
   const {lang} = ST;
 
@@ -22,10 +30,12 @@ async function renderAdminAsync(){
     </div>`;
   });
 
-  const allUsers = await fbGetAllUsers();
+  const [allUsers, allProg, pendingOpens] = await Promise.all([
+    fbGetAllUsers(),
+    fbGetAllProgress(),
+    fbGetPendingOpenSubmissions()
+  ]);
   const students = allUsers.filter(u=>u.uid !== ST.currentUser.uid);
-  const allProg = await fbGetAllProgress();
-  const pendingOpens = await fbGetPendingOpenSubmissions();
   const totalPossible = T.length;
 
   let studH='';
@@ -77,7 +87,7 @@ async function renderAdminAsync(){
     </div>`;
   }).join('') : `<p style="font-size:12px;color:var(--muted);padding:10px 0;text-align:center">${lang==='kk'?'Тексерілмеген жауап жоқ':'Нет ответов на проверку'}</p>`;
 
-  document.getElementById('tabAdmin').innerHTML=`<div class="adm-wrap">
+  panel.innerHTML=`<div class="adm-wrap">
     <div class="adm-header">
       <div class="adm-header-title"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Админ панелі</div>
       <div class="adm-header-sub">${T.length} тақырып · ${students.length} оқушы</div>

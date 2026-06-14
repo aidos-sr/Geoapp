@@ -950,7 +950,22 @@ function switchTab(t){
 function renderTab(){
   if(ST.tab===0) renderTopicsAsync();
   else if(ST.tab===1) renderProfileAsync();
-  else if (isCurrentAdmin()) renderAdminAsync();
+  else if (isCurrentAdmin()) {
+    renderAdminAsync().catch((error) => {
+      console.error('Admin panel:', error);
+      const panel = document.getElementById('tabAdmin');
+      if (panel) {
+        panel.innerHTML = `<div class="adm-wrap"><div class="adm-sec">
+          <div class="adm-sec-title">Админ панелі жүктелмеді</div>
+          <p style="color:var(--muted);font-size:12px;line-height:1.6">
+            ${escapeHTML(error?.message || 'Supabase сұрауы орындалмады')}
+          </p>
+          <button class="adm-add" onclick="switchTab(2)">Қайта жүктеу</button>
+        </div></div>`;
+        showOnly('tabAdmin');
+      }
+    });
+  }
   else renderTopicsAsync();
 }
 function showOnly(id){
