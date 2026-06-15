@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ГЕО 10 — Геосаясат</title>
+  <meta name="description" content="Геосаясат · 10-сынып оқу платформасы">
+  <meta name="theme-color" content="#061510">
+  <meta name="supabase-url" content="https://uzspisjbuvnqawimbvvb.supabase.co">
+  <meta name="supabase-anon-key" content="sb_publishable_eLrjoTcU_wo1GXsIy7WSuQ_eeqdh3zo">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <canvas id="loadCanvas"></canvas>
+  <div class="load-inner">
+    <div class="load-globe">
+      <div class="load-globe-ring"></div>
+      <div class="load-globe-ring2"></div>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </div>
+    <div class="load-logo">ГЕО 10</div>
+    <div class="load-sub">Геосаясат · 10-сынып</div>
+    <div class="load-bar-wrap"><div class="load-bar"></div></div>
+    <div class="load-txt">Жүктелуде...</div>
+  </div>
+</div>
+
+<!-- АВТОРЛЫҚ БАҒДАРЛАМА SCREEN -->
+<div id="programScreen">
+  <canvas id="geoCanvas"></canvas>
+  <div class="pg-content">
+    <div class="pg-header">
+      <div class="pg-org-badge" id="pgOrgBadge">Қазақстан Республикасы Оқу-ағарту министрлігі · Түркістан облысы · №4 мектеп-интернаты КММ</div>
+      <div class="pg-globe-wrap">
+        <div class="pg-globe-ring"></div>
+        <div class="pg-globe"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      </div>
+      <div class="pg-eyebrow" id="pgEyebrow">Авторлық бағдарлама · 2026</div>
+      <div class="pg-title" id="pgTitle">Геосаясат:<br><em>Жаһандық тұрақтылық</em><br>және Қазақстан</div>
+      <div class="pg-subtitle" id="pgSubtitle"><svg width="9" height="9" viewBox="0 0 24 24" fill="var(--sage2)" stroke="none" style="vertical-align:middle;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Элективті курс · 10-сынып</div>
+    </div>
+
+    <div class="pg-stats">
+      <div class="pg-stat">
+        <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div class="pg-stat-val" id="pgStatSections">5</div><div class="pg-stat-lbl">Бөлім</div>
+      </div>
+      <div class="pg-stat">
+        <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="pg-stat-val" id="pgStatHours">34</div><div class="pg-stat-lbl">Сағат</div>
+      </div>
+      <div class="pg-stat">
+        <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+        <div class="pg-stat-val" id="pgStatGrade">10</div><div class="pg-stat-lbl">Сынып</div>
+      </div>
+      <div class="pg-stat">
+        <div class="pg-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16M9 22V12M15 22V12"/><path d="M18 2H6v10a6 6 0 0 0 12 0V2z"/></svg></div>
+        <div class="pg-stat-val" id="pgStatWeekly">1</div><div class="pg-stat-lbl">Апталық</div>
+      </div>
+    </div>
+
+    <div class="pg-authors">
+      <div class="pg-avatars">
+        <div class="pg-avatar" id="pgAv1">ТЕ</div>
+        <div class="pg-avatar" id="pgAv2">АА</div>
+      </div>
+      <div class="pg-author-info">
+        <div class="pg-author-name" id="pgAuthorName">Есенов Т.Қ. · Аимбаева А.С.</div>
+        <div class="pg-author-role" id="pgAuthorRole">педагог-шебер · педагог-зерттеуші</div>
+      </div>
+      <div class="pg-verified"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+
+    <div class="pg-sheet">
+
+      <!-- HEADER IMAGE -->
+      <img id="pgHeaderImg" style="display:none;width:100%;border-radius:16px;margin-bottom:16px;object-fit:cover;max-height:200px" alt="бағдарлама суреті">
+
+      <!-- ТҮСІНІК ХАТ -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Түсінік хат
+      </div>
+      <div class="pg-text" id="pgExplanatoryNote">
+        «Геосаясат: Жаһандық тұрақтылық және Қазақстан» элективті курсы 10-сыныптың география және құқық негіздері бағдарламасындағы «Дүниежүзінің саяси картасы» тарауымен тығыз байланысты. Курс оқушылардың жаһандық саяси процестерді талдау, Қазақстанның әлемдік аренадағы орнын айқындау және геосаяси тәуекелдерді бағалау дағдыларын қалыптастыруға бағытталған. Курстың ұзақтығы: 34 сағат, аптасына — 1 сағат. 5–6-шы сабақтардан кейін әр оқушы жыл соңында қорғайтын зерттеу жобасының тақырыбын таңдайды.
+      </div>
+
+      <!-- МАҚСАТ -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Курстың мақсаты
+      </div>
+      <div class="pg-goals" id="pgGoals">
+        <div class="pg-goal"><div class="pg-goal-dot">1</div><div class="pg-goal-text">Қазіргі дүниежүзінің геосаяси бейнесі, мемлекеттердің қуатын айқындайтын факторлар және жаһандық тұрақтылықты сақтау тетіктері туралы жүйелі білім беру.</div></div>
+        <div class="pg-goal"><div class="pg-goal-dot">2</div><div class="pg-goal-text">Қазақстанның Еуразия орталығындағы стратегиялық маңызын, транзиттік әлеуетін және энергетикалық дипломатиясын зерттеу арқылы аналитикалық ойлауды дамыту.</div></div>
+        <div class="pg-goal"><div class="pg-goal-dot">3</div><div class="pg-goal-text">Халықаралық қақтығыстар мен шекаралық даулардың себеп-салдарын талдау арқылы оқушылардың саяси сауаттылығын және мемлекетшілдік позициясын қалыптастыру.</div></div>
+      </div>
+
+      <!-- МІНДЕТТЕР -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Курстың міндеттері
+      </div>
+      <div class="pg-text" id="pgTasks">
+        <div class="pg-list-item">• Геосаяси жағдайдың басты ерекшеліктері мен әлемдік даму факторларын түсіндіру;</div>
+        <div class="pg-list-item">• Қазақстанның халықаралық интеграциялық бірлестіктердегі рөлін айқындау;</div>
+        <div class="pg-list-item">• Әлемнің «ыстық нүктелері» мен аумақтық даулардың туындау алғышарттарын зерттеу;</div>
+        <div class="pg-list-item">• Ресурстық (су, энергия) дипломатияның жаһандық қауіпсіздікке ықпалын талдау;</div>
+        <div class="pg-list-item">• Оқушыларды геосаяси болжамдар мен жобалық жұмыстарды қорғауға дағдыландыру.</div>
+      </div>
+
+      <!-- ТАҚЫРЫПТЫҚ ЖОСПАР -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Тақырыптық жоспар (34 сағат)
+      </div>
+      <div class="pg-sections-grid" id="pgScheduleGrid">
+        <div class="pg-sec-row pg-sec-header"><div class="pg-sec-num">№</div><div class="pg-sec-name">Тақырып</div><div class="pg-sec-hrs">Түрі</div></div>
+        <div class="pg-sec-divider">Кіріспе бөлім (5 сағат)</div>
+        <div class="pg-sec-row"><div class="pg-sec-num">1</div><div class="pg-sec-name">Кіріспе. Геосаяси жағдай, басты ерекшеліктер</div><div class="pg-sec-hrs">Дәріс</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">2</div><div class="pg-sec-name">Әлем дамуына ықпал ететін геосаяси факторлар</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">3</div><div class="pg-sec-name">Әлем аймақтарының геосаяси кеңістіктегі рөлі</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">4</div><div class="pg-sec-name">Діни және ұлттық қақтығыстардың саяси бейнеге ықпалы</div><div class="pg-sec-hrs">Пікірталас</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">5</div><div class="pg-sec-name">Геосаяси қуаттың демографиялық және экономикалық детерминанттары</div><div class="pg-sec-hrs">Зерттеу</div></div>
+        <div class="pg-sec-divider">І бөлім: Қазақстан – Еуразия орталығы (7 сағат)</div>
+        <div class="pg-sec-row"><div class="pg-sec-num">6</div><div class="pg-sec-name">Қазақстанның геосаяси жағдайындағы артықшылықтары мен мүмкіндіктері</div><div class="pg-sec-hrs">Дәріс</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">7</div><div class="pg-sec-name">Қазақстанның Еуразиядағы транзиттік көпір рөлі</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">8</div><div class="pg-sec-name">Еуразия жүрегіндегі өркениеттер тоғысы және мәдени плюрализм</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">9</div><div class="pg-sec-name">Энергетикалық дипломатия (мұнай, газ, уран)</div><div class="pg-sec-hrs">Кейс-стади</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">10</div><div class="pg-sec-name">Халықаралық геоэкономикалық интеграциялармен ынтымақтастық</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">11</div><div class="pg-sec-name">Шекара мәселесі және делимитация мен демаркация процестері</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">12</div><div class="pg-sec-name">Саяси және экономикалық миграция</div><div class="pg-sec-hrs">Зерттеу</div></div>
+        <div class="pg-sec-divider">ІІ бөлім: Жаһандық геосаясаттың негіздері (6 сағат)</div>
+        <div class="pg-sec-row"><div class="pg-sec-num">13</div><div class="pg-sec-name">Әлемнің саяси картасы және мемлекеттердің өзара байланысы</div><div class="pg-sec-hrs">Дәріс</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">14</div><div class="pg-sec-name">Азия мен Африка елдерінің тәуелсіздік жолындағы шекаралық даулар</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">15</div><div class="pg-sec-name">Анклавтар мен эксклавтар туралы көрнекі мысалдар</div><div class="pg-sec-hrs">Көрнекілік</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">16</div><div class="pg-sec-name">Көпполярлы әлем және қазіргі негізгі күш орталықтары</div><div class="pg-sec-hrs">Пікірталас</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">17</div><div class="pg-sec-name">Халықаралық ақпараттық кеңістіктегі лаңкестік</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">18</div><div class="pg-sec-name">Ғарышты игеру саласындағы мемлекеттердің мүдделері</div><div class="pg-sec-hrs">Зерттеу</div></div>
+        <div class="pg-sec-divider">ІІІ бөлім: Аймақтық қайшылықтар және стратегиялық нысандар (10 сағат)</div>
+        <div class="pg-sec-row"><div class="pg-sec-num">19</div><div class="pg-sec-name">Таяу Шығыстағы Израиль-Палестина мәселесінің себептері</div><div class="pg-sec-hrs">Кейс-стади</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">20</div><div class="pg-sec-name">Оңтүстік Қытай теңізіндегі аралдар үшін талас</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">21</div><div class="pg-sec-name">Куриль аралдары мен Гималай маңындағы аумақтық даулар</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">22</div><div class="pg-sec-name">Арктика және Антарктида аймақтарының болашақ маңызы</div><div class="pg-sec-hrs">Зерттеу</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">23</div><div class="pg-sec-name">Африка мен Латын Америкасындағы ресурстар үшін күрес</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">24</div><div class="pg-sec-name">Әлемдік мұхит бұғаздары: Малакка және Ормуз маңызы</div><div class="pg-sec-hrs">Дәріс</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">25</div><div class="pg-sec-name">Суэц және Панама каналдары — әлемдік сауданың күретамыры</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">26</div><div class="pg-sec-name">«Бір белдеу – бір жол» жобасының экономикалық мәні</div><div class="pg-sec-hrs">Жобалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">27</div><div class="pg-sec-name">Тайвань мәселесінің технологиялық және саяси маңызы</div><div class="pg-sec-hrs">Кейс-стади</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">28</div><div class="pg-sec-name">Транспорттық дәліздердің болашағы мен жаңа мүмкіндіктер</div><div class="pg-sec-hrs">Болжам</div></div>
+        <div class="pg-sec-divider">V бөлім: Ресурстық дипломатия және қорытынды (8 сағат)</div>
+        <div class="pg-sec-row"><div class="pg-sec-num">29</div><div class="pg-sec-name">Трансшекаралық өзендердегі суды бөлісу мәдениеті</div><div class="pg-sec-hrs">Практикалық</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">30</div><div class="pg-sec-name">Орталық Азиядағы су мәселесі: Сырдария мен Әмудария</div><div class="pg-sec-hrs">Семинар</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">31</div><div class="pg-sec-name">Ніл, Тигр және Евфрат өзендері бойындағы талас мысалдары</div><div class="pg-sec-hrs">Кейс-стади</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">32</div><div class="pg-sec-name">Меконг өзені арқылы Оңтүстік-Шығыс Азия дипломатиясы</div><div class="pg-sec-hrs">Зерттеу</div></div>
+        <div class="pg-sec-row"><div class="pg-sec-num">33</div><div class="pg-sec-name">Тұщы су қорын сақтаудың технологиялық шешімдері</div><div class="pg-sec-hrs">Инновация</div></div>
+        <div class="pg-sec-row pg-sec-final"><div class="pg-sec-num">34</div><div class="pg-sec-name">Жоба жұмыстарын қорғау</div><div class="pg-sec-hrs">Қорытынды</div></div>
+      </div>
+
+      <!-- ПӘНАРАЛЫҚ БАЙЛАНЫС -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Пәнаралық байланыс
+      </div>
+      <div class="pg-text">
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><strong>География:</strong> Саяси картамен жұмыс, табиғи ресурстарды игеру.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><strong>Тарих:</strong> Мемлекеттік шекаралардың қалыптасуы, отарсызданудан кейінгі даулар.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><strong>Экономика:</strong> Геоэкономикалық интеграция, транспорттық дәліздер, мұнай-газ дипломатиясы.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 7l9-4 9 4"/><path d="M3 17l3 2 3-2"/><path d="M15 17l3 2 3-2"/></svg><strong>Құқық:</strong> Делимитация, демаркация және халықаралық келісімшарттар.</div>
+        <div class="pg-list-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;flex-shrink:0"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><strong>Кәсіптік бағдар:</strong> Дипломат, халықаралық саясаттанушы, аймақтанушы, халықаралық заңгер немесе географ-аналитик мамандықтары.</div>
+      </div>
+
+      <!-- КҮТІЛЕТІН НӘТИЖЕ -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Күтілетін нәтиже
+      </div>
+      <div class="pg-results">
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Талдау жасау</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Картографиялық дағды</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Зерттеу жүргізу</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Сыни ойлау</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Жобалау дағдысы</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SWOT-талдау</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Геосаяси болжам</div>
+        <div class="pg-result-pill"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Саяси сарапшы</div>
+      </div>
+
+      <!-- ЗЕРТТЕУ ТАҚЫРЫПТАРЫ -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Зерттеу жұмыстарының болжамды тақырыптары
+      </div>
+      <div class="pg-text">
+        <div class="pg-list-item">• «Еуразиялық көпір»: Қазақстанның транзиттік әлеуетін арттырудағы «Цифрлық Жібек жолы» жобасының рөлі.</div>
+        <div class="pg-list-item">• Су дипломатиясы: Сырдария мен Әмудария өзендерінің тағдыры — Орталық Азиядағы интеграцияның кілті ме?</div>
+        <div class="pg-list-item">• Энергетикалық вектор: Қазақстанның уран нарығындағы көшбасшылығының жаһандық ядролық энергетикаға әсері.</div>
+        <div class="pg-list-item">• Шекара және қауіпсіздік: Қазақстанның делимитация мен демаркация тәжірибесі — көршілес елдерге үлгі ретінде.</div>
+        <div class="pg-list-item">• Мәдени плюрализм: Қазақстанның «Өркениеттер тоғысы» имиджінің «жұмсақ күшін» нығайтудағы маңызы.</div>
+        <div class="pg-list-item">• Арктика — ХХІ ғасырдың жаңа майданы: Солтүстік теңіз жолы үшін жаһандық державалардың бәсекесі.</div>
+        <div class="pg-list-item">• «Ресурс қарғысы» ма, әлде даму ма? Африка мен Латын Америкасындағы шикізатқа тәуелді елдердің геосаяси таңдауы.</div>
+        <div class="pg-list-item">• Микрочиптер соғысы: Тайвань мәселесінің жаһандық жоғары технологиялық өндіріске тигізетін салдары.</div>
+        <div class="pg-list-item">• Оңтүстік Қытай теңізі: Жасанды аралдар құрылысының халықаралық теңіз құқығына қайшылығы мен саяси астары.</div>
+        <div class="pg-list-item">• Ғарыштық геосаясат: Айдағы ресурстарды игерудегі мемлекеттік және жекеменшік компаниялардың мүдделер қақтығысы.</div>
+        <div class="pg-list-item">• Кибер-лаңкестік: Халықаралық ақпараттық кеңістіктегі цифрлық соғыстардың мемлекет егемендігіне қаупі.</div>
+        <div class="pg-list-item">• Климаттық миграция: Жаһандық жылыну салдарынан туындайтын «экологиялық босқындар» картасын болжау.</div>
+        <div class="pg-list-item">• Бұғаздар стратегиясы: Малакка және Ормуз бұғаздарының жабылуы әлемдік энергетикалық хаосқа әкеле ме?</div>
+        <div class="pg-list-item">• Көпполярлы әлем: БРИКС және ШЫҰ ұйымдарының жаңа әлемдік тәртіпті қалыптастырудағы әлеуеті.</div>
+      </div>
+
+      <!-- ПАЙДАЛАНЫЛҒАН ӘДЕБИЕТТЕР -->
+      <div class="pg-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Пайдаланылған әдебиеттер
+      </div>
+      <div class="pg-text">
+        <div class="pg-list-item">1. К.Каймулдинова, С.Әбілмәжінова. 10 сыныптың «География» оқулығы. Алматы: «Мектеп», 2019.</div>
+        <div class="pg-list-item">2. Ә.Қуатбаев. «Геосаясат негіздері». Алматы.</div>
+        <div class="pg-list-item">3. Р.Әлжанов. «Халықаралық қатынастар және Қазақстанның сыртқы саясаты».</div>
+        <div class="pg-list-item">4. М.С.Бесбаев. «Дүниежүзінің саяси картасы». Оқу құралы.</div>
+        <div class="pg-list-item">5. Қазақстан Республикасының Сыртқы саясат Тұжырымдамасы (akorda.kz).</div>
+        <div class="pg-list-item">6. «Қазақстан-2050» Стратегиясы.</div>
+        <div class="pg-list-item">7. Е.Сарин. «Трансшекаралық өзендер: мәселелері мен шешімдері».</div>
+        <div class="pg-list-item">8. Н.Назарбаев. «Еуразия жүрегінде».</div>
+        <div class="pg-list-item">9. С.Қожыров. «Орталық Азияның геосаясаты».</div>
+        <div class="pg-list-item">10. Қазақстан Республикасының Конституциясы.</div>
+        <div class="pg-list-item">11. «Қазақстанның географиялық атласы».</div>
+        <div class="pg-list-item">12. mfa.gov.kz — ҚР Сыртқы істер министрлігінің ресми сайты.</div>
+      </div>
+
+      <button class="btn-program" onclick="enterProgram()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Курсқа кіру
+      </button>
+      <div class="pg-footer" id="pgFooter">
+        №4 мамандандырылған мектеп-интернаты КММ · Сарыағаш ауданы, Түркістан облысы
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- AUTH -->
+<div id="authScreen" class="screen">
+  <canvas id="authCanvas"></canvas>
+  <div class="auth-top">
+    <div class="auth-emblem">
+      <div class="auth-emblem-ring"></div>
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </div>
+    <div class="auth-logo">ГЕО 10</div>
+    <div class="auth-sub">Геосаясат элективті курсы · 10-сынып</div>
+  </div>
+  <div class="auth-sheet">
+    <div class="auth-tabs">
+      <button class="auth-tab act" id="tabLogin" onclick="setAuthMode(false)">Кіру</button>
+      <button class="auth-tab" id="tabReg" onclick="setAuthMode(true)">Тіркелу</button>
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Email</label>
+      <input class="inp" id="inLogin" placeholder="email@gmail.com" type="email" autocomplete="username">
+    </div>
+    <div class="inp-wrap">
+      <label class="inp-label">Пароль</label>
+      <input class="inp" id="inPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="inp-wrap hidden" id="regExtra">
+      <label class="inp-label">Сынып (мысалы: 8А)</label>
+      <input class="inp" id="inClass" placeholder="8А">
+      <label class="inp-label" style="margin-top:12px">Мұғалім берген тіркелу коды</label>
+      <input class="inp" id="inInvite" placeholder="GEO10-XXXX" autocomplete="one-time-code">
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <button class="btn btn-primary" id="authBtn" onclick="doAuth()">Кіру</button>
+    <div class="firebase-badge"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Supabase арқылы қорғалған</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainScreen" class="screen">
+  <div class="offline-banner" id="offlineBanner"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><path d="M1 6c0 0 5-4 11-4s11 4 11 4"/><path d="M5 10s3-2.5 7-2.5 7 2.5 7 2.5"/><path d="M9 14s1.5-1 3-1 3 1 3 1"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Интернет жоқ — офлайн режим</div>
+  <div class="header hbar">
+    <div class="hrow">
+      <button class="hback" id="backBtn" onclick="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="htitle" id="hTitle">Геосаясат: Жаһандық тұрақтылық<span class="sync-dot" id="syncDot"></span></div>
+
+    </div>
+  </div>
+
+  <div id="tabTopics" class="tab"></div>
+  <div id="tabProfile" class="tab hidden"></div>
+  <div id="tabAdmin" class="tab hidden"></div>
+
+  <div class="bnav">
+    <button class="nb act" id="nb0" onclick="switchTab(0)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      <span id="nb0l">Тақырыптар</span>
+    </button>
+    <button class="nb" id="nb1" onclick="switchTab(1)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span id="nb1l">Профиль</span>
+    </button>
+    <button class="nb hidden" id="nb2" onclick="switchTab(2)">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+      <span>Админ</span>
+    </button>
+    <button class="nb" id="nbProg" onclick="showProgram()">
+      <span class="nb-icon"><svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+      <span style="font-size:9px">Бағдарлама</span>
+    </button>
+  </div>
+</div>
+
+<!-- TASK SCREEN -->
+<div id="taskScreen">
+  <div class="task-header">
+    <div class="task-header-copy">
+      <div class="task-header-title">Тапсырмалар</div>
+      <div class="task-header-subtitle">Қауіпсіз тапсырма режимі</div>
+    </div>
+    <div class="task-guard-status" id="taskGuardStatus">
+      <span class="task-guard-dot"></span>
+      <span>Бақылау қосулы</span>
+    </div>
+  </div>
+  <div class="task-body" id="taskContent"></div>
+</div>
+
+<!-- TASK INTEGRITY NOTICE -->
+<div class="integrity-overlay" id="integrityOverlay" role="dialog" aria-modal="true" aria-labelledby="integrityTitle">
+  <div class="integrity-modal">
+    <div class="integrity-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <line x1="12" y1="8" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <div class="integrity-kicker" id="integrityKicker">Қауіпсіздік жүйесі</div>
+    <div class="integrity-title" id="integrityTitle">Әрекет жойылды</div>
+    <div class="integrity-text" id="integrityText">Тапсырма кезінде беттен шыққаныңыз анықталды. Осы әрекеттегі жауаптар мен балдар жойылды.</div>
+    <div class="integrity-reason" id="integrityReason"></div>
+    <button class="integrity-button" type="button" onclick="dismissIntegrityNotice()">
+      <span id="integrityButtonText">Тақырыпқа оралу</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ RESULT MODAL -->
+<div class="quiz-result-overlay" id="quizResultOverlay">
+  <div class="quiz-result-modal">
+    <div class="qr-title">Тест нәтижесі</div>
+    <div class="qr-sub" id="qrSub">Барлық сұрақтар бойынша қорытынды</div>
+    <div class="qr-chart-wrap">
+      <canvas id="qrCanvas" width="140" height="140"></canvas>
+      <div class="qr-chart-center">
+        <div class="qr-pct" id="qrPct">0%</div>
+        <div class="qr-pct-lbl">дұрыс</div>
+      </div>
+    </div>
+    <div class="qr-legend">
+      <div class="qr-leg-item"><div class="qr-leg-dot correct"></div><span id="qrCorrectLbl">0 дұрыс</span></div>
+      <div class="qr-leg-item"><div class="qr-leg-dot wrong"></div><span id="qrWrongLbl">0 қате</span></div>
+      <div class="qr-leg-item"><div class="qr-leg-dot skip"></div><span id="qrSkipLbl">0 өткізілді</span></div>
+    </div>
+    <div class="qr-score-row">
+      <div class="qr-score-lbl">Жиналған балл</div>
+      <div class="qr-score-val" id="qrScoreVal">0 балл</div>
+    </div>
+    <div class="qr-btn-row">
+      <button class="qr-btn-close" onclick="closeQuizResult()">Жабу</button>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="quiz-result-overlay" id="feedbackModal" style="z-index:202">
+  <div class="quiz-result-modal" style="padding:0;overflow:hidden">
+    <div style="padding:16px 18px 14px;background:rgba(201,168,76,.06);border-bottom:1px solid rgba(201,168,76,.12);display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:11px;background:rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;color:var(--gold2);flex-shrink:0">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:800;color:var(--gold2)">Кері байланыс</div>
+        <div id="fbModalTopicName" style="font-size:11px;color:var(--muted);margin-top:1px"></div>
+      </div>
+      <button class="modal-close" onclick="closeFeedbackModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:18px" id="fbModalBody">
+      <!-- Stars -->
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px">Бағалаңыз</div>
+      <div class="feedback-stars" id="fbStars">
+        <span class="feedback-star" onclick="setFbStar(1)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(2)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(3)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(4)">⭐</span>
+        <span class="feedback-star" onclick="setFbStar(5)">⭐</span>
+      </div>
+      <!-- Text -->
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin:12px 0 8px;text-transform:uppercase;letter-spacing:.8px">Ұсыныс / Пікір</div>
+      <div class="feedback-inp-wrap">
+        <textarea class="feedback-inp" id="fbText" maxlength="500"
+          placeholder="Бұл тақырып туралы ойыңызды жазыңыз... Ұнаған жерлер, жақсартуға болатын тұстар — барлығы маңызды!"
+          oninput="document.getElementById('fbCharCount').textContent=this.value.length+'/500'"></textarea>
+        <div class="feedback-char" id="fbCharCount">0/500</div>
+      </div>
+      <!-- Quick chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px" id="fbChips">
+        <button class="fb-chip" onclick="addFbChip(this,'Өте қызықты болды')">Өте қызықты болды</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Тым күрделі')">Тым күрделі</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Мысалдар жетіспеді')">Мысалдар жетіспеді</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Суреттер қосса болар еді')">Суреттер қосса болар еді</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Тапсырмалар ұнады')">Тапсырмалар ұнады</button>
+        <button class="fb-chip" onclick="addFbChip(this,'Толықтыруды сұраймын')">Толықтыруды сұраймын</button>
+      </div>
+      <button class="feedback-send-btn" id="fbSendBtn" onclick="submitFeedback()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Жіберу
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Тақырыпты өңдеу</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <!-- 1. ТАҚЫРЫП АТАУЛАРЫ -->
+    <div class="modal-section" style="margin-top:0;border-top:none;padding-top:0">Тақырып атаулары</div>
+    <label class="inp-label">Тақырып нөмірі (§)</label>
+    <input class="adm-inp" id="mTId" type="number" min="1" placeholder="Мысалы: 1, 2, 3..." style="margin-bottom:10px">
+    <label class="inp-label">Тақырып (ҚАЗ)</label>
+    <input class="adm-inp" id="mTKk" placeholder="Тақырып атауы">
+    <input type="hidden" id="mTRu" value="">
+
+    <!-- CLOUDINARY СУРЕТ -->
+    <div class="modal-section">Тақырып суреті (Supabase Storage)</div>
+    <label class="inp-label">Сурет URL</label>
+    <input class="adm-inp" id="mImgUrl" placeholder="https://...supabase.co/storage/..." oninput="previewTopicImg()">
+    <div id="imgPreviewWrap" style="display:none;margin-bottom:10px;border-radius:12px;overflow:hidden;border:2px solid var(--border)">
+      <img id="imgPreview" style="width:100%;display:block;max-height:180px;object-fit:cover">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f8f7ff">
+        <span style="font-size:11px;color:var(--muted);font-weight:600">Сурет алдын ала көру</span>
+        <button onclick="clearTopicImg()" style="background:#fef2f2;border:none;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--red);cursor:pointer"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Өшіру</button>
+      </div>
+    </div>
+
+    <!-- 2. МӘТІН -->
+    <div class="modal-section">Мәтін / Текст</div>
+    <label class="inp-label">Мәтін (ҚАЗ)</label>
+    <div class="rte-wrap">
+      <div class="rte-toolbar">
+        <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('mKk','bold')" title="Қою">B</button>
+        <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('mKk','italic')" title="Курсив"><em>I</em></button>
+        <div class="rte-sep"></div>
+        <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('mKk')" title="Сурет қосу">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Сурет
+        </button>
+        <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('mKk')" title="Кесте қосу">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          Кесте
+        </button>
+      </div>
+      <div class="rte-editor" id="mKk" contenteditable="true"
+        data-placeholder="Параграф мәтіні... Сурет немесе кесте қосу үшін жоғарыдағы батырмаларды басыңыз."></div>
+    </div>
+    <div id="mRu" style="display:none"></div>
+
+    <!-- 3. ТАПСЫРМА ТҮРЛЕРІ — БАТЫРМАЛАР -->
+    <div class="modal-section">Тапсырма түрлері</div>
+    <div class="msec-toggle-row">
+      <!-- Варианттық тест -->
+      <button class="msec-btn" id="btnSecTest" onclick="toggleSection('test')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>
+        </svg>
+        Тест
+      </button>
+      <!-- Ашық сұрақ -->
+      <button class="msec-btn" id="btnSecOpen" onclick="toggleSection('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Ашық сұрақ
+      </button>
+      <!-- Карталық тест -->
+      <button class="msec-btn" id="btnSecMap" onclick="toggleSection('map')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        Карта
+      </button>
+    </div>
+
+    <!-- ТЕСТ ПАНЕЛІ -->
+    <div class="msec-panel" id="panelTest">
+      <div id="testBlocksContainer"></div>
+      <button class="mtask-add" onclick="addTestBlock()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Тест қосу
+      </button>
+    </div>
+
+    <!-- АШЫҚ СҰРАҚ ПАНЕЛІ -->
+    <div class="msec-panel" id="panelOpen">
+      <div id="openBlocksContainer"></div>
+      <button class="mtask-add green" onclick="addOpenBlock()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Ашық сұрақ қосу
+      </button>
+    </div>
+
+    <!-- КАРТАЛЫҚ ТЕСТ ПАНЕЛІ -->
+    <div class="msec-panel" id="panelMap">
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;padding:14px;margin-top:10px">
+        <label class="inp-label" style="color:var(--amber)">Карталық тест сұрағы</label>
+        <input class="adm-inp" id="mMapQ" placeholder="Картадағы нүктені анықтаңыз..." style="margin-bottom:10px">
+
+        <!-- Фото жүктеу -->
+        <button class="map-upload-btn" onclick="document.getElementById('mapImgInput').click()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Галереядан фото таңдау
+        </button>
+        <input type="file" id="mapImgInput" accept="image/*" style="display:none" onchange="loadMapImage(event)">
+
+        <!-- Карта алдын ала көрінісі (нүктелер қосуға болады) -->
+        <div class="map-editor-wrap" id="mapEditorWrap" onclick="addMapDot(event)">
+          <div class="map-editor-empty" id="mapEditorEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            Фото таңдасаңыз, нүкте қосу үшін басыңыз
+          </div>
+          <img id="mapEditorImg" style="display:none;pointer-events:none" alt="карта">
+        </div>
+        <div class="map-editor-hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Картаға нүкте қосу үшін фотоны басыңыз. Нүктені жою үшін нүктенің өзін басыңыз.</div>
+
+        <!-- Қосылған нүктелер тізімі -->
+        <div class="map-dots-list" id="mapDotsList"></div>
+
+        <!-- Нүктелерге сәйкес жауап нұсқалары -->
+        <div class="map-opts-editor" id="mapOptsEditor"></div>
+      </div>
+    </div>
+
+    <!-- КЖ (КҮНТІЗБЕЛІК ЖОСПАР) -->
+    <div class="modal-section">Күнтізбелік жоспар (КЖ)</div>
+    <button class="kzh-toggle-btn" id="kzhToggleBtn" onclick="kzhToggle()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span id="kzhToggleLbl">КЖ қосу</span>
+    </button>
+    <div class="kzh-editor" id="kzhEditor" style="display:none;margin-top:10px">
+      <div class="kzh-goal-wrap">
+        <label class="inp-label">Сабақ мақсаты</label>
+        <textarea class="kzh-goal-inp" id="kzhGoal" placeholder="Оқушылар ... білуі / түсінуі / қолдана алуы тиіс"></textarea>
+      </div>
+      <div class="kzh-steps-label">Сабақ кезеңдері</div>
+      <div id="kzhStepsContainer"></div>
+      <button class="kzh-add-btn" onclick="kzhAddStep()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Кезең қосу
+      </button>
+    </div>
+
+    <div style="height:16px"></div>
+    <button class="btn btn-primary" onclick="saveModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+      Сақтау
+    </button>
+  </div>
+</div>
+
+<input type="file" id="topicImgInput" accept="image/*" style="display:none" onchange="topicImgLoad(event)">
+
+<!-- TABLE PICKER POPUP -->
+<div class="tbl-picker-overlay" id="tblPickerOverlay">
+  <div class="tbl-picker-box">
+    <div class="tbl-picker-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/></svg> Кесте өлшемін таңдаңыз</div>
+    <div class="tbl-grid" id="tblGrid"></div>
+    <div class="tbl-size-label" id="tblSizeLabel">— × —</div>
+    <div class="tbl-picker-btns">
+      <button class="tbl-picker-cancel" onclick="closeTblPicker()">Болдырмау</button>
+      <button class="tbl-picker-ok" id="tblOkBtn" onclick="rteInsertTable()" disabled>Кірістіру</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden image file input -->
+<input type="file" id="rteImgInput" accept="image/*" style="display:none" onchange="rteLoadImage(event)">
+
+<!-- БАҒДАРЛАМА РЕДАКТОРЫ МОДАЛІ -->
+<div class="prog-editor-modal" id="progEditorModal">
+  <div class="prog-editor-wrap">
+    <div class="prog-editor-head">
+      <div class="prog-editor-head-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Бағдарлама редакторы
+      </div>
+      <button class="modal-close" onclick="closeProgEditor()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="prog-editor-body">
+      <div class="prog-section-label">Жоғарғы сурет</div>
+      <div class="prog-img-wrap">
+        <img id="progImgPreview" class="prog-img-preview" alt="сурет алдын ала көру">
+        <div class="prog-img-btns">
+          <button class="prog-img-btn" onclick="document.getElementById('progImgFileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Галереядан
+          </button>
+          <button class="prog-img-btn del" id="progImgDelBtn" onclick="clearProgImg()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Жою
+          </button>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center">Немесе URL арқылы қосыңыз</div>
+        <input class="prog-inp" id="progImgUrl" placeholder="https://..." oninput="previewProgImg()">
+      </div>
+      <input type="file" id="progImgFileInput" accept="image/*" style="display:none" onchange="loadProgImgFile(event)">
+
+      <div class="prog-section-label">Ұйым / Мекеме мәліметтері</div>
+      <input class="prog-inp" id="peOrgBadge" placeholder="Ұйым атауы...">
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peEyebrow" placeholder="Авторлық бағдарлама · 2026">
+        <input class="prog-inp" id="peSubtitle" placeholder="Элективті курс · 10-сынып">
+      </div>
+
+      <div class="prog-section-label">Бағдарлама атауы</div>
+      <input class="prog-inp" id="peTitleLine1" placeholder="Геосаясат:">
+      <input class="prog-inp" id="peTitleLine2" placeholder="Жаһандық тұрақтылық (курсив)">
+      <input class="prog-inp" id="peTitleLine3" placeholder="және Қазақстан">
+
+      <div class="prog-section-label">Статистика карточкалары</div>
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peStatSections" placeholder="Бөлім саны">
+        <input class="prog-inp" id="peStatHours" placeholder="Сағат саны">
+        <input class="prog-inp" id="peStatGrade" placeholder="Сынып">
+        <input class="prog-inp" id="peStatWeekly" placeholder="Апталық">
+      </div>
+
+      <div class="prog-section-label">Авторлар</div>
+      <div class="prog-inp-row">
+        <input class="prog-inp" id="peAv1" placeholder="Бірінші инициал (ТЕ)">
+        <input class="prog-inp" id="peAv2" placeholder="Екінші инициал (АА)">
+      </div>
+      <input class="prog-inp" id="peAuthorName" placeholder="Есенов Т.Қ. · Аимбаева А.С.">
+      <input class="prog-inp" id="peAuthorRole" placeholder="педагог-шебер · педагог-зерттеуші">
+
+      <div class="prog-section-label">Түсінік хат мәтіні</div>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('peExplanatoryNote','bold')" title="Қою">B</button>
+          <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('peExplanatoryNote','italic')" title="Курсив"><em>I</em></button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('peExplanatoryNote')" title="Сурет қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Сурет
+          </button>
+          <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('peExplanatoryNote')" title="Кесте қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Кесте
+          </button>
+        </div>
+        <div class="rte-editor" id="peExplanatoryNote" contenteditable="true"
+          data-placeholder="Курс туралы жалпы мәліметтер..."></div>
+      </div>
+
+      <div class="prog-section-label">Курстың мақсаттары</div>
+      <div class="prog-goals-list" id="peGoalsList"></div>
+      <button class="prog-add-btn" onclick="addProgGoal()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Мақсат қосу
+      </button>
+
+      <div class="prog-section-label">Курстың міндеттері</div>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn bold-btn" onmousedown="event.preventDefault()" onclick="rteCmd('peTasks','bold')" title="Қою">B</button>
+          <button class="rte-btn" style="font-style:italic" onmousedown="event.preventDefault()" onclick="rteCmd('peTasks','italic')" title="Курсив"><em>I</em></button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn img-btn" onmousedown="event.preventDefault()" onclick="topicImgInsert('peTasks')" title="Сурет қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Сурет
+          </button>
+          <button class="rte-btn tbl-btn" onmousedown="event.preventDefault()" onclick="rteOpenTablePicker('peTasks')" title="Кесте қосу">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Кесте
+          </button>
+        </div>
+        <div class="rte-editor" id="peTasks" contenteditable="true"
+          data-placeholder="• Бірінші міндет;&#10;• Екінші міндет;"></div>
+      </div>
+
+      <div class="prog-section-label">
+        Тақырыптық жоспар жолдары
+        <span style="font-size:9px;color:var(--muted);font-weight:400;margin-left:6px">— Жасыл = қорытынды жол</span>
+      </div>
+      <div class="prog-schedule-list" id="peScheduleList"></div>
+      <button class="prog-add-btn" onclick="addProgScheduleRow()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        Жол қосу
+      </button>
+
+      <div class="prog-section-label">Мекеме (төменгі мәтін)</div>
+      <input class="prog-inp" id="peFooter" placeholder="№4 мектеп-интернаты КММ · Сарыағаш ауданы...">
+
+      <button class="prog-save-btn" onclick="saveProgEditor()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H7V5h8v4z"/></svg>
+        Сақтау
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Security helpers -->
+  <script src="js/security.js"></script>
+  <!-- Supabase -->
+  <script type="module" src="js/supabase.js"></script>
+  <!-- Canvas animations -->
+  <script src="js/canvas.js" defer></script>
+  <!-- Storage + utils -->
+  <script src="js/utils.js" defer></script>
+  <!-- Admin panel -->
+  <script src="js/admin.js" defer></script>
+  <!-- Main app -->
+  <script src="js/app.js" defer></script>
+</body>
+</html>
